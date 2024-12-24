@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+	<body>
+	<!--**********************************
+		Content body start
+	***********************************-->
+	<div class="content-body">
+		<!-- row -->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xl-12 col-xxl-12 col-lg-12">
+					<div class="card border-0 p-0">
+						<div class="card-body">
+							<div class="form-validation p-2">
+								<form class="needs-validation" id="createUserForm" novalidate>
+
+									<div class="mb-3 row">
+										<label class="col-4 mt-2 mt-0 col-form-label" for="userNm">이름
+											<span class="text-danger">*</span>
+										</label>
+										<div class="col mt-2 mt-sm-0">
+											<input type="text" class="form-control form-control-sm" id="userNm" name="userNm" placeholder="이름" required>
+											<div class="invalid-feedback">
+												이름을 입력해주세요.
+											</div>
+										</div>
+									</div>
+
+									<div class="mb-3 row">
+										<label class="col-4 mt-2 mt-0 col-form-label">전화번호</label>
+										<div class="col mt-2 mt-sm-0">
+											<input type="tel" class="form-control form-control-sm" id="userPhone" name="userPhone" placeholder="전화번호" maxlength="11">
+											<div class="invalid-feedback" id="feedbackUserPhone">
+												전화번호를 확인해주세요.
+											</div>
+										</div>
+									</div>
+
+									<div class="mb-3 row">
+										<label class="col-4 mt-2 mt-0 col-form-label">성별</label>
+										<div class="col mt-2 mt-sm-0">
+											<div class="dropdown bootstrap-select default-select form-control-sm form-control wide">
+												<select class="default-select form-control form-control-sm wide" id="userSex" name="userSex">
+													<option value="M">남성</option>
+													<option value="F">여성</option>
+												</select>
+											</div>
+										</div>
+									</div>
+
+									<div class="mb-3 row">
+										<label class="col-4 mt-2 mt-0 col-form-label">생년월일</label>
+										<div class="col mt-2 mt-sm-0"><!--datepicker datepicker-dropdown dropdown-menu datepicker-orient-left datepicker-orient-topl-->
+											<input class="form-control" id="userBirth" name="userBirth" type="text" maxlength="4">
+<!--											<div class="input-group input-group-sm">-->
+<!--												<input name="datepicker" class="form-control form-control-sm bt-datepicker solid">-->
+<!--												<span class="input-group-text"><div class="icon"><i class="far fa-calendar"></i></div></span>-->
+<!--											</div>-->
+										</div>
+									</div>
+
+									<div class="mb-3 row">
+										<label class="col-4 mt-2 mt-0 col-form-label">이름설명</label>
+										<div class="col mt-2 mt-sm-0">
+											<input type="text" class="form-control form-control-sm" id="userDescShort" name="userDescShort" placeholder="이름설명">
+										</div>
+									</div>
+
+									<div class="mb-3 row">
+										<label class="col-4 mt-2 mt-0 col-form-label">메모</label>
+										<div class="col mt-2 mt-sm-0">
+											<textarea class="form-control form-control-sm" rows="6" id="userDesc" name="userDesc"></textarea>
+										</div>
+									</div>
+
+									<fieldset>
+										<div class="row">
+											<label class="col-4 mt-2 mt-0 col-form-label">티켓</label>
+											<div class="col mt-2 mt-sm-0">
+												<div class="mb-3 mb-0">
+													<div class="form-check form-check-inline">
+														<input class="form-check-input" type="radio" name="regCnt" value="0">
+														<label class="form-check-label">
+															0개
+														</label>
+													</div>
+													<div class="form-check form-check-inline">
+														<input class="form-check-input" type="radio" name="regCnt" value="12" checked="">
+														<label class="form-check-label">
+															12개
+														</label>
+													</div>
+												</div>
+											</div>
+										</div>
+									</fieldset>
+								</form>
+							</div>
+						</div>
+						<div class="card-footer">
+							<div class="row">
+								<div class="col" style="text-align: right;">
+									<button class="btn btn-primary btn-xs" style="margin-right: 5px" type="button" id="btnBack">뒤로가기</button>
+									<button class="btn btn-warning btn-xs" style="margin-right: 5px" type="button" id="btnClear">초기화</button>
+									<button class="btn btn-success btn-xs" style="margin-right: 5px" type="button" id="btnSave">저장</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+		let isValid = true;
+		let isInputValid = false;
+
+		$(document).ready(function() {
+			init();
+
+			/* 등록 */
+			$('#btnSave').on('click', () => {
+				saveUser();
+			});
+
+			/* 초기화 */
+			$('#btnClear').on('click', () => {
+				JS_COMMON.formReset('createUserForm');
+			});
+
+			/* 뒤로가기 */
+			$('#btnBack').on('click', () => {
+				window.location.href = '/user/userList';
+			});
+
+			$('#userPhone').on('keyup', function() {
+				JS_COMMON.chkPhoneValidate('userPhone');
+			});
+
+			$('#userNm').on('keyup', function() {
+				JS_COMMON.chkRequired('userNm');
+			});
+
+		});
+
+		function init() {
+			//date picker classic default
+		};
+
+		function saveUser(){
+			JS_COMMON.chkPhoneValidate('userPhone');
+			JS_COMMON.chkRequired('userNm');
+
+			if($('#userPhone').val() === ''){
+				isValid = true;
+			}
+
+			if(isInputValid && isValid){
+				JS_COMMON.callAjaxForm('/user/saveUser', $('#createUserForm').serialize(), 'POST', cb_saveUser, true);
+			}
+
+		}
+
+		function cb_saveUser( rstData ){
+			JS_COMMON.formReset('createUserForm');
+			window.location.href = '/user/userList';
+			alert('저장완료');
+		}
+
+	</script>
+
+	<!-- pickdate -->
+	<script src="/vendor/pickadate/picker.js"></script>
+	<script src="/vendor/pickadate/picker.date.js"></script>
+
+	<script src="/vendor/moment/moment.min.js"></script>
+	<script src="/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+
+	<script src="/js/plugins-init/bs-daterange-picker-init.js"></script>
+
+	<script src="/js/plugins-init/pickadate-init.js"></script>
+	<!-- pickdate -->
+	</body>
+</div>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+	<body>
+	<!--**********************************
+		Content body start
+	***********************************-->
+	<div class="content-body">
+		<!-- row -->
+		<div class="container-fluid">
+			<form id="formSearch">
+				<div class="row">
+					<div class="col-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="card-body" style="padding: 1rem">
+								<div class="row">
+									<div class="col-7">
+										<input type="text" class="form-control" id="userNm" name="userNm" placeholder="이름">
+									</div>
+									<div class="col-5" style="padding-top: 3px; text-align: right;">
+										<button class="btn btn-success btn-sm" style="margin-right: 5px" type="button" id="btnSave">등록</button>
+										<button class="btn btn-primary btn-sm" type="button" id="btnSearch">검색</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card border-0 pb-0">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table text-center" id="userGird">
+									<colgroup>
+										<col style="width: 20%;">
+										<col style="width: 8%;">
+										<col style="width: 10%;">
+										<col style="width: 30%;">
+										<col style="width: 8%;">
+										<col style="width: 12%;">
+										<col style="width: 12%;">
+									</colgroup>
+									<thead>
+									<tr>
+										<th style=""><b>이름</b></th>
+										<th style=""><b>성별</b></th>
+										<th style=""><b>생년(나이)</b></th>
+										<th style=""><b>전화번호</b></th>
+										<th style=""><b>잔여</b></th>
+										<th style=""><b>사용</b></th>
+										<th style=""><b>재등록</b></th>
+									</tr>
+									</thead>
+									<tbody id="tbodyUserList">
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function() {
+			init();
+
+			$('#btnSearch').on('click', () => {
+				selectGridList();
+			});
+
+			$('#btnSave').on('click', () => {
+				window.location.href = '/user/createUser';
+			});
+		});
+
+		function init() {
+			selectGridList();
+		};
+
+		const selectGridList = function() {
+			JS_COMMON.callAjaxForm('/user/selectUserList', $('#formSearch').serialize(), 'POST', cb_selectGridList, true);
+		};
+
+		function cb_selectGridList(resultData) {
+
+			let innerHtml = '';
+			let idx = 0;
+			if ( resultData.data.length === 0 ) {
+				innerHtml = '<li><div class="timeline-panel text-center" style="display: block;"><h4 style="margin-bottom: 0;">조회 결과가 없습니다.</h4></div></li>';
+			}else {
+				for (const result of resultData.data) {
+					innerHtml += '<tr>';
+					innerHtml += '<td><span class="w-space-no">' + result.userNm + '</span></td>';
+					innerHtml += '<td>' + (result.userSex !== undefined ? result.userSex : '')  + '</td>';
+					innerHtml += '<td>' + (result.userBirth !== undefined ? result.userBirth : '') + '</td>';
+					innerHtml += '<td><a href="tel:'+result.userPhone+'">' + (result.userPhone !== undefined ? result.userPhone : '') + '</a></td>';
+					innerHtml += '<td>' + (result.ticketCnt !== undefined ? result.ticketCnt : '0') + '</td>';
+					innerHtml += '<td>';
+					innerHtml += '<a href="#" class="btn btn-primary btn-xxs">사용</a>';
+					innerHtml += '</td>';
+					innerHtml += '<td>';
+					innerHtml += '<a href="#" class="btn btn-primary light btn-xxs" style="">등록</a>';
+					innerHtml += '</td>';
+					innerHtml += '</tr>';
+				}
+			}
+			$('#tbodyUserList').html(innerHtml);
+
+			// 그리드 생성
+		}
+
+
+	</script>
+
+	</body>
+</div>
+</html>

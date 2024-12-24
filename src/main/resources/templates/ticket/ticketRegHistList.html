@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+	<body>
+	<!--**********************************
+		Content body start
+	***********************************-->
+	<div class="content-body">
+		<!-- row -->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="filter cm-content-box box-primary">
+						<div class="card-body" style="padding: 1rem">
+							<form id="frmSearch">
+								<div class="row">
+									<div class="col-9">
+										<input type="text" class="form-control" id="userNm" name="userNm" placeholder="이름">
+									</div>
+									<div class="col-3" style="padding-top: 3px; text-align: right;">
+										<button class="btn btn-primary btn-sm" type="button" id="btnSearch">검색</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card border-0 pb-0">
+						<div class="card-body p-1">
+							<div class="table-responsive ic-scroll p-3" id="tableDiv">
+								<table class="table text-center" id="ticketRegHistGird">
+									<thead>
+										<tr>
+											<th style="width: 8%;"><b>No</b></th>
+											<th style="width: 17%;"><b>이름</b></th>
+											<th style="width: 10%;"><b>성별</b></th>
+											<th style="width: 8%;"><b>생년(나이)</b></th>
+											<th style="width: 14%;"><b>전화번호</b></th>
+											<th style="width: 12%;"><b>횟수</b></th>
+											<th style="width: 15%;"><b>등록일시</b></th>
+											<th style="width: 16%;"><b>취소</b></th>
+										</tr>
+									</thead>
+									<tbody id="tbodyTicketRegHistList">
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		"use strict";
+
+		$(document).ready(function() {
+
+			$('#btnSearch').on('click', () => {
+				selectTicketRegHistList();
+			});
+
+			$('#frmSearch').on('submit', (event) => {
+				event.preventDefault(); // 폼의 기본 제출 동작을 막음
+				selectTicketRegHistList();
+			});
+
+			init();
+		});
+
+		function init() {
+
+			const windowWidth = $(window).width() < 630 ? 630 : 0;
+			const windowHeight = $(window).height() - 245;
+			console.log(windowWidth)
+			if (windowWidth > 0)
+				$('#ticketRegHistGird').css('width', windowWidth);
+			$('#tableDiv').css('height', windowHeight);
+
+			selectTicketRegHistList();
+		};
+
+		const selectTicketRegHistList = function() {
+			JS_COMMON.callAjaxForm('/ticket/selectTicketRegHistList', $('#frmSearch').serialize(), 'POST', cb_selectTicketRegHistList);
+		};
+
+		const cb_selectTicketRegHistList = ( result ) => {
+
+			if ( result.code !== 200 ) {
+				alert(result.successMsg);
+				return;
+			}
+
+			if ( JS_COMMON.isEmpty( result.data ) )
+				return;
+
+			let innerHtml = '';
+			let idx = 1;
+			for (const row of result.data) {
+				innerHtml += '<tr>';
+				innerHtml += '<td>' + idx + '</span></td>';
+				innerHtml += '<td><span class="w-space-no">' + row.userNm + '</span></td>';
+				innerHtml += '<td>' + row.userSex + '</td>';
+				innerHtml += '<td>' + row.userBirth + '</td>';
+				innerHtml += '<td><a href="tel:' + row.userPhone + '">' + row.userPhone + '</a></td>';
+				innerHtml += '<td>' + row.regCnt + '</td>';
+				innerHtml += '<td>' + row.createDt + '</td>';
+				innerHtml += '<td>';
+				innerHtml += '	<a href="javascript:deleteTicketRegHist(\'' + row.ticketRegUid + '\')" class="btn btn-danger btn-xxs">취소</a>';
+				innerHtml += '</td>';
+				innerHtml += '</tr>';
+				idx++;
+			}
+			$('#tbodyTicketRegHistList').html(innerHtml);
+		}
+
+		const deleteTicketRegHist = ( ticketRegUid ) => {
+			let objParam = { ticketRegUid: ticketRegUid }
+			JS_COMMON.callAjaxJson('/ticket/deleteTicketRegHist', objParam, 'POST', cb_deleteTicketRegHist);
+		}
+
+		const cb_deleteTicketRegHist = (result) => {
+			if ( result.code !== 200 ) {
+				alert(result.successMsg);
+				return;
+			}
+			selectTicketRegHistList();
+			alert('취소 되었습니다.');
+		}
+	</script>
+
+	</body>
+</div>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default_layout}">
+
+<body th:with="viewUID=${#strings.randomAlphanumeric(36)}">
+<div layout:fragment="content">
+
+    <div id="contents">
+        <div class="wrapper">
+            <div class="contents_wrap">
+                <h1>CRUD Sample</h1>
+                <div class="contents_detail">
+                    <form id="frmSearch" onsubmit="return false">
+                        <div class="search_area">
+                            <div class="search_header">
+                                <h3 style="height: 20px;">조회조건</h3>
+                            </div>
+                            <div class="search_body">
+                                <ul>
+                                    <li><label for="actorId">actorId</label><input type="text" id="actorId" name="actorId" placeholder="actorId"></li>
+                                    <li><label for="firstName">firstName</label><input type="text" id="firstName" name="firstName" placeholder="firstName"></li>
+                                    <li><label for="lastName">lastName</label><input type="text" id="lastName" name="lastName" placeholder="lastName"></li>
+                                </ul>
+                                <button class="btn_search" id="btnSearch">조회</button>
+                            </div>
+                        </div>
+                    </form>
+                    <form id="frmReg" onsubmit="return false">
+                        <div class="search_area">
+                            <div class="search_header">
+                                <h3 style="height: 20px;" id="popTitle">등록팝업</h3>
+                            </div>
+                            <div class="search_body">
+                                <ul>
+<!--                                    <li><label for="popActorId">actorId</label><input type="text" id="popActorId" name="actorId" placeholder="actorId"></li>-->
+                                    <li><label for="popFirstName">firstName</label><input type="text" id="popFirstName" name="firstName" placeholder="firstName"></li>
+                                    <li><label for="popLastName">lastName</label><input type="text" id="popLastName" name="lastName" placeholder="lastName"></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table_top">
+                        <div class="total">
+                            총 <b>{{1,234}}</b> 개
+                        </div>
+                        <div class="button_area">
+                            <a class="btn btn_register" href="javascript:setFormInsert()">등록</a>
+                            <button class="bt" id="btnInsert">저장</button>
+                            <button class="bt" id="btnUpdate">수정</button>
+                            <button class="bt" id="btnDelete">삭제</button>
+                        </div>
+                    </div>
+                    <div class="table">
+                        <table id="actorTableID" class="display" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>ACTOR ID</th>
+                                <th>FIRST NAME</th>
+                                <th>LAST NAME</th>
+                                <th>LAST UPDATE</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#btnSearch').click(function (){
+                selectGridList();
+            });
+
+            $('#btnInsert').click(function (){
+                insert();
+            });
+
+            $('#btnUpdate').click(function (){
+                update();
+            });
+
+            $('#btnDelete').click(function (){
+                fn_delete();
+            });
+
+            selectGridList();
+        });
+
+        /**
+         * actorTableObj 생성
+         * @type {DataTable}
+         */
+        let actorTableObj = new DataTable('#actorTableID', {
+            dom: 'rtip',
+            pageLength: 10,
+            select: {
+                style: 'single'
+            },
+            columns: [
+                { data: 'actorId' },
+                { data: 'firstName' },
+                { data: 'lastName' },
+                { data: 'lastUpdate' },
+            ]
+        });
+
+        const selectGridList = function() {
+            JS_COMMON.fn_callAjaxForm('/sample/selectActorList', 'frmSearch', 'GET', cb_selectGridList);
+        }
+
+        /**
+         * 조회 callBack함수 : 조회된 데이터로 actorTable 그리기
+         * @param result
+         */
+        const cb_selectGridList = function( result ){
+            setFormInsert();
+            actorTableObj.clear();
+            actorTableObj.rows.add(result).draw();
+        }
+
+        /**
+         * selected된 row의 commCd 가져오기
+         */
+        actorTableObj.on( 'select', function ( e, dt, type, indexes ) {
+            if ( type === 'row' ) {
+                let selectedData = actorTableObj.rows( indexes ).data()[0];
+                console.log('selectedData = ', selectedData);
+                // selectDetailGridList( selectedCd )
+                setFormUpdate( selectedData );
+            }
+        } );
+        const setFormInsert = function() {
+            JS_COMMON.fn_formReset( 'frmReg' );
+            $('#popActorId').prop('readonly', false);
+            $('#popTitle').text('등록 팝업');
+            $('#btnInsert').show();
+            $('#btnUpdate').hide();
+            $('#btnDelete').hide();
+        }
+        const setFormUpdate = function( rowData ) {
+            $('#popActorId').val( rowData.actorId );
+            $('#popFirstName').val( rowData.firstName );
+            $('#popLastName').val( rowData.lastName );
+            $('#popActorId').prop('readonly', true);
+
+            $('#popTitle').text('수정 팝업');
+            $('#btnInsert').hide();
+            $('#btnUpdate').show();
+            $('#btnDelete').show();
+        }
+
+        const insert = function() {
+            JS_COMMON.fn_callAjaxForm('/sample/insertActor', 'frmReg', 'POST', selectGridList);
+        }
+        
+        const update = function() {
+            JS_COMMON.fn_callAjaxForm('/sample/updateActor', 'frmReg', 'POST', selectGridList);
+        }
+        
+        const fn_delete = function() {
+            JS_COMMON.fn_callAjaxForm('/sample/deleteActor', 'frmReg', 'POST', selectGridList);
+        }
+        
+    </script>
+</div>
+</body>
+</html>
+
+

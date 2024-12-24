@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.user.mapper.UserMapper">
+    <select id="selectUserUid" resultType="string">
+        /* UserMapper.selectUserUid */
+        SELECT UUID() AS USER_UID
+    </select>
+
+    <select id="selectUserList" parameterType="userVO" resultType="userVO">
+        /* UserMapper.selectUserList */
+        SELECT (USERTK.REG_CNT - USERTK.USE_CNT) AS TICKET_CNT
+        , USER.USER_UID
+        , USER_NM
+        , getPhoneToFormat(USER_PHONE) AS USER_PHONE
+        , USER_LOC
+        , USER_RANK
+        , getSexToFormat(USER_SEX) AS USER_SEX
+        , CONCAT(IFNULL(USER_BIRTH, ''), '(', getBirthToAge(USER_BIRTH), ')') AS USER_BIRTH
+        , USER_DESC_SHORT
+        , USER_DESC
+        , CREATE_USER_ID
+        , CREATE_DT
+        , UPDATE_USER_ID
+        , UPDATE_DT
+        FROM tb_user USER
+        LEFT OUTER JOIN v_user_ticket_cnt USERTK ON USER.USER_UID = USERTK.USER_UID
+        <where>
+            <if test="userNm != null and userNm != ''">
+                AND USER_NM LIKE CONCAT('%', #{userNm}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertUser" parameterType="ticketVO">
+        <selectKey keyProperty="userUid" resultType="string" order="BEFORE">
+                SELECT UUID() AS userUid
+        </selectKey>
+        /* UserMapper.insertUser */
+        INSERT INTO tb_user (
+                              USER_UID
+                            , USER_NM
+                            , USER_PHONE
+                            , USER_LOC
+                            , USER_RANK
+                            , USER_SEX
+                            , USER_BIRTH
+                            , USER_DESC_SHORT
+                            , USER_DESC
+                            , CREATE_USER_ID
+                            , CREATE_DT
+                            , UPDATE_USER_ID
+                            , UPDATE_DT
+        ) VALUES (
+                    #{userUid}
+                 , #{userNm}
+                 , #{userPhone}
+                 , #{userLoc}
+                 , #{userRank}
+                 , #{userSex}
+                 , #{userBirth}
+                 , #{userDescShort}
+                 , #{userDesc}
+                 , #{createUserId}
+                 , NOW()
+                 , #{updateUserId}
+                 , NOW()
+                 )
+    </insert>
+</mapper>

@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.ticket.mapper.TicketMapper">
+
+    <select id="selectTicketRegList" parameterType="ticketVO" resultType="ticketVO">
+        /* TicketMapper.selectTicketRegList */
+        SELECT
+            REG_HIST.TICKET_REG_UID,
+            REG_HIST.USER_UID,
+            REG_HIST.REG_CNT,
+            REG_HIST.REG_PRICE,
+            REG_HIST.REG_DT,
+            REG_HIST.REG_DESC,
+            REG_HIST.DEL_YN,
+            REG_HIST.CREATE_USER_ID,
+            DATE_FORMAT(REG_HIST.CREATE_DT, '%Y-%m-%d %H:%i:%s') AS CREATE_DT,
+            REG_HIST.UPDATE_USER_ID,
+            DATE_FORMAT(REG_HIST.UPDATE_DT, '%Y-%m-%d %H:%i:%s') AS UPDATE_DT,
+
+            USR.USER_NM,
+            getPhoneToFormat(USR.USER_PHONE) AS USER_PHONE,
+            CONCAT(IFNULL(USR.USER_BIRTH, ''), '(', getBirthToAge(USR.USER_BIRTH), ')') AS USER_BIRTH,
+            getSexToFormat(USR.USER_SEX) AS USER_SEX,
+            USR.USER_DESC_SHORT,
+            USR.USER_DESC
+        FROM tb_ticket_reg_hist REG_HIST
+        INNER JOIN tb_user USR
+            ON REG_HIST.USER_UID = USR.USER_UID
+        <where>
+            <if test="stDt neq '' and stDt neq null and enDt neq '' and enDt neq null">
+                AND DATE_FORMAT(REG_HIST.CREATE_DT, '%Y-%m-%d') BETWEEN #{stDt} AND #{enDt}
+            </if>
+            <choose>
+                <when test="delYn neq '' and delYn neq null">
+                    AND REG_HIST.DEL_YN = #{delYn}
+                </when>
+                <otherwise>
+                    AND REG_HIST.DEL_YN = 'N'
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY REG_HIST.CREATE_DT DESC
+    </select>
+
+    <insert id="insertTicketRegHist" parameterType="ticketVO">
+        /* TicketMapper.insertTicketRegHist */
+        INSERT INTO tb_ticket_reg_hist(
+            TICKET_REG_UID,
+            USER_UID,
+            REG_CNT,
+            REG_PRICE,
+            REG_DT,
+            REG_DESC,
+            CREATE_USER_ID,
+            CREATE_DT,
+            UPDATE_USER_ID,
+            UPDATE_DT
+        ) VALUES (
+            UUID()
+            , #{userUid}
+            , #{regCnt}
+            , #{regPrice}
+            , #{regDt}
+            , #{regDesc}
+            , #{createUserId}
+            , SYSDATE()
+            , #{updateUserId}
+            , SYSDATE()
+        )
+    </insert>
+
+    <update id="deleteTicketRegHist" parameterType="ticketVO">
+        /* TicketMapper.deleteTicketRegHist */
+        UPDATE tb_ticket_reg_hist SET
+            DEL_YN = 'Y',
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = SYSDATE()
+        WHERE TICKET_REG_UID = #{ticketRegUid}
+    </update>
+
+    <select id="selectTicketUseList" parameterType="ticketVO" resultType="ticketVO">
+        /* TicketMapper.selectTicketUseList */
+        SELECT
+            USE_HIST.TICKET_USE_UID,
+            USE_HIST.USER_UID,
+            USE_HIST.USE_CNT,
+            USE_HIST.USE_DT,
+            USE_HIST.USE_DESC,
+            USE_HIST.DEL_YN,
+            USE_HIST.CREATE_USER_ID,
+            DATE_FORMAT(USE_HIST.CREATE_DT, '%Y-%m-%d %H:%i:%s') AS CREATE_DT,
+            USE_HIST.UPDATE_USER_ID,
+            DATE_FORMAT(USE_HIST.UPDATE_DT, '%Y-%m-%d %H:%i:%s') AS UPDATE_DT,
+
+            USR.USER_NM,
+            getPhoneToFormat(USR.USER_PHONE) AS USER_PHONE,
+            CONCAT(IFNULL(USR.USER_BIRTH, ''), '(', getBirthToAge(USR.USER_BIRTH), ')') AS USER_BIRTH,
+            getSexToFormat(USR.USER_SEX) AS USER_SEX,
+            USR.USER_DESC_SHORT,
+            USR.USER_DESC
+        FROM tb_ticket_use_hist USE_HIST
+        INNER JOIN tb_user USR
+        ON USE_HIST.USER_UID = USR.USER_UID
+        <where>
+            <if test="stDt neq '' and stDt neq null and enDt neq '' and enDt neq null">
+                AND DATE_FORMAT(USE_HIST.CREATE_DT, '%Y-%m-%d') BETWEEN #{stDt} AND #{enDt}
+            </if>
+            <if test="delYn neq '' and delYn neq null">
+                AND USE_HIST.DEL_YN = #{delYn}
+            </if>
+        </where>
+        ORDER BY USE_HIST.CREATE_DT DESC
+    </select>
+
+    <insert id="insertTicketUseHist" parameterType="ticketVO">
+        /* TicketMapper.insertTicketUseHist */
+        INSERT INTO tb_ticket_use_hist(
+            TICKET_USE_UID,
+            USER_UID,
+            USE_CNT,
+            USE_DT,
+            USE_DESC,
+            CREATE_USER_ID,
+            CREATE_DT,
+            UPDATE_USER_ID,
+            UPDATE_DT
+        ) VALUES (
+            UUID()
+            , #{userUid}
+            , #{useCnt}
+            , #{useDt}
+            , #{useDesc}
+            , #{createUserId}
+            , SYSDATE()
+            , #{updateUserId}
+            , SYSDATE()
+        )
+    </insert>
+
+    <update id="deleteTicketUseHist" parameterType="ticketVO">
+        /* TicketMapper.deleteTicketUseHist */
+        UPDATE tb_ticket_use_hist SET
+            DEL_YN = 'Y',
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = SYSDATE()
+        WHERE TICKET_USE_UID = #{ticketUseUid}
+    </update>
+
+    <select id="selectUserTicketCnt" parameterType="ticketVO" resultType="ticketVO">
+        /* TicketMapper.selectUserTicketCnt */
+        select REG_CNT - USE_CNT AS REMAIN_CNT from v_user_ticket_cnt
+        WHERE USER_UID = #{userUid}
+    </select>
+
+    <select id="selectUserTicketRemainList" parameterType="ticketVO" resultType="ticketVO">
+        SELECT
+            USR.USER_UID
+            , USR.USER_NM
+            , getPhoneToFormat(USR.USER_PHONE) AS USER_PHONE
+            , USR.USER_LOC
+            , USR.USER_RANK
+            , getSexToFormat(USR.USER_SEX) AS USER_SEX
+            , CONCAT(USR.USER_BIRTH, '(', getBirthToAge(USR.USER_BIRTH), ')') AS USER_BIRTH
+            , USR.USER_DESC_SHORT
+            , USR.USER_DESC
+
+            , IFNULL(TCK.REG_CNT - TCK.USE_CNT, 0) AS REMAIN_CNT
+            , IFNULL(TCK.REG_CNT, 0) AS REG_CNT
+            , IFNULL(TCK.USE_CNT, 0) AS USE_CNT
+
+            , IFNULL(getUserLastUsedTicket(USR.USER_UID), '') AS LAST_DT
+        FROM tb_user USR
+        LEFT OUTER JOIN v_user_ticket_cnt TCK
+            ON USR.USER_UID = TCK.USER_UID
+        <where>
+            <if test="userUid neq '' and userUid neq null">
+                AND TCK.USER_UID = #{userUid}
+            </if>
+            <choose>
+                <when test="userNm neq '' and userNm neq null">
+                    AND USR.USER_NM LIKE CONCAT('%', #{userNm}, '%')
+                </when>
+<!--                <otherwise>-->
+<!--                    1=2-->
+<!--                </otherwise>-->
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectUserTicketRemainSameDayList" parameterType="ticketVO" resultType="ticketVO">
+        SELECT
+            USR.USER_UID
+            , USR.USER_NM
+            , getPhoneToFormat(USR.USER_PHONE) AS USER_PHONE
+            , USR.USER_LOC
+            , USR.USER_RANK
+            , getSexToFormat(USR.USER_SEX) AS USER_SEX
+            , CONCAT(USR.USER_BIRTH, '(', getBirthToAge(USR.USER_BIRTH), ')') AS USER_BIRTH
+            , USR.USER_DESC_SHORT
+            , USR.USER_DESC
+
+            , IFNULL(TCK.REG_CNT - TCK.USE_CNT, 0) AS REMAIN_CNT
+            , IFNULL(TCK.REG_CNT, 0) AS REG_CNT
+            , IFNULL(TCK.USE_CNT, 0) AS USE_CNT
+
+            , IFNULL(getUserLastUsedTicket(USR.USER_UID), '') AS LAST_DT
+        FROM tb_user USR
+        LEFT OUTER JOIN v_user_ticket_cnt TCK
+            ON USR.USER_UID = TCK.USER_UID
+        WHERE USR.USER_UID IN (
+            SELECT DISTINCT USER_UID
+            FROM tb_ticket_use_hist
+            WHERE DAYOFWEEK(CREATE_DT) = DAYOFWEEK(CURDATE())
+            AND CREATE_DT >= CURDATE() - INTERVAL 1 MONTH
+        )
+    </select>
+
+    <select id="selectTicketRegHistList" parameterType="ticketVO" resultType="ticketVO">
+        SELECT
+            REG.TICKET_REG_UID
+            , REG.USER_UID
+            , REG.REG_CNT
+            , REG.REG_PRICE
+            , REG.REG_DT
+            , REG.REG_DESC
+            , REG.DEL_YN
+            , REG.CREATE_USER_ID
+            , DATE_FORMAT(REG.CREATE_DT, '%Y-%m-%d %H:%i:%s') AS CREATE_DT
+            , REG.UPDATE_USER_ID
+            , DATE_FORMAT(REG.UPDATE_DT, '%Y-%m-%d %H:%i:%s') AS UPDATE_DT
+
+            , USR.USER_NM
+            , getPhoneToFormat(USR.USER_PHONE) AS USER_PHONE
+            , CONCAT(IFNULL(USR.USER_BIRTH, ''), '(', getBirthToAge(USR.USER_BIRTH), ')') AS USER_BIRTH
+            , getSexToFormat(USR.USER_SEX) AS USER_SEX
+            , IFNULL(USR.USER_DESC_SHORT, '') AS USER_DESC_SHORT
+            , IFNULL(USR.USER_DESC, '') AS USER_DESC
+        FROM tb_ticket_reg_hist REG
+            INNER JOIN tb_user USR
+                ON REG.USER_UID = USR.USER_UID
+        WHERE REG.DEL_YN = 'N'
+        <if test="userNm neq '' and userNm neq null">
+            AND USR.USER_NM LIKE CONCAT('%', #{userNm}, '%')
+        </if>
+        ORDER BY REG.CREATE_DT DESC
+    </select>
+
+    <select id="selectTicketUseHistList" parameterType="ticketVO" resultType="ticketVO">
+        SELECT
+            USED.TICKET_USE_UID
+            , USED.USER_UID
+            , IFNULL(USED.USE_CNT, 1) AS USE_CNT
+            , USED.USE_DT
+            , USED.USE_DESC
+            , USED.DEL_YN
+            , USED.CREATE_USER_ID
+            , DATE_FORMAT(USED.CREATE_DT, '%Y-%m-%d %H:%i:%s') AS CREATE_DT
+            , USED.UPDATE_USER_ID
+            , DATE_FORMAT(USED.UPDATE_DT, '%Y-%m-%d %H:%i:%s') AS UPDATE_DT
+
+            , USR.USER_NM
+            , getPhoneToFormat(USR.USER_PHONE) AS USER_PHONE
+            , CONCAT(IFNULL(USR.USER_BIRTH, ''), '(', getBirthToAge(USR.USER_BIRTH), ')') AS USER_BIRTH
+            , getSexToFormat(USR.USER_SEX) AS USER_SEX
+            , IFNULL(USR.USER_DESC_SHORT, '') AS USER_DESC_SHORT
+            , IFNULL(USR.USER_DESC, '') AS USER_DESC
+        FROM tb_ticket_use_hist USED
+            INNER JOIN tb_user USR
+                ON USED.USER_UID = USR.USER_UID
+        WHERE USED.DEL_YN = 'N'
+        <if test="userNm neq '' and userNm neq null">
+            AND USR.USER_NM LIKE CONCAT('%', #{userNm}, '%')
+        </if>
+        ORDER BY USED.CREATE_DT DESC
+    </select>
+</mapper>

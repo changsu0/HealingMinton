@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+    <body>
+        <div class="content-body">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="filter cm-content-box box-primary">
+                            <div class="card-body" style="padding: 1rem">
+                                <form id="frmSearch">
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <input type="text" class="form-control" name="userNm" id="userNm" placeholder="이름">
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="form-control btn btn-primary" id="btnSearch" type="button">검색</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-xxl-12 col-lg-12">
+                        <div class="card border-0 pb-0">
+                            <div class="card-body p-0">
+                                <div class="widget-media ic-scroll p-3 height260 ">
+                                    <ul class="timeline" id="remainListUL"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-xxl-12 col-lg-12">
+                        <div class="card border-0 pb-0">
+                            <div class="card-header border-0 pb-0">
+                                <h4 class="card-title" id="todayTitle"></h4>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="widget-media ic-scroll p-3" id="sameDayDiv">
+                                    <ul class="timeline" id="sameDayListUL"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            "use strict";
+
+            let PER_ID = /*[[${perId}]]*/ '';
+
+            $(document).ready(() => {
+                init();
+
+                $('#btnSearch').on('click', () => {
+                    selectUserTicketRemainList();
+                });
+
+                $('#frmSearch').on('submit', (event) => {
+                    event.preventDefault(); // 폼의 기본 제출 동작을 막음
+                    selectUserTicketRemainList();
+                });
+            });
+
+            const init = () => {
+                const today = JS_COMMON.getTodayDay();
+                $('#todayTitle').html( today + ' 참석자' + '<span class="fs-6 text-muted">(최근 30일)</span>');
+
+                const windowHeight = $(window).height() - 522;
+                $('#sameDayDiv').css('height', windowHeight);
+
+                selectUserTicketRemainList();
+            }
+
+            const selectUserTicketRemainList = () => {
+                JS_COMMON.callAjaxForm('/ticket/selectUserTicketRemainList', $('#frmSearch').serialize(), 'POST', cb_selectUserTicketRemainList);
+            }
+
+            const cb_selectUserTicketRemainList = ( result ) => {
+
+                if ( result.code !== 200 ) {
+                    alert(result.successMsg);
+                    return;
+                }
+                console.log(result.data);
+                makeRemainList( result.data.remainList );
+                makeSameDayList( result.data.sameDayList );
+
+            }
+
+            const makeRemainList = ( remainList ) => {
+                let innerHtml = '';
+                if ( remainList.length === 0 ) {
+                    innerHtml = '<li><div class="timeline-panel text-center" style="display: block;"><h4 style="margin-bottom: 0;">조회 결과가 없습니다.</h4></div></li>';
+                }else{
+                    for ( let row of remainList ) {
+                        innerHtml += '<li>';
+                        innerHtml += '  <div class="timeline-panel">';
+                        innerHtml += '      <div class="media me-2 media-primary light" style="width: 5rem; font-size: 1rem;"><a style="color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1)); " href="tel:' + row.userPhone + '">' + row.userNm + '</a></div>';
+                        innerHtml += '      <div class="media-body">';
+                        innerHtml += '          <h5 class="mb-1">';
+                        innerHtml += '              <small class="text-muted">(' + row.userDescShort + ')';
+                        innerHtml += '                  <span style="float:right">last : ' + row.lastDt + '</span>';
+                        innerHtml += '              </small>';
+                        innerHtml += '          </h5>';
+                        innerHtml += '          <h5 class="mb-1">';
+                        innerHtml += '              <div style="float: left">잔여 : ' + row.remainCnt + '회</div>';
+                        innerHtml += '              <div style="float: right">';
+                        innerHtml += '                  <a href="javascript:regTicket(\'' + row.userUid + '\');" class="btn btn-primary light btn-xxs">재등록</a>';
+                        if( row.remainCnt > 0 )
+                            innerHtml += '                  <a href="javascript:useTicket(\'' + row.userUid + '\');" class="btn btn-primary btn-xxs ms-3">사용</a>';
+                        innerHtml += '              </div>';
+                        innerHtml += '          </h5>';
+                        innerHtml += '      </div>';
+                        innerHtml += '  </div>';
+                        innerHtml += '</li>';
+                    }
+                    innerHtml += '';
+                }
+                $('#remainListUL').html(innerHtml);
+            }
+            
+            const makeSameDayList = ( sameDayList ) => {
+                let innerHtml = '';
+                if ( sameDayList.length === 0 ) {
+                    innerHtml = '<li><div class="timeline-panel text-center" style="display: block;"><h4 style="margin-bottom: 0;">조회 결과가 없습니다.</h4></div></li>';
+                }else{
+                    for ( let row of sameDayList ) {
+                        innerHtml += '<li>';
+                        innerHtml += '  <div class="timeline-panel">';
+                        innerHtml += '      <div class="media me-2 media-primary light" style="width: 5rem; font-size: 1rem;"><a style="color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));" href="tel:' + row.userPhone + '">' + row.userNm + '</a></div>';
+                        innerHtml += '      <div class="media-body">';
+                        innerHtml += '          <h5 class="mb-1">';
+                        innerHtml += '              <small class="text-muted">(' + row.userDescShort + ')';
+                        innerHtml += '                  <span style="float:right">last : ' + row.lastDt + '</span>';
+                        innerHtml += '              </small>';
+                        innerHtml += '          </h5>';
+                        innerHtml += '          <h5 class="mb-1">';
+                        innerHtml += '              <div style="float: left">잔여 : ' + row.remainCnt + '회</div>';
+                        innerHtml += '              <div style="float: right">';
+                        innerHtml += '                  <a href="javascript:regTicket(\'' + row.userUid + '\');" class="btn btn-primary light btn-xxs">재등록</a>';
+                        if( row.remainCnt > 0 )
+                            innerHtml += '                  <a href="javascript:useTicket(\'' + row.userUid + '\');" class="btn btn-primary btn-xxs ms-3">사용</a>';
+                        innerHtml += '              </div>';
+                        innerHtml += '          </h5>';
+                        innerHtml += '      </div>';
+                        innerHtml += '  </div>';
+                        innerHtml += '</li>';
+                    }
+                    innerHtml += '';
+                }
+                $('#sameDayListUL').html(innerHtml);
+            }
+            
+            const useTicket = ( userUid ) => {
+                JS_COMMON.callAjaxJson('/ticket/selectUserTicketCnt', { userUid: userUid }, 'POST', (result) => cb_selectUserTicketCnt( result, userUid ));
+            }
+
+            const cb_selectUserTicketCnt = ( result, userUid ) => {
+                if ( result.code !== 200 ) {
+                    alert(result.successMsg);
+                    return;
+                }
+
+                if ( JS_COMMON.isEmpty( result.data )){
+                    alert('사용 가능한 티켓이 없습니다.');
+                } else if ( result.data === 0 ){
+                    alert('사용 가능한 티켓이 없습니다.');
+                } else {
+                    let objParam = {
+                        userUid: userUid,
+                        useCnt: 1,
+                        useDt: JS_COMMON.getTodate('YYYY-MM-DD'),
+                        useDesc: 'test',
+                    }
+                    JS_COMMON.callAjaxJson('/ticket/insertTicketUseHist', objParam, 'POST', cb_useTicket);
+                }
+            }
+
+            const cb_useTicket = (result) => {
+                if ( result.code !== 200 ) {
+                    alert(result.successMsg);
+                    return;
+                }
+                selectUserTicketRemainList();
+                alert('사용 되었습니다.');
+            }
+
+            const regTicket = ( userUid ) => {
+                let objParam = {
+                    userUid: userUid,
+                    regCnt: 12,
+                    regPrice: 0,
+                    regDt: JS_COMMON.getTodate('YYYY-MM-DD'),
+                    useDesc: 'test',
+                }
+                JS_COMMON.callAjaxJson('/ticket/insertTicketRegHist', objParam, 'POST', cb_regTicket);
+            }
+
+            const cb_regTicket = (result) => {
+                if ( result.code !== 200 ) {
+                    alert(result.successMsg);
+                    return;
+                }
+                selectUserTicketRemainList();
+                alert('재등록 되었습니다.');
+            }
+
+        </script>
+    </body>
+</div>
+</html>

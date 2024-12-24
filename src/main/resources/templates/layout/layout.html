@@ -1,0 +1,81 @@
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:fragment="configFragment">
+
+    <!-- FAVICONS ICON -->
+    <link rel="apple-touch-icon" sizes="57x57" th:href="@{/favicon/healing/apple-icon-57x57.png}">
+    <link rel="apple-touch-icon" sizes="60x60" th:href="@{/favicon/healing/apple-icon-60x60.png}">
+    <link rel="apple-touch-icon" sizes="72x72" th:href="@{/favicon/healing/apple-icon-72x72.png}">
+    <link rel="apple-touch-icon" sizes="76x76" th:href="@{/favicon/healing/apple-icon-76x76.png}">
+    <link rel="apple-touch-icon" sizes="114x114" th:href="@{/favicon/healing/apple-icon-114x114.png}">
+    <link rel="apple-touch-icon" sizes="120x120" th:href="@{/favicon/healing/apple-icon-120x120.png}">
+    <link rel="apple-touch-icon" sizes="144x144" th:href="@{/favicon/healing/apple-icon-144x144.png}">
+    <link rel="apple-touch-icon" sizes="152x152" th:href="@{/favicon/healing/apple-icon-152x152.png}">
+    <link rel="apple-touch-icon" sizes="180x180" th:href="@{/favicon/healing/apple-icon-180x180.png}">
+
+    <link rel="icon" type="image/png" sizes="192x192"  th:href="@{/favicon/healing/android-icon-192x192.png}">
+
+    <link rel="icon" type="image/png" sizes="32x32" th:href="@{/favicon/healing/favicon-32x32.png}">
+    <link rel="icon" type="image/png" sizes="96x96" th:href="@{/favicon/healing/favicon-96x96.png}">
+    <link rel="icon" type="image/png" sizes="16x16" th:href="@{/favicon/healing/favicon-16x16.png}">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- **************************************************************** -->
+    <!-- **************************** Style ***************************** -->
+    <!-- **************************************************************** -->
+    <!-- PAGE TITLE HERE -->
+    <title>힐링민턴파크</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- MOBILE SPECIFIC -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/vendor/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="/vendor/owl-carousel/owl.carousel.css" rel="stylesheet">
+
+    <!-- Pick date -->
+    <link rel="stylesheet" href="/vendor/pickadate/themes/default.css">
+    <link rel="stylesheet" href="/vendor/pickadate/themes/default.date.css">
+
+    <link rel="stylesheet" href="/vendor/jquery-ascolorpicker/css/ascolorpicker.min.css">
+
+    <link rel="stylesheet" href="/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="/vendor/bootstrap-daterangepicker/daterangepicker.css">
+
+    <link rel="stylesheet" href="/vendor/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css">
+    <!-- Pick date -->
+
+    <!-- Style css -->
+    <link class="main-css" href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- **************************************************************** -->
+    <!-- *************************** Script ***************************** -->
+    <!-- **************************************************************** -->
+    <!-- Required vendors -->
+    <script src="/vendor/global/global.min.js"></script>
+    <script src="/vendor/bootstrap-select/js/bootstrap-select.min.js"></script>
+
+    <!-- Chart piety plugin files -->
+    <script src="/vendor/peity/jquery.peity.min.js"></script>
+
+    <script src="/vendor/owl-carousel/owl.carousel.js"></script>
+
+    <script src="/js/custom.js"></script>
+    <script src="/js/ic-sidenav-init.js"></script>
+    <script src="/js/common.js"></script>
+
+    <th:block th:replace="~{fragments/loading :: loadingFragment}"></th:block>
+    <div id="main-wrapper">
+        <th:block layout:fragment="content"></th:block>
+        <th:block th:replace="~{fragments/header :: headerFragment}"></th:block>
+        <th:block th:replace="~{fragments/navi :: naviFragment}"></th:block>
+        <th:block th:replace="~{fragments/footer :: footerFragment}"></th:block>
+    </div>
+</body>
+</html>
