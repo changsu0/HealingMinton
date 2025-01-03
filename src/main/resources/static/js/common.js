@@ -51,6 +51,10 @@ let JS_COMMON = {
         return false;
     }
 
+    , containsValue : (arr, value) => {
+        return arr.includes(value);
+    }
+
     // Ajax 호출 시 Form Data를 Json형태로 변경해줌
     , serializeObject : function() {
         var obj = null;

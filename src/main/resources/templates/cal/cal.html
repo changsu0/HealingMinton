@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+	<body>
+		<link href="/css/fullcalendar/main.min.css" rel="stylesheet">
+		<link href="/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css" rel="stylesheet">
+		<style>
+			/* calendar.html */
+
+			.fc-col-header-cell-cushion, .fc-daygrid-day-number {
+				text-decoration: none;
+			}
+
+			.fc-scrollgrid-sync-inner > .fc-col-header-cell-cushion,
+			.fc-day-mon .fc-daygrid-day-number,
+			.fc-day-tue .fc-daygrid-day-number,
+			.fc-day-wed .fc-daygrid-day-number,
+			.fc-day-thu .fc-daygrid-day-number,
+			.fc-day-fri .fc-daygrid-day-number {
+				color: black;
+			}
+
+			.fc-day-sun .fc-col-header-cell-cushion,
+			.fc-day-sun a{
+				color : red;
+			}
+
+			.fc-day-sat .fc-col-header-cell-cushion,
+			.fc-day-sat a {
+				color : blue;
+			}
+
+			.holiday-text {
+				margin-top: -5px;
+				color: red;
+				font-weight: bold;
+				font-size: 14px;
+			}
+		</style>
+
+		<!--**********************************
+			Content body start
+		***********************************-->
+		<div class="content-body">
+			<div class="container-fluid">
+				<div class="row" style="height: 100%">
+						<div class="card">
+							<div class="card-body">
+								<div id="calendar" class="app-fullcalendar"></div>
+							</div>
+						</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Add Category -->
+		<div class="modal fade none-border" id="add-category">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">대관 일정추가</h4>
+					</div>
+					<div class="modal-body">
+						<form id="frmCal">
+							<div class="row">
+								<div class="col-md-6">
+									<label class="control-label form-label">내용</label>
+									<input class="form-control form-white" placeholder="내용" type="text" name="calTitle" id="calTitle" />
+								</div>
+								<div class="col-md-6">
+									<label class="control-label form-label">일자</label>
+									<input class="form-control mb-xl-0 mb-3" type="text" name="calStDt" id="calStDt" readonly />
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default waves-effect btn-danger light" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary waves-effect waves-light save-category" data-bs-toggle="modal">Save</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="/js/fullcalendar/main.min.js"></script>
+		<script src="/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.min.js"></script>
+		<script src="/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.ko.min.js"></script>
+
+		<script th:inline="javascript">
+			"use strict";
+			let CALENDAR = {};
+
+			let CALENDAR_YEAR = [];
+
+			$(document).ready(function() {
+				init();
+			});
+
+			function init() {
+
+				$('#calStDt').datepicker({
+					language: 'ko',
+					format: 'yyyy-mm-dd'
+				});
+
+				setCal().then(function() {
+					setTimeout(function() {
+						window.dispatchEvent(new Event('resize'));
+					}, 700);
+				});
+			};
+
+			const setCal = async () => {
+				let Calendar = FullCalendar.Calendar;
+				let calendarEl = document.getElementById('calendar');
+
+				CALENDAR_YEAR.push(new Date().getFullYear());
+				const holidays = await fetchHolidays( new Date().getFullYear() );
+				CALENDAR = new Calendar(calendarEl, {
+					headerToolbar: {
+						left: '',
+						center: 'title',
+						right: 'prev,next today'
+					},
+					navLinks: false,
+					editable: false,
+					droppable: false,
+					dayMaxEvents: false,
+					dayMaxEventRows: true, // for all non-TimeGrid views
+					views: {
+						timeGrid: {
+							dayMaxEventRows: 6 // adjust to 6 only for timeGridWeek/timeGridDay
+						}
+					},
+					selectable: true,
+					eventSources: [
+						{
+							events: holidays
+						}
+					],
+					select: function(info) {	// 달력 셀을 클릭할 때 모달 열기
+						// $('#addEventModal').modal('show');
+						// $('#start').val(info.startStr);
+						// $('#end').val(info.endStr);
+
+						var myModal = new bootstrap.Modal(document.getElementById('add-category'));
+						JS_COMMON.formReset('frmCal');
+						$('#calStDt').datepicker('setDate', info.startStr);
+						myModal.show();
+						return;
+
+
+						console.log('Current view dates:', info);
+						const id = crypto.randomUUID();
+						AA = id;
+						// // 이벤트 추가
+						CALENDAR.addEvent({
+							id: id,
+							title: '새로운 이벤트',
+							start: info.startStr,
+							end: info.startStr,
+							allDay: true
+						});
+					},
+
+					eventClick: function(info) {
+						console.log('Event: ', info);
+						info.el.style.borderColor = 'red';
+
+						if ( !JS_COMMON.isEmpty( CALENDAR.getEventById(AA) ) )
+							CALENDAR.getEventById(AA).remove();
+
+					},
+
+					datesSet: async function (info) {
+						if (!JS_COMMON.containsValue(CALENDAR_YEAR, info.start.getFullYear())) {
+							CALENDAR_YEAR.push(info.start.getFullYear());
+							CALENDAR.addEventSource( await fetchHolidays( info.start.getFullYear() ) );
+						}
+						if (!JS_COMMON.containsValue(CALENDAR_YEAR, info.end.getFullYear())) {
+							CALENDAR_YEAR.push(info.end.getFullYear());
+							CALENDAR.addEventSource( await fetchHolidays( info.end.getFullYear() ) );
+						}
+					}
+				});
+
+				CALENDAR.setOption('locale', 'kr');
+				CALENDAR.render();
+			}
+
+			let AA = '';
+
+			const fetchHolidays = async ( year ) => {
+				const serviceKey = 'az%2FkOFsGYu1cP7P9vRQv%2BbcZt%2FfGShNWfMzSlwdnQpo52Ohb21lYAAnnD3Z2kyrewGLmGfw3NrYCn59FzxpSVQ%3D%3D'; // 공공데이터포털에서 발급받은 서비스 키
+				// const year = new Date().getFullYear();
+				const url = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?ServiceKey=${serviceKey}&numOfRows=100&solYear=${year}&_type=json`;
+
+				const response = await fetch(url);
+				const data = await response.json();
+				const holidays = data.response.body.items.item;
+
+				const seenIds = new Map();
+				holidays.forEach(item => {
+					if (seenIds.has(item.locdate.toString())) {
+						const firstItem = seenIds.get(item.locdate.toString());
+						firstItem.dateName += `, ${item.dateName}`;
+					} else {
+						seenIds.set(item.locdate.toString(), item);
+					}
+				});
+
+				return Array.from(seenIds.values()).map(holiday => ({
+					title: holiday.dateName,
+					start: holiday.locdate.toString(),
+					allDay: true,
+					color: 'white',
+					textColor: 'red',
+					display: 'background',
+					classNames: ['holiday-text']
+				}));
+			};
+		</script>
+
+	</body>
+</div>
+</html>

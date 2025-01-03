@@ -72,9 +72,9 @@
 
     <th:block th:replace="~{fragments/loading :: loadingFragment}"></th:block>
     <div id="main-wrapper">
-        <th:block layout:fragment="content"></th:block>
         <th:block th:replace="~{fragments/header :: headerFragment}"></th:block>
         <th:block th:replace="~{fragments/navi :: naviFragment}"></th:block>
+        <th:block layout:fragment="content"></th:block>
         <th:block th:replace="~{fragments/footer :: footerFragment}"></th:block>
     </div>
 </body>

@@ -38,6 +38,11 @@ public class SampleController {
         return "sample/sample2";
     }
 
+    @GetMapping("/cal")
+    public String cal(Model model) {
+        return "cal/cal";
+    }
+
     @GetMapping("/sample3")
     public String sample3(Model model) {
         return "sample/sample3";
