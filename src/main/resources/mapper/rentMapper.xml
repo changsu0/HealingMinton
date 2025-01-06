@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.rent.mapper.RentMapper">
+
+    <select id="selectRentList" parameterType="rentVO" resultType="rentVO">
+        /* RentMapper.selectRentList */
+        SELECT
+            RENT_UID,
+            RENT_TITLE,
+            RENT_ST_DT,
+            RENT_EN_DT,
+            DEL_YN,
+            CREATE_USER_ID,
+            CREATE_DT,
+            UPDATE_USER_ID,
+            UPDATE_DT
+        FROM tb_rent
+        WHERE DEL_YN = 'N'
+    </select>
+
+    <insert id="insertRent" parameterType="rentVO">
+        /* RentMapper.insertRent */
+        <selectKey keyProperty="rentUid" resultType="string" order="BEFORE">
+            SELECT UUID() AS RENT_UID
+        </selectKey>
+        INSERT INTO tb_rent (
+            RENT_UID,
+            RENT_TITLE,
+            RENT_ST_DT,
+            RENT_EN_DT,
+            DEL_YN,
+            CREATE_USER_ID,
+            CREATE_DT,
+            UPDATE_USER_ID,
+            UPDATE_DT
+        ) VALUES (
+            #{rentUid},
+            #{rentTitle},
+            #{rentStDt},
+            #{rentEnDt},
+            'N',
+            #{createUserId},
+            SYSDATE(),
+            #{updateUserId},
+            SYSDATE()
+        )
+    </insert>
+
+    <update id="deleteRent" parameterType="rentVO">
+        /* RentMapper.deleteRent */
+        UPDATE tb_rent SET
+            DEL_YN = 'Y',
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = SYSDATE()
+        WHERE RENT_UID = #{rentUid}
+    </update>
+
+</mapper>

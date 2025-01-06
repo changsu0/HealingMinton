@@ -69,18 +69,18 @@
 							<div class="row">
 								<div class="col-md-6">
 									<label class="control-label form-label">내용</label>
-									<input class="form-control form-white" placeholder="내용" type="text" name="calTitle" id="calTitle" />
+									<input class="form-control form-white" placeholder="내용" type="text" name="rentTitle" id="rentTitle" />
 								</div>
 								<div class="col-md-6">
 									<label class="control-label form-label">일자</label>
-									<input class="form-control mb-xl-0 mb-3" type="text" name="calStDt" id="calStDt" readonly />
+									<input class="form-control mb-xl-0 mb-3" type="text" name="rentStDt" id="rentStDt" readonly />
 								</div>
 							</div>
 						</form>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default waves-effect btn-danger light" data-bs-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-primary waves-effect waves-light save-category" data-bs-toggle="modal">Save</button>
+						<button type="button" id="btnClose" class="btn btn-default waves-effect btn-danger light" data-bs-dismiss="modal">Close</button>
+						<button type="button" id="btnSave" class="btn btn-primary waves-effect waves-light save-category" data-bs-toggle="modal">Save</button>
 					</div>
 				</div>
 			</div>
@@ -93,7 +93,6 @@
 		<script th:inline="javascript">
 			"use strict";
 			let CALENDAR = {};
-
 			let CALENDAR_YEAR = [];
 
 			$(document).ready(function() {
@@ -102,21 +101,121 @@
 
 			function init() {
 
-				$('#calStDt').datepicker({
+				$('#btnSave').click( () => {
+					insertRent();
+				});
+
+				$('#rentStDt').datepicker({
 					language: 'ko',
 					format: 'yyyy-mm-dd'
 				});
 
-				setCal().then(function() {
+				setCal()
+					.then(function() {
 					setTimeout(function() {
 						window.dispatchEvent(new Event('resize'));
 					}, 700);
+				}).then(function() {
+					selectRentList();
 				});
 			};
 
-			const setCal = async () => {
+			const selectRentList = async () => {
+				JS_COMMON.callAjaxJson('/rent/selectRentList', {}, 'POST', cb_selectRentList);
+			}
+
+			const cb_selectRentList = ( result ) => {
+				if ( result.code !== 200 ) {
+					alert(result.successMsg);
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( result.data ) )
+					return;
+
+				const dataList = result.data;
+				let eventList = [];
+				for (const data of dataList) {
+					eventList.push({
+						id: data.rentUid,
+						title: data.rentTitle,
+						start: data.rentStDt,
+						end: data.rentEnDt,
+						allDay: true
+					});
+				}
+				CALENDAR.addEventSource( eventList );
+			}
+
+			const insertRent = async () => {
+				if ( JS_COMMON.isEmpty( $('#rentTitle').val() ) ){
+					alert('내용을 입력해주세요.');
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( $('#rentStDt').val() ) ){
+					alert('날짜를 선택해주세요.');
+					return;
+				}
+
+				let rentObj = {
+					rentTitle: $('#rentTitle').val(),
+					rentStDt: $('#rentStDt').val(),
+					rentEnDt: $('#rentStDt').val()
+				};
+
+				JS_COMMON.callAjaxJson('/rent/insertRent', rentObj, 'POST', cb_insertRent);
+			}
+
+			const cb_insertRent = ( result ) => {
+				if ( result.code !== 200 ) {
+					alert(result.successMsg);
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( result.data ) )
+					return;
+
+				const data = result.data;
+				CALENDAR.addEvent({
+					id: data.rentUid,
+					title: data.rentTitle,
+					start: data.rentStDt,
+					end: data.rentEnDt,
+					allDay: true
+				});
+			}
+
+			const deleteRent = async ( calInfo ) => {
+				let rentUid = calInfo.event._def.publicId;
+				if ( JS_COMMON.isEmpty( rentUid ) ){
+					alert('대관 일정이 없습니다.');
+					return;
+				}
+
+				JS_COMMON.callAjaxJson('/rent/deleteRent', {rentUid : rentUid}, 'POST', cb_deleteRent);
+			}
+
+			const cb_deleteRent = ( result ) => {
+				if ( result.code !== 200 ) {
+					alert(result.successMsg);
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( result.data ) )
+					return;
+
+				const rentUid = result.data.rentUid;
+
+				if ( !JS_COMMON.isEmpty( CALENDAR.getEventById(rentUid) ) )
+					CALENDAR.getEventById(rentUid).remove();
+			}
+
+
+			const setCal = async message => {
 				let Calendar = FullCalendar.Calendar;
 				let calendarEl = document.getElementById('calendar');
+				const windowHeight = $(window).height() - 185;
 
 				CALENDAR_YEAR.push(new Date().getFullYear());
 				const holidays = await fetchHolidays( new Date().getFullYear() );
@@ -126,6 +225,7 @@
 						center: 'title',
 						right: 'prev,next today'
 					},
+					height: windowHeight,
 					navLinks: false,
 					editable: false,
 					droppable: false,
@@ -142,38 +242,18 @@
 							events: holidays
 						}
 					],
-					select: function(info) {	// 달력 셀을 클릭할 때 모달 열기
-						// $('#addEventModal').modal('show');
-						// $('#start').val(info.startStr);
-						// $('#end').val(info.endStr);
-
-						var myModal = new bootstrap.Modal(document.getElementById('add-category'));
+					select: function(info) {
+						const myModal = new bootstrap.Modal(document.getElementById('add-category'));
 						JS_COMMON.formReset('frmCal');
-						$('#calStDt').datepicker('setDate', info.startStr);
+						$('#rentStDt').datepicker('setDate', info.startStr);
+						$('#rentTitle').focus();
 						myModal.show();
-						return;
-
-
-						console.log('Current view dates:', info);
-						const id = crypto.randomUUID();
-						AA = id;
-						// // 이벤트 추가
-						CALENDAR.addEvent({
-							id: id,
-							title: '새로운 이벤트',
-							start: info.startStr,
-							end: info.startStr,
-							allDay: true
-						});
 					},
 
 					eventClick: function(info) {
 						console.log('Event: ', info);
-						info.el.style.borderColor = 'red';
-
-						if ( !JS_COMMON.isEmpty( CALENDAR.getEventById(AA) ) )
-							CALENDAR.getEventById(AA).remove();
-
+						if ( confirm('삭제하시겠습니까?') )
+							deleteRent( info );
 					},
 
 					datesSet: async function (info) {
@@ -191,8 +271,6 @@
 				CALENDAR.setOption('locale', 'kr');
 				CALENDAR.render();
 			}
-
-			let AA = '';
 
 			const fetchHolidays = async ( year ) => {
 				const serviceKey = 'az%2FkOFsGYu1cP7P9vRQv%2BbcZt%2FfGShNWfMzSlwdnQpo52Ohb21lYAAnnD3Z2kyrewGLmGfw3NrYCn59FzxpSVQ%3D%3D'; // 공공데이터포털에서 발급받은 서비스 키
