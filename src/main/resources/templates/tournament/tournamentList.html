@@ -75,7 +75,7 @@
 		<div class="modal fade none-border" id="imgPopup" style="--bs-modal-width: 800px" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
-					<img id="imageViewer" src="" alt="이미지를 선택하세요">
+					<img id="imageViewer" alt="이미지를 선택하세요">
 				</div>
 			</div>
 		</div>
@@ -102,6 +102,10 @@
 				}).then(function() {
 					selectTournamentList();
 				});
+
+				$('#imageViewer').click( () => {
+					$('#imgPopup').modal('toggle');
+				})
 			};
 
 			const selectTournamentList = async () => {
