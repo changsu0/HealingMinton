@@ -95,6 +95,12 @@
 			let CALENDAR = {};
 			let CALENDAR_YEAR = [];
 
+			window.addEventListener('load', function() {
+				setTimeout(function() {
+					window.scrollTo(0, 1);
+				}, 0);
+			});
+
 			$(document).ready(function() {
 				init();
 			});
