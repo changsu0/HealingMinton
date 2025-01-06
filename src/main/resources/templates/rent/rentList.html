@@ -221,6 +221,7 @@
 			const setCal = async message => {
 				let Calendar = FullCalendar.Calendar;
 				let calendarEl = document.getElementById('calendar');
+				const windowWidth = $(window).width();
 				const windowHeight = $(window).height() - 185;
 
 				CALENDAR_YEAR.push(new Date().getFullYear());
@@ -231,6 +232,7 @@
 						center: 'title',
 						right: 'prev,next today'
 					},
+					width: windowWidth,
 					height: windowHeight,
 					navLinks: false,
 					editable: false,
