@@ -24927,7 +24927,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
-  margin-bottom: 0.5em;
+  margin-bottom: 0em;
 }
 
 .external-event {
@@ -24956,7 +24956,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
 
 @media only screen and (max-width: 35.9375rem) {
   .fc .fc-toolbar.fc-header-toolbar {
-    display: block;
+    /*display: block;*/
   }
   .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk {
     display: flex;
@@ -24966,7 +24966,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
     justify-content: space-between;
   }
   .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-title {
-    margin-bottom: 8px;
+    /*margin-bottom: 8px;*/
   }
 }
 
