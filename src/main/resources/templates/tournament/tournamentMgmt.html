@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+	<body>
+		<link href="/css/fullcalendar/main.min.css" rel="stylesheet">
+		<link href="/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css" rel="stylesheet">
+		<style>
+			/* calendar.html */
+
+			.fc-col-header-cell-cushion, .fc-daygrid-day-number {
+				text-decoration: none;
+			}
+
+			.fc-event-main-frame .fc-event-time{
+				width: 0;
+			}
+
+			.fc-direction-ltr .fc-daygrid-event .fc-event-time{
+				margin: 0;
+			}
+
+			.fc-scrollgrid-sync-inner > .fc-col-header-cell-cushion,
+			.fc-day-mon .fc-daygrid-day-number,
+			.fc-day-tue .fc-daygrid-day-number,
+			.fc-day-wed .fc-daygrid-day-number,
+			.fc-day-thu .fc-daygrid-day-number,
+			.fc-day-fri .fc-daygrid-day-number {
+				color: black;
+			}
+
+			.fc-day-sun .fc-col-header-cell-cushion,
+			.fc-day-sun a{
+				color : red;
+			}
+
+			.fc-day-sat .fc-col-header-cell-cushion,
+			.fc-day-sat a {
+				color : blue;
+			}
+
+			.holiday-text {
+				margin-top: -5px;
+				color: red;
+				font-weight: bold;
+				font-size: 14px;
+			}
+
+			#imageViewer {
+				width: 100%;
+				max-width: 600px;
+				border: 1px solid #000;
+				margin-top: 20px;
+			}
+		</style>
+
+		<!--**********************************
+			Content body start
+		***********************************-->
+		<div class="content-body">
+			<div class="container-fluid">
+				<div class="row" style="height: 100%">
+						<div class="card">
+							<div class="card-body">
+								<div id="calendar" class="app-fullcalendar"></div>
+							</div>
+						</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Add Category -->
+		<div class="modal fade none-border" id="tournamentPopup" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">대관 일정추가</h4>
+					</div>
+					<div class="modal-body">
+						<form id="frmCal">
+							<div class="row">
+								<div class="col-md-12">
+									<label class="control-label form-label">대회명</label>
+									<input class="form-control form-white" placeholder="내용" type="text" name="tournamentTitle" id="tournamentTitle" />
+									<input class="form-control" type="hidden" name="tournamentUid" id="tournamentUid" />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<label class="control-label form-label">시작일자</label>
+									<input class="form-control mb-xl-0 mb-3" type="text" name="tournamentStDt" id="tournamentStDt" readonly />
+								</div>
+								<div class="col-md-6">
+									<label class="control-label form-label">종료일자</label>
+									<input class="form-control mb-xl-0 mb-3" type="text" name="tournamentEnDt" id="tournamentEnDt" readonly />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<label for="tournamentFile" class="form-label">대회요강</label>
+									<input class="form-control form-control-sm" id="tournamentFile" type="file">
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" id="btnClose" class="btn btn-default waves-effect btn-danger light" data-dismiss="modal">닫기</button>
+						<button type="button" id="btnDelete" class="btn btn-danger waves-effect waves-light save-category">삭제</button>
+						<button type="button" id="btnInsert" class="btn btn-primary waves-effect waves-light save-category">등록</button>
+						<button type="button" id="btnModify" class="btn btn-primary waves-effect waves-light save-category">수정</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Add Category -->
+		<div class="modal fade none-border" id="imgPopup" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<img id="imageViewer" src="" alt="이미지를 선택하세요">
+				</div>
+			</div>
+		</div>
+
+		<script src="/js/fullcalendar/main.min.js"></script>
+		<script src="/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.min.js"></script>
+		<script src="/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.ko.min.js"></script>
+
+		<script th:inline="javascript">
+			"use strict";
+			let CALENDAR = {};
+			let CALENDAR_YEAR = [];
+
+			$(document).ready(function() {
+				init();
+			});
+
+			function init() {
+
+				$('#btnInsert').click( () => {
+					insertTournament();
+				});
+
+				$('#btnClose').click( async () => {
+					$('#tournamentPopup').modal('toggle');
+				});
+
+				$('#tournamentStDt, #tournamentEnDt').datepicker({
+					language: 'ko',
+					format: 'yyyy-mm-dd'
+				});
+
+				setCal()
+					.then(function() {
+					setTimeout(function() {
+						window.dispatchEvent(new Event('resize'));
+					}, 700);
+				}).then(function() {
+					selectTournamentList();
+				});
+			};
+
+			const selectTournamentList = async () => {
+				JS_COMMON.callAjaxJson('/tournament/selectTournamentList', {}, 'POST', cb_selectTournamentList);
+			}
+
+			const cb_selectTournamentList = ( result ) => {
+				if ( result.code !== 200 ) {
+					alert(result.successMsg);
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( result.data ) )
+					return;
+
+				const dataList = result.data;
+				let eventList = [];
+				for (const data of dataList) {
+					eventList.push({
+						id: data.tournamentUid,
+						title: data.tournamentTitle,
+						start: data.tournamentStDt,
+						end: JS_COMMON.addOneDay( data.tournamentEnDt ),
+						oriFileNm: data.oriFileNm,
+						newFileNm: data.newFileNm,
+						fullFileNm: data.fullFileNm,
+						allDay: true
+					});
+				}
+				CALENDAR.addEventSource( eventList );
+			}
+
+			const insertTournament = async () => {
+				if ( JS_COMMON.isEmpty( $('#tournamentTitle').val() ) ){
+					alert('내용을 입력해주세요.');
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( $('#tournamentStDt').val() ) ){
+					alert('날짜를 선택해주세요.');
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( $('#tournamentEnDt').val() ) ){
+					alert('날짜를 선택해주세요.');
+					return;
+				}
+
+				let formData = new FormData();
+
+				const fileInput = $('#tournamentFile')[0];
+				if ( fileInput != undefined ){
+					if ( fileInput.files.length > 0 ){
+						const file = fileInput.files[0];
+						const maxSize = 10 * 1024 * 1024; // 1MB
+						if (file.size > maxSize) {
+							alert('파일 크기가 10MB를 초과합니다.');
+							return;
+						}
+						formData.append("file", $("#tournamentFile")[0].files[0]);
+					}
+				}
+
+				formData.append("tournamentTitle", $('#tournamentTitle').val());
+				formData.append("tournamentStDt", $('#tournamentStDt').val());
+				formData.append("tournamentEnDt", $('#tournamentEnDt').val());
+
+				JS_COMMON.callAjaxFile('/tournament/insertTournament1', formData, 'POST', cb_insertTournament);
+			}
+
+			const cb_insertTournament = async ( result ) => {
+				if ( result.code !== 200 ) {
+					alert(result.successMsg);
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( result.data ) )
+					return;
+
+				const data = result.data;
+				await CALENDAR.addEvent({
+					id: data.tournamentUid,
+					title: data.tournamentTitle,
+					start: data.tournamentStDt,
+					end: JS_COMMON.addOneDay( data.tournamentEnDt ),
+					oriFileNm: data.oriFileNm,
+					newFileNm: data.newFileNm,
+					fullFileNm: data.fullFileNm,
+					allDay: true
+				});
+
+				$('#tournamentPopup').modal('toggle');
+			}
+
+			const deleteTournament = async ( calInfo ) => {
+				let tournamentUid = calInfo.event._def.publicId;
+				if ( JS_COMMON.isEmpty( tournamentUid ) ){
+					alert('대관 일정이 없습니다.');
+					return;
+				}
+
+				JS_COMMON.callAjaxJson('/tournament/deleteTournament', {tournamentUid : tournamentUid}, 'POST', cb_deleteTournament);
+			}
+
+			const cb_deleteTournament = ( result ) => {
+				if ( result.code !== 200 ) {
+					alert(result.successMsg);
+					return;
+				}
+
+				if ( JS_COMMON.isEmpty( result.data ) )
+					return;
+
+				const tournamentUid = result.data.tournamentUid;
+
+				if ( !JS_COMMON.isEmpty( CALENDAR.getEventById(tournamentUid) ) )
+					CALENDAR.getEventById(tournamentUid).remove();
+
+			}
+
+
+			const setCal = async message => {
+				let Calendar = FullCalendar.Calendar;
+				let calendarEl = document.getElementById('calendar');
+				const windowWidth = $(window).width();
+				const windowHeight = $(window).height() - 185;
+
+				CALENDAR_YEAR.push(new Date().getFullYear());
+				const holidays = await fetchHolidays( new Date().getFullYear() );
+				CALENDAR = new Calendar(calendarEl, {
+					headerToolbar: {
+						left: '',
+						center: 'title',
+						right: 'prev,next today'
+					},
+					height: windowHeight,
+					navLinks: false,
+					editable: false,
+					droppable: false,
+					dayMaxEvents: true,
+					dayMaxEventRows: true, // for all non-TimeGrid views
+					views: {
+						timeGrid: {
+							dayMaxEventRows: 6 // adjust to 6 only for timeGridWeek/timeGridDay
+						}
+					},
+					selectable: true,
+					eventSources: [{ events: holidays }],
+					select: function(info) {
+						const myModal = new bootstrap.Modal(document.getElementById('tournamentPopup'));
+						JS_COMMON.formReset('frmCal');
+						$('#tournamentStDt').datepicker('setDate', info.startStr);
+						$('#tournamentEnDt').datepicker('setDate', info.startStr);
+						$('#tournamentTitle').focus();
+
+						$('#btnInsert').show();
+						$('#btnModify').hide();
+						$('#btnDelete').hide();
+
+						$('#tournamentPopup').modal('toggle');
+						// myModal.show();
+					},
+
+					eventClick: function(info) {
+						console.log(info)
+						// const myModal = new bootstrap.Modal(document.getElementById('tournamentPopup'));
+						// JS_COMMON.formReset('frmCal');
+						// $('#tournamentStDt').datepicker('setDate', JS_COMMON.formatDateToString(info.event._instance.range.start));
+						// $('#tournamentEnDt').datepicker('setDate', JS_COMMON.minusOneDay(JS_COMMON.formatDateToString(info.event._instance.range.end)));
+						// $('#tournamentUid').val(info.event._def.publicId);
+						// $('#tournamentTitle').val(info.event._def.title);
+						// $('#tournamentTitle').focus();
+						//
+						// $('#btnInsert').hide();
+						// $('#btnModify').show();
+						// $('#btnDelete').show();
+						//
+						// $('#tournamentPopup').modal('toggle');
+						// myModal.show();
+
+						if ( confirm('삭제하시겠습니까?') )
+							deleteTournament( info );
+
+
+						// const url = '/tournament/pdf?filename=' + info.event._def.extendedProps.newFileNm; // PDF 파일 경로
+						// $('#imageViewer').attr('src', url);
+						// $('#imgPopup').modal('toggle');
+					},
+
+					datesSet: async function (info) {
+						if (!JS_COMMON.containsValue(CALENDAR_YEAR, info.start.getFullYear())) {
+							CALENDAR_YEAR.push(info.start.getFullYear());
+							CALENDAR.addEventSource( await fetchHolidays( info.start.getFullYear() ) );
+						}
+						if (!JS_COMMON.containsValue(CALENDAR_YEAR, info.end.getFullYear())) {
+							CALENDAR_YEAR.push(info.end.getFullYear());
+							CALENDAR.addEventSource( await fetchHolidays( info.end.getFullYear() ) );
+						}
+					}
+				});
+
+				CALENDAR.setOption('locale', 'kr');
+				CALENDAR.render();
+			}
+
+			const fetchHolidays = async ( year ) => {
+				const serviceKey = 'az%2FkOFsGYu1cP7P9vRQv%2BbcZt%2FfGShNWfMzSlwdnQpo52Ohb21lYAAnnD3Z2kyrewGLmGfw3NrYCn59FzxpSVQ%3D%3D'; // 공공데이터포털에서 발급받은 서비스 키
+				// const year = new Date().getFullYear();
+				const url = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?ServiceKey=${serviceKey}&numOfRows=100&solYear=${year}&_type=json`;
+
+				const response = await fetch(url);
+				const data = await response.json();
+				const holidays = data.response.body.items.item;
+
+				const seenIds = new Map();
+				holidays.forEach(item => {
+					if (seenIds.has(item.locdate.toString())) {
+						const firstItem = seenIds.get(item.locdate.toString());
+						firstItem.dateName += `, ${item.dateName}`;
+					} else {
+						seenIds.set(item.locdate.toString(), item);
+					}
+				});
+
+				return Array.from(seenIds.values()).map(holiday => ({
+					title: holiday.dateName,
+					start: holiday.locdate.toString(),
+					allDay: true,
+					color: 'white',
+					textColor: 'red',
+					display: 'background',
+					classNames: ['holiday-text']
+				}));
+			};
+		</script>
+
+	</body>
+</div>
+</html>

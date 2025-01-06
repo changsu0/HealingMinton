@@ -35,6 +35,25 @@ let JS_COMMON = {
         });
     }
 
+    , callAjaxFile : function (paramUrl, formData, paramMethodType, cbFunc){
+        $.ajax({
+            url: paramUrl,
+            type: paramMethodType,
+            data: formData,
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            async: false,
+            success: function( data ){
+                cbFunc(data);
+            },
+            error: function(xhr, status, error){
+                alert(xhr.responseText);
+            },
+            complete: function(xhr, status){}
+        });
+    }
+
     , formReset : function ( frmID ){
         $('#' + frmID).find('input').val('');
         $('#' + frmID).find('select option').each(function (){
@@ -185,6 +204,43 @@ let JS_COMMON = {
             $('#'+inputId).addClass("is-invalid");
             isInputValid = false;
         }
+    }
+
+    , formatDateToString : (date) => {
+        let year = date.getFullYear();
+        let month = ('0' + (date.getMonth() + 1)).slice(-2);
+        let day = ('0' + date.getDate()).slice(-2);
+        return `${year}-${month}-${day}`;
+    }
+
+    , addOneDay : (dateStr) => {
+        // 날짜 문자열을 Date 객체로 변환
+        let date = new Date(dateStr);
+
+        // 하루를 더함 (밀리초 단위로 24시간 추가)
+        date.setDate(date.getDate() + 1);
+
+        // yyyy-mm-dd 형식으로 변환
+        let year = date.getFullYear();
+        let month = ('0' + (date.getMonth() + 1)).slice(-2);
+        let day = ('0' + date.getDate()).slice(-2);
+
+        return `${year}-${month}-${day}`;
+    }
+
+    , minusOneDay : (dateStr) => {
+        // 날짜 문자열을 Date 객체로 변환
+        let date = new Date(dateStr);
+
+        // 하루를 더함 (밀리초 단위로 24시간 추가)
+        date.setDate(date.getDate() - 1);
+
+        // yyyy-mm-dd 형식으로 변환
+        let year = date.getFullYear();
+        let month = ('0' + (date.getMonth() + 1)).slice(-2);
+        let day = ('0' + date.getDate()).slice(-2);
+
+        return `${year}-${month}-${day}`;
     }
 }
 Window.JS_COMMON = JS_COMMON;

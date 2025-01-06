@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.tournament.mapper.TournamentMapper">
+
+    <select id="selectTournamentList" parameterType="tournamentVO" resultType="tournamentVO">
+        /* TournamentMapper.selectTournamentList */
+        SELECT
+            TOURNAMENT_UID,
+            TOURNAMENT_TITLE,
+            TOURNAMENT_ST_DT,
+            TOURNAMENT_EN_DT,
+            ORI_FILE_NM,
+            NEW_FILE_NM,
+            FULL_FILE_NM,
+            DEL_YN,
+            CREATE_USER_ID,
+            CREATE_DT,
+            UPDATE_USER_ID,
+            UPDATE_DT
+        FROM tb_tournament
+        WHERE DEL_YN = 'N'
+    </select>
+
+    <insert id="insertTournament" parameterType="tournamentVO">
+        /* TournamentMapper.insertTournament */
+        <selectKey keyProperty="tournamentUid" resultType="string" order="BEFORE">
+            SELECT UUID() AS TOURNAMENT_UID
+        </selectKey>
+        INSERT INTO tb_tournament (
+            TOURNAMENT_UID,
+            TOURNAMENT_TITLE,
+            TOURNAMENT_ST_DT,
+            TOURNAMENT_EN_DT,
+            ORI_FILE_NM,
+            NEW_FILE_NM,
+            FULL_FILE_NM,
+            DEL_YN,
+            CREATE_USER_ID,
+            CREATE_DT,
+            UPDATE_USER_ID,
+            UPDATE_DT
+        ) VALUES (
+            #{tournamentUid},
+            #{tournamentTitle},
+            #{tournamentStDt},
+            #{tournamentEnDt},
+            #{oriFileNm},
+            #{newFileNm},
+            #{fullFileNm},
+            'N',
+            #{createUserId},
+            SYSDATE(),
+            #{updateUserId},
+            SYSDATE()
+        )
+    </insert>
+
+    <update id="deleteTournament" parameterType="tournamentVO">
+        /* TournamentMapper.deleteTournament */
+        UPDATE tb_tournament SET
+            DEL_YN = 'Y',
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = SYSDATE()
+        WHERE TOURNAMENT_UID = #{tournamentUid}
+    </update>
+
+</mapper>

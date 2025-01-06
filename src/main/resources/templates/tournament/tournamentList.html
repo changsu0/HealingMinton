@@ -15,6 +15,14 @@
 				text-decoration: none;
 			}
 
+			.fc-event-main-frame .fc-event-time{
+				width: 0;
+			}
+
+			.fc-direction-ltr .fc-daygrid-event .fc-event-time{
+				margin: 0;
+			}
+
 			.fc-scrollgrid-sync-inner > .fc-col-header-cell-cushion,
 			.fc-day-mon .fc-daygrid-day-number,
 			.fc-day-tue .fc-daygrid-day-number,
@@ -40,6 +48,13 @@
 				font-weight: bold;
 				font-size: 14px;
 			}
+
+			#imageViewer {
+				width: 100%;
+				max-width: 1200px;
+				border: 1px solid #000;
+				margin-top: 20px;
+			}
 		</style>
 
 		<!--**********************************
@@ -57,31 +72,10 @@
 			</div>
 		</div>
 
-		<!-- Modal Add Category -->
-		<div class="modal fade none-border" id="add-category">
+		<div class="modal fade none-border" id="imgPopup" style="--bs-modal-width: 800px" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">대관 일정추가</h4>
-					</div>
-					<div class="modal-body">
-						<form id="frmCal">
-							<div class="row">
-								<div class="col-md-6">
-									<label class="control-label form-label">내용</label>
-									<input class="form-control form-white" placeholder="내용" type="text" name="rentTitle" id="rentTitle" />
-								</div>
-								<div class="col-md-6">
-									<label class="control-label form-label">일자</label>
-									<input class="form-control mb-xl-0 mb-3" type="text" name="rentStDt" id="rentStDt" readonly />
-								</div>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" id="btnClose" class="btn btn-default waves-effect btn-danger light" data-bs-dismiss="modal">Close</button>
-						<button type="button" id="btnSave" class="btn btn-primary waves-effect waves-light save-category" data-bs-toggle="modal">Save</button>
-					</div>
+					<img id="imageViewer" src="" alt="이미지를 선택하세요">
 				</div>
 			</div>
 		</div>
@@ -95,42 +89,26 @@
 			let CALENDAR = {};
 			let CALENDAR_YEAR = [];
 
-			window.addEventListener('load', function() {
-				setTimeout(function() {
-					window.scrollTo(0, 1);
-				}, 0);
-			});
-
 			$(document).ready(function() {
 				init();
 			});
 
 			function init() {
-
-				$('#btnSave').click( () => {
-					insertRent();
-				});
-
-				$('#rentStDt').datepicker({
-					language: 'ko',
-					format: 'yyyy-mm-dd'
-				});
-
 				setCal()
 					.then(function() {
 					setTimeout(function() {
 						window.dispatchEvent(new Event('resize'));
 					}, 700);
 				}).then(function() {
-					selectRentList();
+					selectTournamentList();
 				});
 			};
 
-			const selectRentList = async () => {
-				JS_COMMON.callAjaxJson('/rent/selectRentList', {}, 'POST', cb_selectRentList);
+			const selectTournamentList = async () => {
+				JS_COMMON.callAjaxJson('/tournament/selectTournamentList', {}, 'POST', cb_selectTournamentList);
 			}
 
-			const cb_selectRentList = ( result ) => {
+			const cb_selectTournamentList = ( result ) => {
 				if ( result.code !== 200 ) {
 					alert(result.successMsg);
 					return;
@@ -143,84 +121,23 @@
 				let eventList = [];
 				for (const data of dataList) {
 					eventList.push({
-						id: data.rentUid,
-						title: data.rentTitle,
-						start: data.rentStDt,
-						end: data.rentEnDt,
+						id: data.tournamentUid,
+						title: data.tournamentTitle,
+						start: data.tournamentStDt,
+						end: JS_COMMON.addOneDay( data.tournamentEnDt ),
+						oriFileNm: data.oriFileNm,
+						newFileNm: data.newFileNm,
+						fullFileNm: data.fullFileNm,
 						allDay: true
 					});
 				}
 				CALENDAR.addEventSource( eventList );
 			}
 
-			const insertRent = async () => {
-				if ( JS_COMMON.isEmpty( $('#rentTitle').val() ) ){
-					alert('내용을 입력해주세요.');
-					return;
-				}
-
-				if ( JS_COMMON.isEmpty( $('#rentStDt').val() ) ){
-					alert('날짜를 선택해주세요.');
-					return;
-				}
-
-				let rentObj = {
-					rentTitle: $('#rentTitle').val(),
-					rentStDt: $('#rentStDt').val(),
-					rentEnDt: $('#rentStDt').val()
-				};
-
-				JS_COMMON.callAjaxJson('/rent/insertRent', rentObj, 'POST', cb_insertRent);
-			}
-
-			const cb_insertRent = ( result ) => {
-				if ( result.code !== 200 ) {
-					alert(result.successMsg);
-					return;
-				}
-
-				if ( JS_COMMON.isEmpty( result.data ) )
-					return;
-
-				const data = result.data;
-				CALENDAR.addEvent({
-					id: data.rentUid,
-					title: data.rentTitle,
-					start: data.rentStDt,
-					end: data.rentEnDt,
-					allDay: true
-				});
-			}
-
-			const deleteRent = async ( calInfo ) => {
-				let rentUid = calInfo.event._def.publicId;
-				if ( JS_COMMON.isEmpty( rentUid ) ){
-					alert('대관 일정이 없습니다.');
-					return;
-				}
-
-				JS_COMMON.callAjaxJson('/rent/deleteRent', {rentUid : rentUid}, 'POST', cb_deleteRent);
-			}
-
-			const cb_deleteRent = ( result ) => {
-				if ( result.code !== 200 ) {
-					alert(result.successMsg);
-					return;
-				}
-
-				if ( JS_COMMON.isEmpty( result.data ) )
-					return;
-
-				const rentUid = result.data.rentUid;
-
-				if ( !JS_COMMON.isEmpty( CALENDAR.getEventById(rentUid) ) )
-					CALENDAR.getEventById(rentUid).remove();
-			}
-
-
 			const setCal = async message => {
 				let Calendar = FullCalendar.Calendar;
 				let calendarEl = document.getElementById('calendar');
+				const windowWidth = $(window).width();
 				const windowHeight = $(window).height() - 185;
 
 				CALENDAR_YEAR.push(new Date().getFullYear());
@@ -235,7 +152,7 @@
 					navLinks: false,
 					editable: false,
 					droppable: false,
-					dayMaxEvents: false,
+					dayMaxEvents: true,
 					dayMaxEventRows: true, // for all non-TimeGrid views
 					views: {
 						timeGrid: {
@@ -243,23 +160,16 @@
 						}
 					},
 					selectable: true,
-					eventSources: [
-						{
-							events: holidays
-						}
-					],
+					eventSources: [{ events: holidays }],
 					select: function(info) {
-						const myModal = new bootstrap.Modal(document.getElementById('add-category'));
-						JS_COMMON.formReset('frmCal');
-						$('#rentStDt').datepicker('setDate', info.startStr);
-						$('#rentTitle').focus();
-						myModal.show();
 					},
-
 					eventClick: function(info) {
-						console.log('Event: ', info);
-						if ( confirm('삭제하시겠습니까?') )
-							deleteRent( info );
+						if (JS_COMMON.isEmpty(info.event._def.extendedProps.newFileNm))
+							return;
+
+						const url = '/tournament/pdf?filename=' + info.event._def.extendedProps.newFileNm; // PDF 파일 경로
+						$('#imageViewer').attr('src', url);
+						$('#imgPopup').modal('toggle');
 					},
 
 					datesSet: async function (info) {
