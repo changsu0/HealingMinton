@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout1}">
+
+<div layout:fragment="content">
+	<body>
+	<style>
+		.breadcrumb-item + .breadcrumb-item::before{
+			content: none;
+		}
+		.table th, .table td {
+			padding: 0;
+
+		}
+		.table > :not(caption) > * > * {
+			padding: 0;
+		}
+</style>
+	<!--**********************************
+		Content body start
+	***********************************-->
+	<div class="">
+		<!-- row -->
+		<div class="container-fluid">
+			<div class="page-titles" style="margin: 10px 0">
+				<ol class="breadcrumb justify-content-between">
+					<li class="breadcrumb-item"></li>
+					<li class="breadcrumb-item active" style="font-size: 20px">Game <span th:id="gameCnt"></span></li>
+					<li class="breadcrumb-item">Time : <span th:id="gameTimer"></span></li>
+				</ol>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 8px);">
+						<div class="card-body p-1 d-flex justify-content-between" style="padding-top: 4px; padding-bottom: 8px;">
+							<button class="btn btn-primary btn-xxs" type="button" id="btnPlayer">PLAYER</button>
+							<button class="btn btn-primary btn-xxs" type="button" id="btnPlayerPP">PLAYER.PP</button>
+							<button class="btn btn-primary btn-xxs" type="button" id="btnPlayerPB">PLAYER.PB</button>
+							<button class="btn btn-primary btn-xxs" type="button" id="btnPlayerPBP">PLAYER.PBP</button>
+
+							<button class="btn btn-success btn-xxs" type="button" id="btnTie">TIE</button>
+							<button class="btn btn-success btn-xxs" type="button" id="btnTiePP">TIE.PP</button>
+							<button class="btn btn-success btn-xxs" type="button" id="btnTiePB">TIE.PB</button>
+							<button class="btn btn-success btn-xxs" type="button" id="btnTiePBP">TIE.PBP</button>
+
+							<button class="btn btn-danger btn-xxs" type="button" id="btnBanker">BANKER</button>
+							<button class="btn btn-danger btn-xxs" type="button" id="btnBankerPP">BANKER.PP</button>
+							<button class="btn btn-danger btn-xxs" type="button" id="btnBankerPB">BANKER.PB</button>
+							<button class="btn btn-danger btn-xxs" type="button" id="btnBankerPBP">BANKER.PBP</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered tabl e-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr th:each="thRow : ${rstTR}">
+										<td class="text-center align-middle" style="width: 5%; height: 45px; padding-top: 3px" th:each="tdRow : ${thRow}" th:id="'RST_' + ${thRowStat.count} + '_' + ${tdRow}">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-6">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered tabl e-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr th:each="thRow : ${prdcTR}">
+										<td class="text-center align-middle" style="width: 5%; height: 45px; padding-top: 3px" th:each="tdRow : ${thRow}" th:id="'TL_' + ${thRowStat.count} + '_' + ${tdRow}">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-6">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered tabl e-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr th:each="thRow : ${prdcTR}">
+										<td class="text-center align-middle" style="width: 5%; height: 45px; padding-top: 3px" th:each="tdRow : ${thRow}" th:id="'TR_' + ${thRowStat.count} + '_' + ${tdRow}">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-6">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered table-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr th:each="thRow : ${prdcTR}">
+										<td class="text-center align-middle" style="width: 5%; height: 45px; padding-top: 3px" th:each="tdRow : ${thRow}" th:id="'BL_' + ${thRowStat.count} + '_' + ${tdRow}">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-6">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered tabl e-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr th:each="thRow : ${prdcTR}">
+										<td class="text-center align-middle" style="width: 5%; height: 45px; padding-top: 3px" th:each="tdRow : ${thRow}" th:id="'BR_' + ${thRowStat.count} + '_' + ${tdRow}">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-6">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered table-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr th:each="thRow : ${prdcTR}">
+										<td class="text-center align-middle" style="width: 5%; height: 45px; padding-top: 3px" th:each="tdRow : ${thRow}" th:id="'RST_SUM_' + ${thRowStat.count} + '_' + ${tdRow}">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-2">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered table-responsive-sm" style="margin-bottom: 0.3rem; min-width: 0 !important;">
+									<tr>
+										<td class="text-center fw-bold" style=" height: 45px; color: blue">PLAYER</td>
+										<td class="text-center fw-bold" style=" height: 45px; color: red">BANKER</td>
+									</tr>
+									<tr>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_P_1">&nbsp;</td>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_B_1">&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_P_2">&nbsp;</td>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_B_2">&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_P_3">&nbsp;</td>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_B_3">&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_P_4">&nbsp;</td>
+										<td class="text-center align-middle" style="width: 50%; height: 45px; padding-top: 3px" id="PRDC_B_4">&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-4">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered table-responsive-sm" style="margin-bottom: 0.3rem; min-width: 0 !important;">
+									<tr>
+										<td class="text-center fw-bold" style="height: 45px;" colspan="3">승률(%)</td>
+									</tr>
+									<tr>
+										<td class="text-center fw-bold" style="width: 33%; height: 45px; color: blue">PLAYER</td>
+										<td class="text-center fw-bold" style="width: 33%; height: 45px; color: red">BANKER</td>
+										<td class="text-center fw-bold" style="width: 33%; height: 45px; color: green">TIE</td>
+									</tr>
+									<tr></tr>
+									<tr>
+										<td class="text-center fw-bold" style="height: 135px;" th:id="winRateP">&nbsp;</td>
+										<td class="text-center fw-bold" style="height: 135px;" th:id="winRateB">&nbsp;</td>
+										<td class="text-center fw-bold" style="height: 135px;" th:id="winRateT">&nbsp;</td>
+									</tr>
+									<tr></tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-8">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered table-responsive-sm" style="margin-bottom: 0.3rem; min-width: 0 !important;">
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center fw-bold">뱅커 첫 두 장 합</td>
+										<td class="text-center fw-bold">플레이어 세 번째 카드</td>
+										<td class="text-center fw-bold">뱅커 추가 카드 여부</td>
+									</tr>
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center" style="width: 33%;">3점</td>
+										<td class="text-center" style="width: 33%;">0, 1, 2, 3, 4, 5, 6, 7, 9</td>
+										<td class="text-center" style="width: 33%;">✅ 추가 카드 받음</td>
+									</tr>
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center" style="width: 33%;">4점</td>
+										<td class="text-center" style="width: 33%;">2, 3, 4, 5, 6, 7</td>
+										<td class="text-center" style="width: 33%;">✅ 추가 카드 받음</td>
+									</tr>
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center" style="width: 33%;">5점</td>
+										<td class="text-center" style="width: 33%;">4, 5, 6, 7</td>
+										<td class="text-center" style="width: 33%;">✅ 추가 카드 받음</td>
+									</tr>
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center" style="width: 33%;">6점</td>
+										<td class="text-center" style="width: 33%;">6, 7</td>
+										<td class="text-center" style="width: 33%;">✅ 추가 카드 받음</td>
+									</tr>
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center" style="width: 33%;">7점</td>
+										<td class="text-center" style="width: 33%;">추가 카드 없음 (스탠드)</td>
+										<td class="text-center" style="width: 33%;">❌ 추가 카드 없음</td>
+									</tr>
+									<tr style="height: 35px; font-size:16px">
+										<td class="text-center" style="width: 33%;">8, 9점</td>
+										<td class="text-center" style="width: 33%;">내추럴(Natural)로 즉시 승부</td>
+										<td class="text-center" style="width: 33%;">❌ 추가 카드 없음</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		"use strict";
+
+		$(document).ready(function() {
+			init();
+
+			$('#btnPlayer').click(() => {
+				gameWin('P');
+			});
+
+			$('#btnBanker').click(() => {
+				gameWin('B');
+			});
+
+			$('#btnTie').click(() => {
+				gameWin('T');
+			});
+
+			$('#btnTiePP').click(() => {
+				gameWin('T', 'P');
+			});
+
+			$('#btnTiePB').click(() => {
+				gameWin('T', 'B');
+			});
+
+			$('#btnTiePBP').click(() => {
+				gameWin('T', 'BP');
+			});
+
+			$('#btnPlayerPP').click(() => {
+				gameWin('P', 'P');
+			});
+
+			$('#btnBankerPP').click(() => {
+				gameWin('B', 'P');
+			});
+
+			$('#btnPlayerPB').click(() => {
+				gameWin('P', 'B');
+			});
+
+			$('#btnBankerPB').click(() => {
+				gameWin('B', 'B');
+			});
+
+			$('#btnPlayerPBP').click(() => {
+				gameWin('P', 'BP');
+			});
+
+			$('#btnBankerPBP').click(() => {
+				gameWin('B', 'BP');
+			});
+		});
+
+		const init = () => {
+			$('.hamburger').click();
+			gameResult();
+			gameTimer();
+			gameCnt();
+		}
+
+		const insertBaccara = ( win, gameNum, pairType ) => {
+			let pair, pairB, pairP;
+			if ( JS_COMMON.isEmpty(pairType) ) {
+				pair = '';
+				pairB = '';
+				pairP = '';
+			} else {
+				pair = pairType;
+				pairB = pairType.includes('B') ? 'B' : '';
+				pairP = pairType.includes('P') ? 'P' : '';
+			}
+
+			let objParam = {
+				win: win,
+				gameNum: gameNum,
+				pair: pair,
+				pairB: pairB,
+				pairP: pairP,
+			}
+			JS_COMMON.callAjaxJson('/baccara/insertBaccara', objParam, 'POST', cb_insertBaccara);
+		}
+
+		const cb_insertBaccara = (result) => {
+			if ( result.code !== 200 ) {
+				alert(result.successMsg);
+				return;
+			}
+		}
+
+		let GAME_CNT = 0;
+		let WIN_P = 0;
+		let WIN_B = 0;
+		let WIN_T = 0;
+
+		let WIN = '';
+		let RST_TABLE_COL = 0;
+		let RST_TABLE_ROW = 0;
+		let RST_TABLE_COL_SAVE = 0;
+
+		let RST_SUM_TABLE_COL = 1;
+		let RST_SUM_TABLE_ROW = 0;
+
+		let PRDC_TABLE_COL = 1;
+		let PRDC_TABLE_ROW = 0;
+
+		const RST_ROW_MAX_CNT = 8;
+		const RST_SUM_ROW_MAX_CNT = 5;
+		const PRDC_ROW_MAX_CNT = 5;
+
+
+		const gameWin = ( winnerType, pairType ) => {
+			insertBaccara( winnerType, GAME_CNT, pairType );
+			/********************* 게임결과 상단 ***********************/
+			if ( WIN === winnerType || 'T' === winnerType ){
+				if ( RST_TABLE_ROW === RST_ROW_MAX_CNT ){
+					if ( RST_TABLE_COL_SAVE === RST_TABLE_COL )
+						RST_TABLE_COL_SAVE = RST_TABLE_COL;
+					RST_TABLE_COL++;
+				} else {
+					if ( RST_TABLE_COL === 0 )
+						RST_TABLE_COL++;
+
+					RST_TABLE_ROW++;
+					RST_TABLE_COL_SAVE = RST_TABLE_COL;
+				}
+			}else{
+				if ( (RST_TABLE_COL - RST_TABLE_COL_SAVE) > 1 )
+					RST_TABLE_COL = RST_TABLE_COL_SAVE + 1;
+				else
+					RST_TABLE_COL++;
+				RST_TABLE_ROW = 1;
+				RST_TABLE_COL_SAVE = RST_TABLE_COL;
+			}
+			/********************* 게임결과 상단 ***********************/
+
+
+			/********************* 게임결과 누적 ***********************/
+			if ( RST_SUM_TABLE_ROW === RST_SUM_ROW_MAX_CNT ){
+				RST_SUM_TABLE_COL++;
+				RST_SUM_TABLE_ROW = 1;
+			}else{
+				RST_SUM_TABLE_ROW++;
+			}
+			/********************* 게임결과 누적 ***********************/
+
+
+			/********************* 예측 누적 ***********************/
+			if ( PRDC_TABLE_ROW === PRDC_ROW_MAX_CNT ){
+				PRDC_TABLE_COL++;
+				PRDC_TABLE_ROW = 1;
+			}else{
+				PRDC_TABLE_ROW++;
+			}
+			/********************* 예측 누적 ***********************/
+
+
+			/********************* 승률 ***********************/
+			switch ( winnerType ) {
+				case 'P' : WIN_P++; break;
+				case 'B' : WIN_B++; break;
+				case 'T' : WIN_T++; break;
+			}
+			const winRateP = GAME_CNT ? Math.round( (WIN_P / GAME_CNT) * 10000 ) / 100 : 0;
+			const winRateB = GAME_CNT ? Math.round( (WIN_B / GAME_CNT) * 10000 ) / 100 : 0;
+			const winRateT = GAME_CNT ? Math.round( (WIN_T / GAME_CNT) * 10000 ) / 100 : 0;
+			$('#winRateP').text(winRateP + '%');
+			$('#winRateB').text(winRateB + '%');
+			$('#winRateT').text(winRateT + '%');
+			/********************* 승률 ***********************/
+
+
+			let img = '<img src="/images/baccara/' + winnerType + (JS_COMMON.isEmpty(pairType) ? '' : '_P_' + pairType) + '.png" width="30" height="30" />';
+			$('#RST_' + RST_TABLE_ROW + '_' + RST_TABLE_COL).html( img );
+			$('#RST_SUM_' + RST_SUM_TABLE_ROW + '_' + RST_SUM_TABLE_COL).html( img );
+
+			if ( winnerType !== 'T' )
+				WIN = winnerType;
+
+			makePrdc();
+			gameCnt();
+		}
+
+		const makePrdc = () => {
+			const numTL = Math.floor(Math.random() * 2);
+			const numTR = Math.floor(Math.random() * 2);
+			const numBL = Math.floor(Math.random() * 2);
+			const numBR = Math.floor(Math.random() * 2);
+			let imgTL = '<img src="/images/baccara/' + 'PRDC_' + (numTL == 0 ? 'P' : 'B') + '_1.png" width="30" height="30" />';
+			let imgTR = '<img src="/images/baccara/' + 'PRDC_' + (numTR == 0 ? 'P' : 'B') + '_2.png" width="30" height="30" />';
+			let imgBL = '<img src="/images/baccara/' + 'PRDC_' + (numBL == 0 ? 'P' : 'B') + '_3.png" width="30" height="30" />';
+			let imgBR = '<img src="/images/baccara/' + 'PRDC_' + (numBR == 0 ? 'P' : 'B') + '_4.png" width="30" height="30" />';
+
+			$('#TL_' + PRDC_TABLE_ROW + '_' + PRDC_TABLE_COL).html( imgTL );
+			$('#TR_' + PRDC_TABLE_ROW + '_' + PRDC_TABLE_COL).html( imgTR );
+			$('#BL_' + PRDC_TABLE_ROW + '_' + PRDC_TABLE_COL).html( imgBL );
+			$('#BR_' + PRDC_TABLE_ROW + '_' + PRDC_TABLE_COL).html( imgBR );
+
+			const prdc1 = Math.floor(Math.random() * 2);
+			const prdc2 = Math.floor(Math.random() * 2);
+			const prdc3 = Math.floor(Math.random() * 2);
+			const prdc4 = Math.floor(Math.random() * 2);
+			$('#PRDC_P_1').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc1 == 0 ? 'P' : 'B') + '_1.png" width="30" height="30" />' );
+			$('#PRDC_B_1').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc1 == 1 ? 'P' : 'B') + '_1.png" width="30" height="30" />' );
+
+			$('#PRDC_P_2').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc2 == 0 ? 'P' : 'B') + '_2.png" width="30" height="30" />' );
+			$('#PRDC_B_2').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc2 == 1 ? 'P' : 'B') + '_2.png" width="30" height="30" />' );
+
+			$('#PRDC_P_3').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc3 == 0 ? 'P' : 'B') + '_3.png" width="30" height="30" />' );
+			$('#PRDC_B_3').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc3 == 1 ? 'P' : 'B') + '_3.png" width="30" height="30" />' );
+
+			$('#PRDC_P_4').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc4 == 0 ? 'P' : 'B') + '_4.png" width="30" height="30" />' );
+			$('#PRDC_B_4').html( '<img src="/images/baccara/' + 'PRDC_' + (prdc4 == 1 ? 'P' : 'B') + '_4.png" width="30" height="30" />' );
+		}
+
+		const gameCnt = () => {
+			$('#gameCnt').text( ++GAME_CNT );
+		}
+
+		function lpad(value) {
+			return String(value).padStart(2, '0');
+		}
+
+		const gameTimer = () => {
+			let hours = 0;
+			let minutes = 0;
+			let seconds = 0;
+
+
+			function updateTime() {
+				seconds++;
+				if (seconds === 60) {
+					seconds = 0;
+					minutes++;
+					if (minutes === 60) {
+						minutes = 0;
+						hours++;
+						if (hours === 24) {
+							hours = 0;
+						}
+					}
+				}
+
+				const timeString = `${lpad(hours)}:${lpad(minutes)}:${lpad(seconds)}`;
+				$('#gameTimer').text(timeString)
+			}
+
+			setInterval(updateTime, 1000);
+		}
+
+		const gameResult = () => {
+			let innerHtml = '';
+
+			for (let i = 0; i < 5; i++) {
+				innerHtml += '<tr>';
+				for (let i = 0; i < 30; i++) {
+					innerHtml += '<td>' + (i + 1) + '</td>';
+				}
+				innerHtml += '</tr>';
+			}
+			// $('#gameResult').html(innerHtml);
+		}
+
+
+
+	</script>
+
+	</body>
+</div>
+</html>
