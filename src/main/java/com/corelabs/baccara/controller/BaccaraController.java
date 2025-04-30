@@ -43,6 +43,10 @@ public class BaccaraController {
         model.addAttribute("prdcTR", prdcTR);
         return "baccara/baccara";
     }
+    @GetMapping("/baccaraCard")
+    public String baccaraCard(Model model) {
+        return "baccara/baccaraCard";
+    }
 
     @PostMapping("/insertBaccara")
     @ResponseBody

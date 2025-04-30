@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout1}">
+
+<div layout:fragment="content">
+	<body>
+	<style>
+		td {
+			text-align: center;
+			vertical-align: middle;
+		}
+	</style>
+	<!--**********************************
+		Content body start
+	***********************************-->
+	<div class="">
+		<!-- row -->
+		<div class="container-fluid">
+			<div class="page-titles" style="margin: 10px 0">
+				<ol class="breadcrumb justify-content-between">
+					<li class="breadcrumb-item">
+						<select class="form-control" style="width: 100px" th:id="cardSetNo">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12" selected>12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+							<option value="15">15</option>
+							<option value="16">16</option>
+						</select>
+					</li>
+					<li class="breadcrumb-item">
+						<button class="btn-sm" id="btnBack">되돌리기</button>
+					</li>
+				</ol>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1">
+							<div class="table-responsive">
+								<table class="table table-bordered tabl e-responsive-sm" style="margin-bottom: 0.3rem">
+									<tr>
+										<td style="width: 25%"><span class="badge light badge-light" id="BTN_1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										<td style="width: 25%" id="TD_1"></td>
+										<td style="width: 25%"><span class="badge light badge-light" id="BTN_2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										<td style="width: 25%" id="TD_2"></td>
+									</tr>
+									<tr>
+										<td><span class="badge light badge-light" id="BTN_3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_3"></td>
+										<td><span class="badge light badge-light" id="BTN_4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_4"></td>
+									</tr>
+									<tr>
+										<td><span class="badge light badge-light" id="BTN_5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_5"></td>
+										<td><span class="badge light badge-light" id="BTN_6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_6"></td>
+									</tr>
+									<tr>
+										<td><span class="badge light badge-light" id="BTN_7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_7"></td>
+										<td><span class="badge light badge-light" id="BTN_8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_8"></td>
+									</tr>
+									<tr>
+										<td><span class="badge light badge-light" id="BTN_9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_9"></td>
+										<td><span class="badge light badge-light" id="BTN_10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_10"></td>
+									</tr>
+									<tr>
+										<td><span class="badge light badge-light" id="BTN_11">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_11"></td>
+										<td><span class="badge light badge-light" id="BTN_12">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										 <td id="TD_12"></td>
+									</tr>
+									<tr>
+										<td><span class="badge light badge-light" id="BTN_13">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;K&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+										<td id="TD_13"></td>
+										<td></td>
+										<td></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card border-0 pb-0" style="margin-bottom: 10px;height: calc(100% - 14px);">
+						<div class="card-body p-1" id="history">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		"use strict";
+
+		$(document).ready(function() {
+			init();
+
+			$('#cardSetNo').change(function() {
+				if ( confirm('카드를 초기화 하시겠습니까?') ) {
+					resetCard();
+				}
+			});
+
+			$('#btnBack').click(function() {
+				cardDown();
+			});
+
+			$('.badge-light').click(function() {
+				let elID = $(this).attr('id');
+				const no = elID.replace('BTN_', '');
+				cardUp( no );
+			});
+		});
+
+		const init = () => {
+			$('.hamburger').click();
+			resetCard();
+		}
+
+		const resetCard = () => {
+			let cardSet = $('#cardSetNo').val();
+			for (let i = 1; i <= 13; i++) {
+				$('#TD_' + i).text( Number(cardSet) * 4 );
+			}
+			$('#history').empty();
+		}
+
+		let CARD_CNT = 1;
+
+		const cardUp = ( cardNo ) => {
+			console.log(cardNo);
+			let cnt = Number($('#TD_' + cardNo).text());
+			if ( cnt > 0 ) {
+				$('#TD_' + cardNo).text( cnt - 1 );
+			}
+
+			$('#history').prepend('<span class="badge badge-rounded badge-outline-light" id="HISTORY_' + CARD_CNT++ + '">' + cardNo + '</span>');
+		}
+
+		const cardDown = () => {
+			if ( CARD_CNT > 0 ){
+				let cardNo = Number($('#HISTORY_' + CARD_CNT).text());
+
+				let nowCnt = Number($('#TD_' + cardNo).text());
+				$('#TD_' + cardNo).text( nowCnt + 1 );
+
+				$('#HISTORY_' + CARD_CNT).remove();
+				CARD_CNT--;
+			}
+		}
+	</script>
+
+	</body>
+</div>
+</html>
