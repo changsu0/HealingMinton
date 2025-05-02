@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <title>Specify Court Count</title>
+    <style>
+        .court-count-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        .court-count-form {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .court-count-form h2 {
+            margin-bottom: 20px;
+        }
+
+        .court-count-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .court-count-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .court-count-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+<div class="court-count-container">
+    <form class="court-count-form" id="courtCountForm">
+        <h2>코트 수 지정</h2>
+        <input type="number" id="courtCount" name="courtCount" placeholder="Enter number of courts" min="1" max="12" value="4" required style="margin-right: 10px; width: 100%; padding: 10px; box-sizing: border-box;">
+        <button type="button" onclick="submitCourtCount()">다음으로</button>
+    </form>
+</div>
+<script th:inline="javascript">
+    function submitCourtCount() {
+        const courtCount = document.getElementById('courtCount').value;
+
+        if (!courtCount || courtCount < 1 || courtCount > 12) {
+            alert('최소 1개, 최대 12개의 코트만 선택 할 수 있습니다.');
+            return;
+        }
+
+        // Redirect to dragLayout with courtCount as a query parameter
+        window.location.href = `/drag/dragLayout?courtCount=${courtCount}`;
+    }
+</script>
+</body>
+</html>

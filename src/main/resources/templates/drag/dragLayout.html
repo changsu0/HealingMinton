@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Drag and Drop with Sortable.js</title>
+	<style>
+		.radio-group {
+			margin-bottom: 10px;
+			font-size: 16px;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+		}
+		.radio-group label {
+			margin-right: 10px;
+		}
+		.name-input {
+			margin-left: 10px;
+			padding: 5px;
+			font-size: 14px;
+		}
+		.grade-select {
+			margin-left: 10px;
+			padding: 5px;
+			font-size: 14px;
+		}
+		.add-button {
+			margin-left: 10px;
+			padding: 5px 10px;
+			font-size: 14px;
+			cursor: pointer;
+			background-color: #0000ff;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+		}
+		.vertical-div {
+			width: 150px;
+			background-color: #e0e0e0;
+			border: 1px solid #ccc;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 10px;
+			overflow-y: auto;
+		}
+		.new-horizontal-div {
+			width: 100%;
+			min-height: 60px;
+			height: auto;
+			background-color: #e0f7fa;
+			border: 1px solid #ccc;
+			display: flex;
+			justify-content: flex-start;
+			align-items: flex-start;
+			font-size: 18px;
+			color: #333;
+			margin-bottom: 10px;
+			padding: 15px;
+			box-sizing: border-box;
+		}
+		.large-horizontal-div {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			width: 100%;
+			height: 200px;
+			background-color: #f0f0f0;
+			border: 1px solid #ccc;
+			padding: 10px;
+			box-sizing: border-box;
+		}
+
+		.draggable-item {
+			min-width: 80px;
+			width: auto;
+			height: 20px;
+			background-color: pink;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: move;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			font-size: 12px;
+		}
+		.container {
+			display: flex;
+			width: 100%;
+		}
+
+		.content {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.header {
+			font-size: 18px;
+			font-weight: bold;
+			margin-bottom: 5px;
+			display: inline-flex;
+			align-items: center;
+		}
+
+		.right-vertical-div {
+			width: 200px;
+			height: 100%;
+			background-color: #f8f9fa;
+			border: 1px solid #333333;
+			padding: 10px;
+			margin-left: 20px;
+			box-sizing: border-box;
+			overflow-y: auto;
+		}
+
+		.top-horizontal-div {
+			width: 100%;
+			background-color: #d3d3d3;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			align-items: center;
+			border: 1px solid #ccc;
+			margin-bottom: 10px;
+			padding: 10px;
+			box-sizing: border-box;
+			overflow: hidden;
+		}
+		.child-div {
+			width: calc(25% - 10px);
+			height: 100px;
+			background-color: #ffffff;
+			border: 1px solid #000;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			box-sizing: border-box;
+			margin: 5px;
+		}
+		.right-vertical-div-container {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.right-vertical-div-container .header {
+			font-size: 18px;
+			font-weight: bold;
+			margin-bottom: 5px;
+			display: inline-flex;
+			align-items: center;
+		}
+
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+	<div class="content">
+		<div class="header">
+			<span>코트 배치</span>
+		</div>
+		<div class="top-horizontal-div">
+			<div class="child-div"></div>
+			<div class="child-div"></div>
+			<div class="child-div"></div>
+			<div class="child-div"></div>
+		</div>
+		<div class="header">
+			<span>그룹 구성</span>
+		</div>
+		<div class="new-horizontal-div"></div>
+		<div class="header">
+			<span>추가</span>
+		</div>
+		<div class="radio-group">
+			<label>
+				<input type="radio" name="gender" value="male" checked> 남성
+			</label>
+			<label>
+				<input type="radio" name="gender" value="female"> 여성
+			</label>
+			<input type="text" class="name-input" placeholder="이름을 입력하세요">
+			<select class="grade-select">
+				<option value="A">A</option>
+				<option value="B">B</option>
+				<option value="C">C</option>
+				<option value="D">D</option>
+			</select>
+			<button class="add-button" onclick="validateForm()">추가</button>
+		</div>
+		<div class="large-horizontal-div"></div>
+	</div>
+	<div class="right-vertical-div-container">
+		<div class="header">
+			<span style="margin-left: 20px">대기</span>
+		</div>
+		<div class="right-vertical-div">
+			<!-- Add your content here -->
+		</div>
+	</div>
+</div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const courtCount = parseInt(urlParams.get('courtCount')) || 4;
+
+		const topHorizontalDiv = document.querySelector('.top-horizontal-div');
+		topHorizontalDiv.innerHTML = '';
+
+		for (let i = 0; i < courtCount; i++) {
+			const childDiv = document.createElement('div');
+			childDiv.className = 'child-div';
+			topHorizontalDiv.appendChild(childDiv);
+		}
+	});
+
+	new Sortable(document.querySelector('.large-horizontal-div'), {
+		group: 'shared',
+		animation: 150,
+		ghostClass: 'blue-background-class',
+		filter: ':not(div)',
+		onStart: function (evt) {
+			if (!evt.item.matches('div')) {
+				evt.preventDefault();
+			}
+		},
+	});
+
+	function validateForm() {
+		const gender = document.querySelector('input[name="gender"]:checked');
+		const nameInput = document.querySelector('.name-input');
+		const gradeSelect = document.querySelector('.grade-select');
+		const largeDiv = document.querySelector('.large-horizontal-div');
+
+		if (!gender) {
+			alert("성별을 선택해주세요.");
+			return false;
+		}
+
+		if (!nameInput.value.trim()) {
+			alert("이름을 입력해주세요.");
+			return false;
+		}
+
+		// Create a new div
+		const newDiv = document.createElement('div');
+		newDiv.className = "draggable-item";
+		newDiv.innerHTML = `<b>${nameInput.value.trim()}</b>  ( ${gradeSelect.value} )`;
+
+		if (gender.value === "female") {
+			newDiv.style.backgroundColor = "pink";
+		} else if (gender.value === "male") {
+			newDiv.style.backgroundColor = "skyblue";
+		}
+
+		largeDiv.appendChild(newDiv);
+
+		// Clear the input fields
+		document.querySelectorAll('input[name="gender"]').forEach(radio => radio.checked = false);
+		document.querySelector('input[name="gender"][value="male"]').checked = true; // Reset to male
+		nameInput.value = "";
+		gradeSelect.value = "A";
+
+		return true;
+	}
+
+	const newHorizontalDiv = document.querySelector('.new-horizontal-div');
+
+	function createCloseButton(groupDiv) {
+		const closeButton = document.createElement('button');
+		closeButton.innerHTML = 'x';
+		closeButton.style.position = 'absolute';
+		closeButton.style.top = '5px';
+		closeButton.style.right = '5px';
+		closeButton.style.backgroundColor = 'red';
+		closeButton.style.color = 'white';
+		closeButton.style.border = 'none';
+		closeButton.style.borderRadius = '50%';
+		closeButton.style.width = '20px';
+		closeButton.style.height = '20px';
+		closeButton.style.cursor = 'pointer';
+		closeButton.style.fontSize = '12px';
+
+		closeButton.addEventListener('click', () => {
+			const largeDiv = document.querySelector('.large-horizontal-div');
+			while (groupDiv.firstChild) {
+				if (!groupDiv.firstChild.classList.contains('draggable-item')) {
+					groupDiv.firstChild.remove();
+				} else {
+					largeDiv.appendChild(groupDiv.firstChild);
+				}
+			}
+			// Remove the group
+			groupDiv.remove();
+		});
+
+		groupDiv.style.position = 'relative';
+		groupDiv.appendChild(closeButton);
+	}
+
+	function groupDraggableItems() {
+		const items = Array.from(newHorizontalDiv.querySelectorAll('.draggable-item'));
+
+		while (items.length >= 4) {
+			const groupDiv = document.createElement('div');
+			groupDiv.className = 'draggable-group';
+			groupDiv.style.display = 'flex';
+			groupDiv.style.flexWrap = 'wrap';
+			groupDiv.style.border = '2px solid #000';
+			groupDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+			groupDiv.style.padding = '10px';
+			groupDiv.style.margin = '5px';
+
+			for (let i = 0; i < 4; i++) {
+				groupDiv.appendChild(items.shift());
+			}
+
+			createCloseButton(groupDiv);
+			newHorizontalDiv.appendChild(groupDiv);
+
+			new Sortable(groupDiv, {
+				group: 'shared',
+				animation: 150,
+				ghostClass: 'blue-background-class',
+			});
+		}
+	}
+
+	new Sortable(newHorizontalDiv, {
+		group: 'shared',
+		animation: 150,
+		ghostClass: 'blue-background-class',
+		filter: ':not(div)',
+		onStart: function (evt) {
+			if (!evt.item.matches('div')) {
+				evt.preventDefault();
+			}
+		},
+		onAdd: function () {
+			groupDraggableItems();
+		},
+		onRemove: function (evt) {
+			const parentGroup = evt.from;
+
+			if (parentGroup.classList.contains('draggable-group')) {
+				if (parentGroup.children.length === 0) {
+					parentGroup.remove();
+				} else if (parentGroup.children.length < 4) {
+					while (parentGroup.firstChild) {
+						newHorizontalDiv.appendChild(parentGroup.firstChild);
+					}
+					parentGroup.remove(); // Remove the group after ungrouping
+				}
+			}
+		},
+	});
+
+	new Sortable(newHorizontalDiv, {
+		group: 'shared',
+		animation: 150,
+		ghostClass: 'blue-background-class',
+		onAdd: function (evt) {
+			const targetGroup = evt.to; // The group where the item is being added
+
+			// Check if the target is a draggable-group and already has 4 children
+			if (targetGroup.classList.contains('draggable-group') && targetGroup.children.length > 4) {
+				// Move the item back to its original container
+				evt.from.appendChild(evt.item);
+				alert('A draggable-group can only contain up to 4 items.');
+			} else {
+				groupDraggableItems(); // Regroup items if necessary
+			}
+		},
+	});
+
+	new Sortable(document.querySelector('.right-vertical-div'), {
+		group: 'shared',
+		animation: 150,
+		ghostClass: 'blue-background-class',
+		onAdd: function (evt) {
+			const item = evt.item;
+
+			// Check if the dragged item has the 'draggable-item' class
+			if (item.classList.contains('draggable-item')) {
+				// Move the item back to its original container
+				evt.from.appendChild(item);
+				alert('draggable-item elements cannot be moved into this container.');
+			}
+		},
+	});
+
+	// Initialize Sortable for each child-div in top-horizontal-div
+	document.querySelectorAll('.top-horizontal-div .child-div').forEach(childDiv => {
+		new Sortable(childDiv, {
+			group: 'shared',
+			animation: 150,
+			ghostClass: 'blue-background-class',
+			filter: ':not(div)', // Prevent non-div elements from being draggable
+			onStart: function (evt) {
+				if (!evt.item.matches('div')) {
+					evt.preventDefault(); // Cancel drag if the item is not a div
+				}
+			},
+		});
+	});
+
+</script>
+</body>
+</html>
