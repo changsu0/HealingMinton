@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>경기 그룹 관리</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fff;
+      font-family: '맑은 고딕', sans-serif;
+      box-sizing: border-box;
+    }
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+    .top-section {
+      display: flex;
+      flex-direction: row;
+      height: 40vh;
+      min-height: 350px;
+      background: #176888;
+      border: 3px solid #176888;
+      box-sizing: border-box;
+    }
+    .left, .center, .right {
+      margin: 10px;
+      box-sizing: border-box;
+    }
+    .left {
+      width: 18vw;
+      min-width: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .right {
+      width: 18vw;
+      min-width: 250px;
+      background: #176888;
+      border: 2px solid #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+    }
+    .title {
+      color: #fff;
+      font-size: 2rem;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .group-list, .waiting-list {
+      background: #fff;
+      border: 3px solid #176888;
+      margin: 10px 0;
+      padding: 20px 10px;
+      min-width: 180px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    .name-box {
+      padding: 10px 0;
+      margin: 0 0 5px 0;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      border: 1.5px solid #222;
+      cursor: grab;
+      background: #176888;
+      color: #fff;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .name-box.orange {
+      background: #e97a3a;
+      color: #fff;
+    }
+    .groups-area {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      margin-top: 10px;
+    }
+    .group {
+      background: #fff;
+      border: 2px solid #222;
+      min-width: 220px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 15px;
+      gap: 10px;
+    }
+    .right .title {
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+    .waiting-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 90%;
+      margin: 10px 0;
+    }
+    .waiting-group {
+      background: #fff;
+      border: 2px solid #222;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      min-height: 60px;
+    }
+    .waiting-group .name-box {
+      flex: 1 1 40%;
+      margin: 0;
+      min-width: 70px;
+    }
+    .waiting-empty {
+      background: #fff;
+      border: 2px solid #222;
+      min-height: 60px;
+      margin-top: 10px;
+    }
+    .add-section {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: center;
+      margin: 30px 40px 0 0;
+      gap: 10px;
+    }
+    .add-section input {
+      font-size: 1.1rem;
+      padding: 5px 10px;
+      border: 2px solid #176888;
+      border-radius: 3px;
+      outline: none;
+    }
+    .add-section button {
+      font-size: 1.1rem;
+      padding: 5px 20px;
+      background: #176888;
+      color: #fff;
+      border: 2px solid #176888;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-section button:hover {
+      background: #14506b;
+    }
+    .bottom-section {
+      border: 3px solid #176888;
+      margin: 30px 40px 0 40px;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .bottom-names {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px 30px;
+      justify-content: center;
+      width: 100%;
+    }
+    .bottom-names .name-box {
+      min-width: 120px;
+      margin: 0;
+    }
+  </style>
+  <!-- SortableJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="top-section">
+      <div class="left">
+        <div class="group-list" id="left-list">
+          <div class="name-box">홍길동</div>
+          <div class="name-box">김개똥</div>
+          <div class="name-box orange">김영희</div>
+          <div class="name-box orange">이수지</div>
+        </div>
+      </div>
+      <div class="center">
+        <div class="title">경기중</div>
+        <div class="groups-area" id="game-groups">
+          <div class="group" id="game-group-1">
+            <!-- 그룹 내부 이름 박스들 -->
+          </div>
+          <div class="group" id="game-group-2"></div>
+          <div class="group" id="game-group-3"></div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="title">대기중</div>
+        <div class="waiting-group-list" id="wait-groups">
+          <div class="waiting-group" id="wait-group-1">
+            <div class="name-box">홍길동</div>
+            <div class="name-box">김개똥</div>
+            <div class="name-box orange">김영희</div>
+            <div class="name-box orange">이수지</div>
+          </div>
+          <div class="waiting-group" id="wait-group-2">
+            <div class="name-box">홍길동</div>
+            <div class="name-box">김개똥</div>
+            <div class="name-box orange">김영희</div>
+            <div class="name-box orange">이수지</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="add-section">
+      <input type="text" placeholder="이름">
+      <button>추가</button>
+    </div>
+    <div class="bottom-section">
+      <div class="bottom-names">
+        <div class="name-box">홍길동</div>
+        <div class="name-box">김개똥</div>
+        <div class="name-box">최철수</div>
+        <div class="name-box">홍길동</div>
+        <div class="name-box">김개똥</div>
+        <div class="name-box">최철수</div>
+        <div class="name-box orange">김영희</div>
+        <div class="name-box orange">이수지</div>
+        <div class="name-box orange">삼수지</div>
+        <div class="name-box orange">김영희</div>
+        <div class="name-box orange">이수지</div>
+        <div class="name-box orange">삼수지</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // 1. 이름 박스 드래그 (그룹 내부)
+    const groupIds = [
+      'game-group-1', 'game-group-2', 'game-group-3',
+      'wait-group-1', 'wait-group-2'
+    ];
+    groupIds.forEach(id => {
+      new Sortable(document.getElementById(id), {
+        group: 'member',
+        animation: 150,
+        onAdd: function (evt) {
+          if (evt.to.children.length > 4) {
+            evt.from.appendChild(evt.item);
+            alert('한 그룹에는 최대 4명만 넣을 수 있습니다.');
+          }
+        }
+      });
+    });
+
+    // 2. 그룹 전체 드래그 (경기중/대기중 그룹 리스트)
+    new Sortable(document.getElementById('game-groups'), {
+      group: 'team',
+      animation: 200,
+      draggable: '.group'
+    });
+    new Sortable(document.getElementById('wait-groups'), {
+      group: 'team',
+      animation: 200,
+      draggable: '.waiting-group'
+    });
+
+    // 3. 왼쪽 대기 인원에서 각 그룹으로 이름 드래그
+    new Sortable(document.getElementById('left-list'), {
+      group: 'member',
+      animation: 150
+    });
+  </script>
+</body>
+</html>
