@@ -36,7 +36,6 @@ public class UserController {
     }
     /* WEB End*/
 
-
     @PostMapping("/selectUserList")
     @ResponseBody
     public String selectUserList(@ModelAttribute UserVO userVO){

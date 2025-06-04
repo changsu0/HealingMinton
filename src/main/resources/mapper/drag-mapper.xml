@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.dragLayout.mapper.DragMapper">
+
+    <select id="getMaxGroupNumber" resultType="int">
+        SELECT COALESCE(MAX(GROUP_NO), 0) FROM tb_court_reservation
+    </select>
+
+    <insert id="insertCoatRes" parameterType="list">
+        INSERT INTO tb_court_reservation (
+        USER_NM,
+        USER_UID,
+        STATUS,
+        GRADE,
+        GENDER,
+        GROUP_NO,
+        CREATE_USER_ID,
+        CREATE_DT,
+        UPDATE_USER_ID,
+        UPDATE_DT
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.userNm},
+            #{item.userUid},
+            #{item.status},
+            #{item.grade},
+            #{item.gender},
+            #{item.groupNo},
+            #{item.createUserId},
+            SYSDATE(),
+            #{item.updateUserId},
+            SYSDATE()
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectReservationsByStatus" resultType="com.corelabs.dragLayout.vo.DragVO">
+        SELECT USER_NM, USER_UID, STATUS, GRADE, GENDER, GROUP_NO, COURT_NUMBER
+        FROM tb_court_reservation
+        WHERE STATUS IN ('W', 'P')
+    </select>
+
+    <delete id="deleteGroupItems" parameterType="list">
+        DELETE FROM tb_court_reservation
+        WHERE USER_UID IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+
+    <!-- Select by ID -->
+    <select id="selectById" parameterType="string" resultType="com.corelabs.dragLayout.vo.DragVO">
+        SELECT * FROM tb_court_reservation WHERE USER_UID = #{userUid}
+    </select>
+
+    <!-- Update item -->
+    <update id="updateItem" parameterType="com.corelabs.dragLayout.vo.DragVO">
+        UPDATE tb_court_reservation
+        SET STATUS = #{status},
+            COURT_NUMBER = #{courtNumber},
+            MATCH_START_DATETIME = #{matchStartDateTime},
+            <!-- MATCH_START_DATETIME = DATE_FORMAT(SYSDATE(), '%H:%i:%s'),Update only the current time -->
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = SYSDATE()
+        WHERE USER_UID = #{userUid}
+    </update>
+
+    <!-- Insert new item -->
+    <insert id="insertNewItem" parameterType="com.corelabs.dragLayout.vo.DragVO">
+        INSERT INTO tb_court_reservation (
+        USER_NM,
+        USER_UID,
+        STATUS,
+        COURT_NUMBER,
+        GRADE,
+        GENDER,
+        GROUP_NO,
+        MATCH_START_DATETIME,
+        CREATE_USER_ID,
+        CREATE_DT,
+        UPDATE_USER_ID,
+        UPDATE_DT
+        ) VALUES
+        (
+            #{userNm},
+            #{userUid},
+            #{status},
+            #{courtNumber},
+            #{grade},
+            #{gender},
+            #{groupNo},
+            DATE_FORMAT(SYSDATE(), '%H:%i:%s'), <!-- Insert only the current time -->
+            #{createUserId},
+            SYSDATE(),
+            #{updateUserId},
+            SYSDATE()
+        )
+    </insert>
+
+    <update id="updateMatchDuration" parameterType="com.corelabs.dragLayout.vo.DragVO">
+        UPDATE tb_court_reservation
+        SET STATUS = #{status},
+            MATCH_END_DATETIME = #{matchEndDateTime},
+            MATCH_DURATION = #{matchDuration},
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = SYSDATE()
+        WHERE USER_UID = #{userUid}
+    </update>
+
+</mapper>

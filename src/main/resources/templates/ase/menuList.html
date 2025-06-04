@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+  <body>
+  <div class="content-body">
+    <div class="container-fluid">
+      <form id="formSearchMenu">
+        <div class="row">
+          <div class="col-12">
+            <div class="filter cm-content-box box-primary">
+              <div class="card-body" style="padding: 1rem">
+                <div class="row">
+                  <div class="col-7">
+                    <input type="text" class="form-control" id="menuName" name="menuName" placeholder="메뉴 이름">
+                  </div>
+                  <div class="col-5" style="padding-top: 3px; text-align: right;">
+                    <button class="btn btn-success btn-sm" style="margin-right: 5px" type="button" id="btnSaveMenu">등록</button>
+                    <button class="btn btn-primary btn-sm" type="button" id="btnSearchMenu">검색</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 pb-0">
+            <div class="card-body p-1">
+              <div class="tree">
+                <ul id="menuTree">
+                  <!-- Tree structure will be dynamically generated -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      initMenu();
+
+      $('#btnSearchMenu').on('click', () => {
+        selectMenuTree();
+      });
+
+      $('#btnSaveMenu').on('click', () => {
+        window.location.href = '/ase/createMenu';
+      });
+    });
+
+    function initMenu() {
+      selectMenuTree();
+    }
+
+    const selectMenuTree = function() {
+      JS_COMMON.callAjaxForm('/ase/selectMenuList', $('#formSearchMenu').serialize(), 'POST', cb_selectMenuTree, true);
+    };
+
+    function cb_selectMenuTree(resultData) {
+      const menuTree = buildTree(resultData.data);
+      const treeHtml = generateTreeHtml(menuTree);
+      $('#menuTree').html(treeHtml);
+    }
+
+    function buildTree(menuData) {
+      const tree = {};
+      menuData.forEach(menu => {
+        tree[menu.menuId] = { ...menu, children: [] };
+      });
+      menuData.forEach(menu => {
+        if (menu.parentMenuId) {
+          tree[menu.parentMenuId].children.push(tree[menu.menuId]);
+        }
+      });
+      return Object.values(tree).filter(menu => !menu.parentMenuId);
+    }
+
+    function generateTreeHtml(tree) {
+      let html = '';
+      tree.forEach(menu => {
+        html += `<li>${menu.menuName}`;
+        if (menu.children.length > 0) {
+          html += '<ul>' + generateTreeHtml(menu.children) + '</ul>';
+        }
+        html += '</li>';
+      });
+      return html;
+    }
+  </script>
+
+  </body>
+</div>
+</html>

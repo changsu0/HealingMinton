@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Court Reservation</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            padding: 20px; /* 화면 가장자리에 20px 간격 추가 */
+            box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
+        }
+
+        .main-container {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .horizontal-div {
+            position: relative; /* Ensure buttons are positioned relative to this container */
+            flex: 1;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .side-container {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .vertical-div {
+            width: 100%; /* Fill the width of the parent container */
+            height: 100%; /* Fill the height of the parent container */
+            background-color: #ffffff; /* Optional: Keep the background color */
+            border: 1px solid #ccc; /* Optional: Keep the border */
+            border-radius: 5px; /* Optional: Keep the border radius */
+            box-sizing: border-box; /* Ensure padding and border are included in the size */
+            overflow-y: auto; /* Optional: Add scroll if content overflows */
+            margin-top: 10px; /* Add top margin for spacing */;
+        }
+
+        .draggable-item {
+            background-color: #d9edf7;
+            border: 1px solid #31708f;
+            border-radius: 3px;
+            padding: 5px;
+            margin-bottom: 5px;
+            cursor: grab;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #horizontal1 {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping to the next row */
+            gap: 10px; /* Add spacing between items */
+            width: 100%; /* Ensure it spans the full width */
+            box-sizing: border-box;
+        }
+
+        .court-div {
+            margin-top: 40px; /* Add space above the court-div for the button */
+            width: calc(25% - 10px); /* Ensure 4 items per row with spacing */
+            height: 100px; /* Adjust height as needed */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .vertical-div-container {
+            position: relative;
+            width: 100%; /* Ensure it spans the full width */
+            height: 100%; /* Ensure it spans the full height */
+            padding-top: 30px; /* Add padding to prevent overlap with the title */
+            padding-bottom: 10px;
+        }
+
+        .waiting-title {
+            position: absolute;
+            top: 0; /* Keep the title at the top */
+            left: 0; /* Align to the left */
+            font-size: 20px; /* Increase the font size */
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px; /* Add slightly more spacing below the title */
+        }
+
+        .draggable-group {
+            display: flex; /* Use flexbox for layout */
+            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            gap: 10px; /* Add spacing between draggable-item elements */
+            border: 2px solid #000;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            margin: 5px;
+            position: relative;
+        }
+
+        .game-end-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js" integrity="sha512-zYXldzJsDrNKV+odAwFYiDXV2Cy37cwizT+NkuiPGsa9X1dOz04eHvUWVuxaJ299GvcJT31ug2zO4itXBjFx4w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Required vendors -->
+    <script src="/vendor/global/global.min.js"></script>
+    <script src="/vendor/bootstrap-select/js/bootstrap-select.min.js"></script>
+
+    <!-- Chart piety plugin files -->
+    <script src="/vendor/peity/jquery.peity.min.js"></script>
+
+    <script src="/vendor/owl-carousel/owl.carousel.js"></script>
+
+    <script src="/js/custom.js"></script>
+    <script src="/js/ic-sidenav-init.js"></script>
+    <script src="/js/common.js"></script>
+
+</head>
+<body>
+<div class="main-container">
+    <div class="title">코트 지정</div>
+    <div class="horizontal-div" id="horizontal1">
+    </div>
+    <div class="title">팀 구성</div>
+    <div class="horizontal-div" id="horizontal2">
+    </div>
+    <div class="title" style="display: flex; align-items: center; justify-content: space-between;">
+        <span>사용자 입력</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label>
+                <input type="radio" name="gender" value="male" checked> 남성
+            </label>
+            <label>
+                <input type="radio" name="gender" value="female"> 여성
+            </label>
+            <input type="text" class="name-input" placeholder="이름을 입력하세요" style="padding: 5px;">
+            <select class="grade-select" style="padding: 5px;">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+            </select>
+            <button class="create-button" onclick="createDraggableItem()">생성</button>
+        </div>
+    </div>
+    <div class="horizontal-div" id="horizontal3">
+    </div>
+</div>
+
+<div class="side-container">
+    <div class="vertical-div-container">
+        <span class="waiting-title">대기</span>
+        <div class="vertical-div">
+            <!-- Add your content here -->
+        </div>
+    </div>
+</div>
+
+<script>
+
+    new Sortable(document.querySelector('#horizontal3'), {
+        group: 'shared',
+        animation: 150,
+        ghostClass: 'blue-background-class'
+    });
+
+    new Sortable(document.querySelector('#horizontal2'), {
+        group: 'shared',
+        animation: 150,
+        ghostClass: 'blue-background-class'
+    });
+
+    new Sortable(document.querySelector('.vertical-div'), {
+        group: 'shared',
+        animation: 150,
+        ghostClass: 'blue-background-class',
+        onAdd: function (evt) {
+            const item = evt.item;
+
+            // Ensure only draggable-group elements are allowed
+            if (!item.classList.contains('draggable-group')) {
+                evt.from.appendChild(item); // Move the item back to its original container
+                alert('그룹을 넣어주세요');
+                return;
+            }
+
+            // Collect group data (e.g., names of members)
+            const groupData = Array.from(item.querySelectorAll('.draggable-item')).map(el => {
+                const [userNm, grade] = el.textContent.match(/^(.+)\((.+)\)$/).slice(1); // Extract name and grade
+                const gender = el.style.backgroundColor === 'skyblue' ? 'M' : 'F'; // Determine gender based on background color
+                const status = 'W';
+                const courtNumber = null;
+                return { userNm, grade, gender ,status, courtNumber}; // Store as an object
+            });
+            // Prepare the data object
+
+
+            // Call the insertCoatRes method using JS_COMMON.callAjaxJson
+            JS_COMMON.callAjaxJson('/drag/insertCoatRes', groupData, 'POST', function (result) {
+                if (result.code !== 200) {
+                    alert(result.failMsg || 'Insert failed');
+                    return;
+                }
+
+                console.log('user_uid:', result.data); // Log the returned user_uid values
+
+                // Select all draggable-item elements
+                const draggableItems = document.querySelectorAll('.draggable-item');
+
+                // Assign user_uid values to the id attribute of draggable-item elements
+                result.data.forEach((userUid, index) => {
+                    if (draggableItems[index]) {
+                        draggableItems[index].id = userUid; // Set the id attribute
+                    }
+                });
+
+                alert(result.successMsg || 'Insert successful');
+            });
+        }
+    });
+
+    function createDraggableItem() {
+        const gender = document.querySelector('input[name="gender"]:checked');
+        const nameInput = document.querySelector('.name-input');
+        const gradeSelect = document.querySelector('.grade-select');
+        const container = document.querySelector('#horizontal3');
+
+        if (!gender) {
+            alert("성별을 선택해주세요.");
+            return;
+        }
+
+        if (!nameInput.value.trim()) {
+            alert("이름을 입력해주세요.");
+            return;
+        }
+
+        // Create a new draggable item
+        const newItem = document.createElement('div');
+        newItem.className = 'draggable-item';
+        newItem.draggable = true;
+        newItem.textContent = `${nameInput.value.trim()}(${gradeSelect.value})`;
+
+        // Optional: Add background color based on gender
+        if (gender.value === 'male') {
+            newItem.style.backgroundColor = 'skyblue';
+        } else if (gender.value === 'female') {
+            newItem.style.backgroundColor = 'pink';
+        }
+
+        container.appendChild(newItem);
+
+        // Clear input fields
+        nameInput.value = '';
+        gradeSelect.value = 'A';
+        document.querySelector('input[name="gender"][value="male"]').checked = true;
+    }
+
+    function ungroupAndDeleteGroup(groupDiv) {
+        const itemIds = Array.from(groupDiv.querySelectorAll('.draggable-item')).map(item => item.id);
+
+        if (itemIds.length === 0) {
+            alert('그룹에 아이템이 없습니다.');
+            return;
+        }
+
+        // Remove the group div (including all items and the close button)
+        groupDiv.remove();
+
+        // Send AJAX request to delete items from the database
+        JS_COMMON.callAjaxJson('/drag/deleteGroupItems', { itemIds }, 'POST', function (result) {
+            if (result.code !== 200) {
+                alert(result.failMsg || 'Failed to delete group items');
+                return;
+            }
+            alert(result.successMsg || 'Group items deleted successfully');
+        });
+    }
+
+    // Add click event to the "X" button
+    document.querySelector('#horizontal2').addEventListener('click', (event) => {
+        if (event.target.tagName === 'BUTTON' && event.target.textContent === 'x') {
+            const closeButton = event.target;
+            const groupDiv = closeButton.closest('.draggable-group');
+
+            if (!groupDiv) {
+                console.error('Error: draggable-group not found.');
+                return;
+            }
+
+            const parentDiv = groupDiv.parentElement;
+
+            // Check if the parent is a court-div
+            if (parentDiv && parentDiv.classList.contains('court-div')) {
+                const waitingArea = document.querySelector('.vertical-div');
+                const itemIds = Array.from(groupDiv.querySelectorAll('.draggable-item')).map(item => item.id);
+
+                if (itemIds.length === 0) {
+                    alert('그룹에 아이템이 없습니다.');
+                    return;
+                }
+
+                // Move the group to the waiting area
+                waitingArea.appendChild(groupDiv);
+
+                // Send AJAX request to update the status to "W"
+                const requestData = {
+                    itemIds,
+                    status: 'W',
+                    courtNumber: null,
+                    matchStartDateTime: null
+                };
+
+                JS_COMMON.callAjaxJson('/drag/cancelGame', requestData, 'POST', function (result) {
+                    if (result.code === 200) {
+                        alert(result.successMsg || '그룹이 대기 상태로 이동되었습니다.');
+                    } else {
+                        alert(result.failMsg || '그룹을 대기 상태로 이동하는 데 실패했습니다.');
+                    }
+                });
+            } else {
+                // If not in a court-div, delete the group
+                ungroupAndDeleteGroup(groupDiv);
+            }
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const courtCount = parseInt(urlParams.get('courtCount'), 10) || 4; // Default to 4 courts if not provided
+
+        const courtContainer = document.querySelector('#horizontal1');
+        courtContainer.innerHTML = ''; // Clear existing courts
+        courtContainer.style.display = 'flex';
+        courtContainer.style.gap = '10px';
+
+        // Dynamically create the specified number of courts
+        for (let i = 0; i < courtCount; i++) {
+            const courtDiv = document.createElement('div');
+            courtDiv.className = 'court-div';
+            courtContainer.appendChild(courtDiv);
+
+            // Initialize Sortable for each court div
+            // Initialize Sortable for each court-div
+            new Sortable(courtDiv, {
+                group: 'shared',
+                animation: 150,
+                ghostClass: 'blue-background-class',
+                onAdd: function (evt) {
+                    const groupDiv = evt.item;
+
+                    // Ensure only draggable-group elements are allowed
+                    if (!groupDiv.classList.contains('draggable-group')) {
+                        evt.from.appendChild(groupDiv); // Move the item back to its original container
+                        alert('Only draggable-group elements can be moved into this container.');
+                        return;
+                    }
+
+                    // Get the court number
+                    const courtNumber = Array.from(document.querySelectorAll('.court-div')).indexOf(evt.to) + 1;
+
+                    // Collect all items into a single list
+                    const itemList = [];
+                    const items = Array.from(groupDiv.querySelectorAll('.draggable-item')).map(item => {
+                        const [name, grade] = item.textContent.match(/^(.+)\((.+)\)$/).slice(1); // Extract name and grade
+                        const gender = item.style.backgroundColor === 'skyblue' ? 'M' : 'F'; // Determine gender based on background color
+                        const status = 'P'// Determine gender based on background color
+                        return {
+                            id: item.id,
+                            name,
+                            grade,
+                            gender,
+                            status
+                        };
+                    });
+
+                    // Add items to itemList
+                    itemList.push(...items);
+
+                    // Send the data to the backend
+                    JS_COMMON.callAjaxJson('/drag/saveOrUpdateItems', { itemList, courtNumber }, 'POST', function (result) {
+                        if (result.code !== 200) {
+                            alert(result.failMsg || 'Failed to save group to court');
+                            return;
+                        }
+                        alert(result.successMsg || 'Group saved to court successfully');
+                    });
+                }
+            });
+        }
+
+        const teamContainer = document.querySelector('#horizontal2');
+
+        // Initialize Sortable for the team container
+        new Sortable(teamContainer, {
+            group: 'shared',
+            animation: 150,
+            ghostClass: 'blue-background-class',
+            onAdd: () => {
+                groupDraggableItems();
+            }
+        });
+
+        // Function to group draggable items
+        function groupDraggableItems() {
+            const items = Array.from(teamContainer.querySelectorAll('.draggable-item:not(.grouped)'));
+
+            while (items.length >= 4) {
+                // Create a new group
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'draggable-group';
+                groupDiv.draggable = true;
+                groupDiv.style.display = 'flex';
+                groupDiv.style.flexWrap = 'wrap';
+                groupDiv.style.border = '2px solid #000';
+                groupDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                groupDiv.style.padding = '10px';
+                groupDiv.style.margin = '5px';
+                groupDiv.style.position = 'relative';
+
+                // Add 4 items to the group
+                for (let i = 0; i < 4; i++) {
+                    const item = items.shift();
+                    item.classList.add('grouped');
+                    groupDiv.appendChild(item);
+                }
+
+                // Create the close button
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'x';
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '5px';
+                closeButton.style.right = '5px';
+                closeButton.style.backgroundColor = 'red';
+                closeButton.style.color = 'white';
+                closeButton.style.border = 'none';
+                closeButton.style.borderRadius = '50%';
+                closeButton.style.width = '20px';
+                closeButton.style.height = '20px';
+                closeButton.style.cursor = 'pointer';
+                closeButton.style.fontSize = '12px';
+
+                // Add click event to ungroup items
+                closeButton.addEventListener('click', () => ungroupAndDeleteGroup(groupDiv));
+
+                groupDiv.appendChild(closeButton);
+
+                // Add the group to the container
+                teamContainer.appendChild(groupDiv);
+
+                // Make the group draggable
+                new Sortable(groupDiv, {
+                    group: 'shared',
+                    animation: 150,
+                    ghostClass: 'blue-background-class',
+                    onAdd: function (evt) {
+                        if (evt.to.children.length > 4) {
+                            evt.from.appendChild(evt.item);
+                            alert('한 그룹에는 최대 4명만 넣을 수 있습니다.');
+                        }
+                    }
+                });
+            }
+        }
+
+        JS_COMMON.callAjaxJson('/drag/selectReservationsByStatus', {}, 'POST', function (result) {
+            if (result.code !== 200) {
+                alert(result.failMsg || 'Failed to load reservations');
+                return;
+            }
+
+            const reservations = result.data;
+
+            // Group reservations by group number
+            const groupedReservations = reservations.reduce((groups, item) => {
+                const groupNo = item.groupNo;
+                if (!groups[groupNo]) {
+                    groups[groupNo] = [];
+                }
+                groups[groupNo].push(item);
+                return groups;
+            }, {});
+
+            // Render groups
+            // Render groups
+            Object.values(groupedReservations).forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'draggable-group';
+                groupDiv.draggable = true;
+
+                group.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'draggable-item';
+                    itemDiv.textContent = `${item.userNm}(${item.grade})`;
+                    itemDiv.id = item.userUid;
+
+                    // Optional: Add background color based on gender
+                    itemDiv.style.backgroundColor = item.gender === 'M' ? 'skyblue' : 'pink';
+
+                    groupDiv.appendChild(itemDiv);
+                });
+
+                // Create the close button
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'x';
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '5px';
+                closeButton.style.right = '5px';
+                closeButton.style.backgroundColor = 'red';
+                closeButton.style.color = 'white';
+                closeButton.style.border = 'none';
+                closeButton.style.borderRadius = '50%';
+                closeButton.style.width = '20px';
+                closeButton.style.height = '20px';
+                closeButton.style.cursor = 'pointer';
+                closeButton.style.fontSize = '12px';
+
+                // Add click event to ungroup items
+                closeButton.addEventListener('click', () => ungroupAndDeleteGroup(groupDiv));
+
+                groupDiv.appendChild(closeButton);
+
+                // Add group to the correct container
+                if (group[0].status === 'W') {
+                    document.querySelector('.vertical-div').appendChild(groupDiv);
+                } else if (group[0].status === 'P') {
+                    const courtDiv = document.querySelectorAll('.court-div')[group[0].courtNumber - 1];
+                    if (courtDiv) {
+                        courtDiv.appendChild(groupDiv);
+                    }
+                }
+            });
+        });
+
+        const horizontalDiv = document.querySelector('.horizontal-div');
+
+        // Ensure the horizontal-div is positioned relative
+        horizontalDiv.style.position = 'relative';
+
+        // Iterate over all court-div elements
+        const courtDivs = horizontalDiv.querySelectorAll('.court-div');
+        courtDivs.forEach((courtDiv, index) => {
+            // Create the "Game End" button
+            const gameEndButton = document.createElement('button');
+            gameEndButton.textContent = `Game End ${index + 1}`;
+            gameEndButton.style.position = 'absolute';
+            gameEndButton.style.top = `${courtDiv.offsetTop - 30}px`; // Position above the court-div
+            gameEndButton.style.left = `${courtDiv.offsetLeft}px`; // Align with the court-div's left edge
+            gameEndButton.style.backgroundColor = 'red';
+            gameEndButton.style.color = 'white';
+            gameEndButton.style.border = 'none';
+            gameEndButton.style.borderRadius = '5px';
+            gameEndButton.style.padding = '5px';
+            gameEndButton.style.cursor = 'pointer';
+            gameEndButton.style.zIndex = '1000'; // Ensure it stays above other elements
+
+            // Append the button to the horizontal-div
+            horizontalDiv.appendChild(gameEndButton);
+
+            // Add click event listener to the button
+            gameEndButton.addEventListener('click', () => {
+                const groupDiv = courtDiv.querySelector('.draggable-group');
+                if (!groupDiv) {
+                    alert('경기를 진행하고 있지 않습니다.');
+                    return;
+                }
+
+                // Collect IDs of draggable-item elements
+                const itemIds = Array.from(groupDiv.querySelectorAll('.draggable-item')).map(item => item.id);
+
+                if (itemIds.length === 0) {
+                    alert('No items found in this court.');
+                    return;
+                }
+
+                // Send AJAX request to update the database
+                const requestData = { itemIds };
+
+                JS_COMMON.callAjaxJson('/drag/endGame', requestData, 'POST', (result) => {
+                    if (result.code === 200) {
+                        alert(result.successMsg || '경기가 종료되었습니다.');
+                        // Remove the group after the game ends
+                        courtDiv.removeChild(groupDiv);
+                    } else {
+                        alert(result.failMsg || 'Failed to end the game');
+                    }
+                });
+            });
+        });
+    });
+
+</script>
+</body>
+</html>

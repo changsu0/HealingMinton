@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+    <body>
+    <div class="content-body">
+        <div class="container-fluid">
+            <form id="formCreateUser">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="userNm">Name</label>
+                            <input type="text" class="form-control" id="userNm" name="userNm" th:value="${user.userNm}" placeholder="Enter Name">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="userPhone">Phone</label>
+                            <input type="text" class="form-control" id="userPhone" name="userPhone" th:value="${user.userPhone}" placeholder="Enter Phone">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="userSex">Gender</label>
+                            <select class="form-control" id="userSex" name="userSex" th:value="${user.userSex}">
+                                <option value="M" th:selected="${user.userSex == 'M'}">Male</option>
+                                <option value="F" th:selected="${user.userSex == 'F'}">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="userBirth">Birth Year</label>
+                            <input type="number" class="form-control" id="userBirth" name="userBirth" min="1900" max="2100" placeholder="Enter Year" th:value="${user.userBirth}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="userDesc">Description</label>
+                    <textarea class="form-control" id="userDesc" name="userDesc" rows="3" th:text="${user.userDesc}" placeholder="Enter Description"></textarea>
+                </div>
+                <div class="text-right" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-primary" id="btnSaveUser">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </body>
+</div>
+
+    <script>
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userUid = urlParams.get('userUid');
+
+            if (userUid) {
+                // Fetch user data and populate the form
+                JS_COMMON.callAjaxForm('/ase/getUser', { userUid: userUid }, 'GET', (resultData) => {
+                    if (resultData.code === 200) {
+                        const user = resultData.data;
+                        $('#userNm').val(user.userNm);
+                        $('#userPhone').val(user.userPhone);
+                        $('#userLoc').val(user.userLoc);
+                        $('#userRank').val(user.userRank);
+                        $('#userSex').val(user.userSex);
+                        $('#userBirth').val(user.userBirth);
+                        $('#userDesc').val(user.userDesc);
+                    } else {
+                        alert('Error fetching user data: ' + resultData.failMsg);
+                    }
+                }, true);
+            }
+
+            $('#btnSaveUser').on('click', () => {
+                const formData = $('#formCreateUser').serialize();
+                const endpoint = userUid ? '/ase/updateUser' : '/ase/saveUser';
+                JS_COMMON.callAjaxForm(endpoint, formData, 'POST', (resultData) => {
+                    if (resultData.code === 200) {
+                        alert(userUid ? 'User updated successfully!' : 'User saved successfully!');
+                        window.location.href = '/ase/userList';
+                    } else {
+                        alert('Error occurred: ' + resultData.failMsg);
+                    }
+                }, true);
+            });
+        });
+    </script>
+
+    </body>
+</div>
+</html>
