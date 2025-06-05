@@ -15,7 +15,7 @@
               <div class="card-body" style="padding: 1rem">
                 <div class="row">
                   <div class="col-7">
-                    <input type="text" class="form-control" id="authName" name="authName" placeholder="권한 이름">
+                    <input type="text" class="form-control" id="authNm" name="authNm" placeholder="권한 이름">
                   </div>
                   <div class="col-5" style="padding-top: 3px; text-align: right;">
                     <button class="btn btn-success btn-sm" style="margin-right: 5px" type="button" id="btnSaveAuth">등록</button>
@@ -32,69 +32,137 @@
         <div class="col-12">
           <div class="card border-0 pb-0">
             <div class="card-body p-1">
-              <div class="tree">
-                <ul id="authTree">
-                  <!-- Tree structure will be dynamically generated -->
-                </ul>
+              <div class="table-responsive">
+                <table class="table text-center" id="authTable">
+                  <colgroup>
+                    <col style="width: 15%;">
+                    <col style="width: 20%;">
+                    <col style="width: 35%;">
+                    <col style="width: 10%;">
+                    <col style="width: 20%;">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th><b>권한 ID</b></th>
+                      <th><b>권한명</b></th>
+                      <th><b>설명</b></th>
+                      <th><b>사용여부</b></th>
+                      <th><b>관리</b></th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyAuthList">
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
   <script>
     $(document).ready(function() {
-      initAuth();
+      init();
 
       $('#btnSearchAuth').on('click', () => {
-        selectAuthTree();
+        selectGridList();
       });
 
       $('#btnSaveAuth').on('click', () => {
-        window.location.href = '/ase/createAuth';
+        window.location.href = '/ase/auth/createAuth';
       });
     });
 
-    function initAuth() {
-      selectAuthTree();
+    function init() {
+      selectGridList();
     }
 
-    const selectAuthTree = function() {
-      JS_COMMON.callAjaxForm('/ase/selectAuthList', $('#formSearchAuth').serialize(), 'POST', cb_selectAuthTree, true);
+    const selectGridList = function() {
+      const searchData = {
+        authNm: $('#authNm').val()
+      };
+      
+      console.log('Search data:', searchData); // 디버깅용 로그 추가
+      
+      $.ajax({
+        url: '/ase/auth/selectAuthList',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(searchData),
+        success: function(result) {
+          console.log('Raw response:', result); // 원본 응답 로깅
+          let parsedResult;
+          try {
+            parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
+            console.log('Parsed result:', parsedResult); // 파싱된 결과 로깅
+            cb_selectGridList(parsedResult);
+          } catch (e) {
+            console.error('Error parsing response:', e);
+            alert('응답 데이터 처리 중 오류가 발생했습니다.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error details:', {
+            status: status,
+            error: error,
+            response: xhr.responseText
+          });
+          alert('권한 목록 조회 중 오류가 발생했습니다.');
+        }
+      });
     };
 
-    function cb_selectAuthTree(resultData) {
-      const authTree = buildTree(resultData.data);
-      const treeHtml = generateTreeHtml(authTree);
-      $('#authTree').html(treeHtml);
+    function cb_selectGridList(resultData) {
+      console.log('Processing result data:', resultData); // 디버깅용 로그 추가
+
+      let innerHtml = '';
+      if (!resultData || !resultData.authList || resultData.authList.length === 0) {
+        innerHtml = '<tr><td colspan="5"><div class="timeline-panel text-center" style="display: block;"><h4 style="margin-bottom: 0;">조회 결과가 없습니다.</h4></div></td></tr>';
+      } else {
+        for (const auth of resultData.authList) {
+          console.log('Processing auth:', auth); // 디버깅용 로그 추가
+          innerHtml += '<tr>';
+          innerHtml += '<td><span class="w-space-no">' + (auth.authId || '') + '</span></td>';
+          innerHtml += '<td>' + (auth.authNm || '') + '</td>';
+          innerHtml += '<td>' + (auth.authDescription || '') + '</td>';
+          innerHtml += '<td>' + (auth.useYn === 'Y' ? '사용' : '미사용') + '</td>';
+          innerHtml += '<td>';
+          innerHtml += '<button type="button" class="btn btn-primary light btn-xxs" onclick="editAuth(\'' + auth.authId + '\')">수정</button>';
+          innerHtml += '<button type="button" class="btn btn-danger light btn-xxs" style="margin-left: 5px;" onclick="deleteAuth(\'' + auth.authId + '\')">삭제</button>';
+          innerHtml += '</td>';
+          innerHtml += '</tr>';
+        }
+      }
+      console.log('Generated HTML:', innerHtml); // 디버깅용 로그 추가
+      $('#tbodyAuthList').html(innerHtml);
     }
 
-    function buildTree(authData) {
-      const tree = {};
-      authData.forEach(auth => {
-        tree[auth.authId] = { ...auth, children: [] };
-      });
-      authData.forEach(auth => {
-        if (auth.parentAuthId) {
-          tree[auth.parentAuthId].children.push(tree[auth.authId]);
-        }
-      });
-      return Object.values(tree).filter(auth => !auth.parentAuthId);
+    function deleteAuth(authId) {
+      if (confirm('정말로 이 권한을 삭제하시겠습니까?')) {
+        $.ajax({
+          url: '/ase/auth/deleteAuth',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ authId: authId }),
+          success: function(result) {
+            if (result.success) {
+              alert(result.message);
+              selectGridList();
+            } else {
+              alert(result.message || '삭제에 실패했습니다.');
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+          }
+        });
+      }
     }
 
-    function generateTreeHtml(tree) {
-      let html = '';
-      tree.forEach(auth => {
-        html += `<li>${auth.authNm}`;
-        if (auth.children.length > 0) {
-          html += '<ul>' + generateTreeHtml(auth.children) + '</ul>';
-        }
-        html += '</li>';
-      });
-      return html;
+    function editAuth(authId) {
+      window.location.href = '/ase/auth/createAuth?authId=' + authId;
     }
   </script>
 

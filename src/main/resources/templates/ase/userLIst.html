@@ -75,7 +75,7 @@
       });
 
       $('#btnSave').on('click', () => {
-        window.location.href = '/ase/createUser';
+        window.location.href = '/ase/user/createUser';
       });
     });
 
@@ -84,7 +84,7 @@
     };
 
     const selectGridList = function() {
-      JS_COMMON.callAjaxForm('/ase/selectUserList', $('#formSearch').serialize(), 'POST', cb_selectGridList, true);
+      JS_COMMON.callAjaxForm('/ase/user/selectUserList', $('#formSearch').serialize(), 'POST', cb_selectGridList, true);
     };
 
     function cb_selectGridList(resultData) {
@@ -99,7 +99,7 @@
           innerHtml += '<td>' + (result.userBirth !== undefined ? result.userBirth : '') + '</td>';
           innerHtml += '<td><a href="tel:' + result.userPhone + '">' + (result.userPhone !== undefined ? result.userPhone : '') + '</a></td>';
           innerHtml += '<td>';
-          innerHtml += '<a href="/ase/createUser?userUid=' + result.userUid + '" class="btn btn-primary light btn-xxs" style="">수정</a>';
+          innerHtml += '<a href="/ase/user/createUser?userUid=' + result.userUid + '" class="btn btn-primary light btn-xxs" style="">수정</a>';
           innerHtml += '<button class="btn btn-danger light btn-xxs" style="margin-left: 5px;" onclick="deleteUser(\'' + result.userUid + '\')">삭제</button>';
           innerHtml += '</td>';
           innerHtml += '</tr>';
@@ -110,7 +110,7 @@
 
     function deleteUser(userUid) {
       if (confirm('Are you sure you want to delete this user?')) {
-        JS_COMMON.callAjaxForm('/ase/deleteUser', { userUid: userUid }, 'POST', (resultData) => {
+        JS_COMMON.callAjaxForm('/ase/user/deleteUser', { userUid: userUid }, 'POST', (resultData) => {
           if (resultData.code === 200) {
             alert('User deleted successfully!');
             location.reload(); // Refresh the page

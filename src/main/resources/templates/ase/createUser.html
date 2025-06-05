@@ -60,7 +60,7 @@
 
             if (userUid) {
                 // Fetch user data and populate the form
-                JS_COMMON.callAjaxForm('/ase/getUser', { userUid: userUid }, 'GET', (resultData) => {
+                JS_COMMON.callAjaxForm('/ase/user/getUser', { userUid: userUid }, 'GET', (resultData) => {
                     if (resultData.code === 200) {
                         const user = resultData.data;
                         $('#userNm').val(user.userNm);
@@ -78,11 +78,11 @@
 
             $('#btnSaveUser').on('click', () => {
                 const formData = $('#formCreateUser').serialize();
-                const endpoint = userUid ? '/ase/updateUser' : '/ase/saveUser';
+                const endpoint = userUid ? '/ase/user/updateUser' : '/ase/user/saveUser';
                 JS_COMMON.callAjaxForm(endpoint, formData, 'POST', (resultData) => {
                     if (resultData.code === 200) {
                         alert(userUid ? 'User updated successfully!' : 'User saved successfully!');
-                        window.location.href = '/ase/userList';
+                        window.location.href = '/ase/user/userList';
                     } else {
                         alert('Error occurred: ' + resultData.failMsg);
                     }

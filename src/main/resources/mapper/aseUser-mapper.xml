@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.ase.mapper.AseUserMapper">
+    <select id="selectUserList" parameterType="aseUserVO" resultType="aseUserVO">
+        SELECT USER.USER_UID,
+        USER_NM,
+        getPhoneToFormat(USER_PHONE) AS USER_PHONE,
+        USER_LOC,
+        USER_RANK,
+        getSexToFormat(USER_SEX) AS USER_SEX,
+        CONCAT(IFNULL(USER_BIRTH, ''), '(', getBirthToAge(USER_BIRTH), ')') AS USER_BIRTH,
+        USER_DESC_SHORT,
+        USER_DESC,
+        CREATE_USER_ID,
+        CREATE_DT,
+        UPDATE_USER_ID,
+        UPDATE_DT
+        FROM tb_user USER
+        <where>
+            <if test="userNm != null and userNm != ''">
+                AND USER_NM LIKE CONCAT('%', #{userNm}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertUser" parameterType="aseUserVO">
+        /* AseMapper.insertUser */
+        INSERT INTO tb_user (
+        USER_UID
+        , USER_NM
+        , USER_PHONE
+        , USER_LOC
+        , USER_RANK
+        , USER_SEX
+        , USER_BIRTH
+        , USER_DESC_SHORT
+        , USER_DESC
+        , CREATE_USER_ID
+        , CREATE_DT
+        , UPDATE_USER_ID
+        , UPDATE_DT
+        ) VALUES (
+        UUID()
+        , #{userNm}
+        , #{userPhone}
+        , #{userLoc}
+        , #{userRank}
+        , #{userSex}
+        , YEAR(STR_TO_DATE(#{userBirth}, '%Y-%m-%d'))
+        , #{userDescShort}
+        , #{userDesc}
+        , #{createUserId}
+        , NOW()
+        , #{updateUserId}
+        , NOW()
+        )
+    </insert>
+
+    <delete id="deleteUser">
+        DELETE FROM tb_user WHERE user_uid = #{userUid}
+    </delete>
+
+    <delete id="deleteUserAuth">
+        DELETE FROM tb_user_auth WHERE user_uid = #{userUid}
+    </delete>
+
+
+    <select id="checkUserExists" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM tb_user
+            WHERE user_uid = #{userUid}
+        )
+    </select>
+
+    <update id="updateUser" parameterType="aseUserVO">
+        /* AseMapper.updateUser */
+        UPDATE tb_user
+        SET USER_NM = #{userNm},
+            USER_PHONE = #{userPhone},
+            USER_LOC = #{userLoc},
+            USER_RANK = #{userRank},
+            USER_SEX = #{userSex},
+            USER_BIRTH = #{userBirth},
+            USER_DESC_SHORT = #{userDescShort},
+            USER_DESC = #{userDesc},
+            UPDATE_USER_ID = #{updateUserId},
+            UPDATE_DT = NOW()
+        WHERE USER_UID = #{userUid}
+    </update>
+
+    <select id="selectUserByUid" resultType="com.corelabs.ase.vo.AseUserVO">
+        SELECT user_uid, user_nm, user_phone, user_loc, user_rank, user_sex, user_birth, user_desc
+        FROM tb_user WHERE user_uid = #{userUid}
+    </select>
+
+</mapper>

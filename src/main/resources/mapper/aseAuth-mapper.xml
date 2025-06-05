@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.ase.mapper.AseAuthMapper">
+
+    <select id="selectAuthList" resultType="aseAuthVO">
+        SELECT 
+            auth_id AS authId,
+            auth_nm AS authNm,
+            auth_description AS authDescription,
+            use_yn AS useYn,
+            create_user_id AS createUserId,
+            DATE_FORMAT(create_dt, '%Y-%m-%d %H:%i:%s') AS createDt,
+            update_user_id AS updateUserId,
+            DATE_FORMAT(update_dt, '%Y-%m-%d %H:%i:%s') AS updateDt
+        FROM tb_auth
+        <where>
+            <if test="authNm != null and authNm != ''">
+                AND auth_nm LIKE CONCAT('%', #{authNm}, '%')
+            </if>
+        </where>
+        ORDER BY auth_id
+    </select>
+
+    <select id="checkAuthInUse" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM tb_user_auth
+            WHERE auth_id = #{authId}
+        )
+    </select>
+
+    <insert id="insertAuth" parameterType="aseAuthVO">
+        INSERT INTO tb_auth (
+            auth_id,
+            auth_nm,
+            auth_description,
+            use_yn,
+            create_user_id,
+            create_dt
+        ) VALUES (
+            #{authId},
+            #{authNm},
+            #{authDescription},
+            #{useYn},
+            #{createUserId},
+            NOW()
+        )
+    </insert>
+
+    <update id="updateAuth" parameterType="aseAuthVO">
+        UPDATE tb_auth
+        SET auth_nm = #{authNm},
+            auth_description = #{authDescription},
+            use_yn = #{useYn},
+            update_user_id = #{createUserId},
+            update_dt = NOW()
+        WHERE auth_id = #{authId}
+    </update>
+
+    <delete id="deleteAuth" parameterType="String">
+        DELETE FROM tb_auth
+        WHERE auth_id = #{authId}
+    </delete>
+
+    <select id="selectAuthMenuList" resultType="com.corelabs.ase.vo.AseMenuVO">
+        SELECT 
+            m.menu_id,
+            m.menu_nm,
+            m.menu_url,
+            m.menu_icon,
+            CASE 
+                WHEN m.parent_menu_id IS NULL THEN 0
+                ELSE 1
+            END as menu_level,
+            CAST(m.menu_order AS SIGNED) as menu_order,
+            m.use_yn,
+            'Y' as selected
+        FROM tb_menu m
+        INNER JOIN tb_menu_auth ma ON m.menu_id = ma.menu_id 
+            AND ma.auth_id = #{authId}
+            AND ma.del_yn = 'N'
+        WHERE m.use_yn = 'Y'
+        <if test="menuNm != null and menuNm != ''">
+            AND m.menu_nm LIKE CONCAT('%', #{menuNm}, '%')
+        </if>
+        <if test="useYn != null and useYn != '' and useYn != 'ALL'">
+            AND m.use_yn = #{useYn}
+        </if>
+        ORDER BY CAST(m.menu_order AS SIGNED)
+    </select>
+
+    <select id="selectAuthUserList" resultType="com.corelabs.ase.vo.AseUserVO">
+        SELECT 
+            u.user_uid as userUid,
+            u.user_nm as userNm,
+            'Y' as assigned,
+            ua.auth_id as authId
+        FROM tb_user u
+        INNER JOIN tb_user_auth ua ON u.user_uid = ua.user_uid 
+        WHERE ua.auth_id = #{authId}
+        ORDER BY u.user_nm
+    </select>
+
+    <delete id="deleteAuthMenu">
+        UPDATE tb_menu_auth
+        SET del_yn = 'Y',
+            update_user_id = 'SYSTEM',
+            update_dt = NOW()
+        WHERE auth_id = #{authId}
+        AND del_yn = 'N'
+    </delete>
+
+    <insert id="insertAuthMenu">
+        INSERT INTO tb_menu_auth (
+            auth_id, 
+            menu_id, 
+            del_yn,
+            create_user_id, 
+            create_dt
+        )
+        SELECT 
+            #{authId}, 
+            #{menuId}, 
+            'N',
+            'SYSTEM', 
+            NOW()
+        FROM dual
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM tb_menu_auth 
+            WHERE auth_id = #{authId} 
+            AND menu_id = #{menuId}
+        )
+    </insert>
+
+    <update id="updateAuthMenu">
+        UPDATE tb_menu_auth
+        SET del_yn = 'N',
+            update_user_id = 'SYSTEM',
+            update_dt = NOW()
+        WHERE auth_id = #{authId}
+        AND menu_id = #{menuId}
+    </update>
+
+    <delete id="deleteAuthUser">
+        DELETE FROM tb_user_auth
+        WHERE user_uid = #{userUid}
+    </delete>
+
+    <insert id="insertAuthUser">
+        INSERT IGNORE INTO tb_user_auth (
+            user_uid,
+            auth_id, 
+            create_user_id, 
+            create_dt
+        )
+        SELECT 
+            userUid,
+            #{authId},
+            'SYSTEM',
+            NOW()
+        FROM (
+            <foreach collection="userIds" item="userUid" separator="UNION ALL">
+                SELECT #{userUid} as userUid
+                WHERE NOT EXISTS (
+                    SELECT 1 
+                    FROM tb_user_auth 
+                    WHERE user_uid = #{userUid} 
+                    AND auth_id = #{authId}
+                )
+            </foreach>
+        ) AS new_users
+    </insert>
+
+    <select id="selectAuthUser" resultType="com.corelabs.ase.vo.AseUserVO">
+        SELECT 
+            u.user_uid as userUid,
+            u.user_nm as userNm,
+            u.use_yn as useYn,
+            ua.auth_id as authId
+        FROM tb_user u
+        LEFT JOIN tb_user_auth ua ON u.user_uid = ua.user_uid
+        WHERE u.user_uid = #{userUid}
+    </select>
+
+    <select id="selectMenuList" resultType="com.corelabs.ase.vo.AseMenuVO">
+        SELECT 
+            m.menu_id,
+            m.menu_nm,
+            m.menu_url,
+            m.menu_icon,
+            CASE 
+                WHEN m.parent_menu_id IS NULL THEN 0
+                ELSE 1
+            END as menu_level,
+            CAST(m.menu_order AS SIGNED) as menu_order,
+            m.use_yn
+        FROM tb_menu m
+        WHERE m.use_yn = 'Y'
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM tb_menu_auth ma 
+            WHERE ma.menu_id = m.menu_id 
+            AND ma.auth_id = #{authId}
+            AND ma.del_yn = 'N'
+        )
+        ORDER BY CAST(m.menu_order AS SIGNED)
+    </select>
+
+    <select id="selectUser" resultType="com.corelabs.ase.vo.AseUserVO">
+        SELECT 
+            u.user_uid as userUid,
+            u.user_nm as userNm
+        FROM tb_user u
+        WHERE u.user_uid = #{userUid}
+    </select>
+
+</mapper> 

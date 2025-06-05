@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.ase.mapper.AseMenuMapper">
+
+    <select id="selectMenuList" resultType="aseMenuVO">
+        SELECT 
+            menu_id AS menuId,
+            menu_nm AS menuNm,
+            parent_menu_id AS parentMenuId,
+            menu_url AS menuUrl,
+            menu_order AS menuOrder,
+            use_yn AS useYn,
+            create_user_id AS createUserId,
+            create_dt AS createDt,
+            update_user_id AS updateUserId,
+            update_dt AS updateDt
+        FROM tb_menu
+        <where>
+            <if test="menuNm != null and menuNm != ''">
+                AND menu_nm LIKE CONCAT('%', #{menuNm}, '%')
+            </if>
+            <if test="parentMenuId != null and parentMenuId != ''">
+                AND parent_menu_id = #{parentMenuId}
+            </if>
+        </where>
+        ORDER BY menu_order
+    </select>
+
+    <select id="checkMenuExists" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM tb_menu
+            WHERE menu_id = #{menuId}
+        )
+    </select>
+
+    <insert id="insertMenu" parameterType="aseMenuVO">
+        INSERT INTO tb_menu (
+            menu_id,
+            menu_nm,
+            parent_menu_id,
+            menu_url,
+            menu_order,
+            use_yn,
+            create_user_id,
+            create_dt
+        ) VALUES (
+            #{menuId},
+            #{menuNm},
+            #{parentMenuId},
+            #{menuUrl},
+            #{menuOrder},
+            #{useYn},
+            #{createUserId},
+            NOW()
+        )
+    </insert>
+
+    <update id="updateMenu" parameterType="aseMenuVO">
+        UPDATE tb_menu
+        SET menu_nm = #{menuNm},
+            parent_menu_id = #{parentMenuId},
+            menu_url = #{menuUrl},
+            menu_order = #{menuOrder},
+            use_yn = #{useYn},
+            update_user_id = #{updateUserId},
+            update_dt = NOW()
+        WHERE menu_id = #{menuId}
+    </update>
+
+    <update id="updateMenuId">
+        UPDATE tb_menu 
+        SET menu_id = #{newMenuId}
+        WHERE menu_id = #{oldMenuId}
+    </update>
+
+    <update id="updateParentMenuId">
+        UPDATE tb_menu 
+        SET parent_menu_id = #{newMenuId}
+        WHERE parent_menu_id = #{oldMenuId}
+    </update>
+
+    <delete id="deleteMenu" parameterType="String">
+        DELETE FROM tb_menu
+        WHERE menu_id = #{menuId}
+    </delete>
+
+    <select id="selectMenuByMenuId" resultType="aseMenuVO">
+        SELECT 
+            menu_id AS menuId,
+            menu_nm AS menuNm,
+            parent_menu_id AS parentMenuId,
+            menu_url AS menuUrl,
+            menu_order AS menuOrder,
+            use_yn AS useYn,
+            create_user_id AS createUserId,
+            create_dt AS createDt,
+            update_user_id AS updateUserId,
+            update_dt AS updateDt
+        FROM tb_menu
+        WHERE menu_id = #{menuId}
+    </select>
+
+    <insert id="insertSystemMenu">
+        INSERT INTO tb_menu (
+            menu_id,
+            menu_nm,
+            parent_menu_id,
+            menu_url,
+            menu_order,
+            use_yn,
+            create_user_id,
+            create_dt
+        ) VALUES 
+        -- 시스템 관리 메뉴
+        ('SYSTEM', '시스템 관리', NULL, NULL, 1, 'Y', 'SYSTEM', NOW()),
+        -- 사용자 관리
+        ('USER', '사용자 관리', 'SYSTEM', '/ase/user/userList', 1, 'Y', 'SYSTEM', NOW()),
+        -- 메뉴 관리
+        ('MENU', '메뉴 관리', 'SYSTEM', '/ase/menu/menuList', 2, 'Y', 'SYSTEM', NOW()),
+        -- 권한 관리
+        ('AUTH', '권한 관리', 'SYSTEM', '/ase/auth/authList', 3, 'Y', 'SYSTEM', NOW()),
+        -- 사용자 권한 관리
+        ('USER_AUTH', '사용자 권한 관리', 'SYSTEM', '/ase/auth/authUserList', 4, 'Y', 'SYSTEM', NOW()),
+        -- 메뉴 권한 관리
+        ('MENU_AUTH', '메뉴 권한 관리', 'SYSTEM', '/ase/auth/authMenuList', 5, 'Y', 'SYSTEM', NOW())
+        ON DUPLICATE KEY UPDATE
+            menu_nm = VALUES(menu_nm),
+            parent_menu_id = VALUES(parent_menu_id),
+            menu_url = VALUES(menu_url),
+            menu_order = VALUES(menu_order),
+            use_yn = VALUES(use_yn),
+            update_user_id = 'SYSTEM',
+            update_dt = NOW()
+    </insert>
+
+</mapper>

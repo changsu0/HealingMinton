@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+  <body>
+  <div class="content-body">
+    <div class="container-fluid">
+      <form id="formCreateMenuAuth">
+        <div class="row">
+          <div class="col-12">
+            <div class="filter cm-content-box box-primary">
+              <div class="card-body" style="padding: 1rem">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="authId">권한</label>
+                          <select class="form-control" id="authId" name="authId" required>
+                            <option value="">권한 선택</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="menuId">메뉴</label>
+                          <select class="form-control" id="menuId" name="menuId" required>
+                            <option value="">메뉴 선택</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-12 text-end">
+                        <button class="btn btn-primary btn-sm" type="button" id="btnSaveMenuAuth">저장</button>
+                        <button class="btn btn-secondary btn-sm" style="margin-left: 5px" type="button" onclick="history.back()">취소</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    $(document).ready(function() {
+      init();
+      
+      $('#btnSaveMenuAuth').on('click', function() {
+        saveMenuAuth();
+      });
+    });
+
+    function init() {
+      // 권한 목록 조회
+      $.ajax({
+        url: '/ase/auth/selectAuthList',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({}),
+        success: function(result) {
+          let parsedResult;
+          try {
+            parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
+            if (parsedResult.success && parsedResult.authList) {
+              const authList = parsedResult.authList;
+              let options = '<option value="">권한 선택</option>';
+              authList.forEach(function(auth) {
+                options += `<option value="${auth.authId}">${auth.authNm}</option>`;
+              });
+              $('#authId').html(options);
+            }
+          } catch (e) {
+            console.error('Error parsing response:', e);
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error:', error);
+        }
+      });
+
+      // 권한 선택 시 메뉴 목록 조회
+      $('#authId').on('change', function() {
+        const authId = $(this).val();
+        if (!authId) {
+          $('#menuId').html('<option value="">메뉴 선택</option>');
+          return;
+        }
+
+        // 메뉴 목록 조회
+        $.ajax({
+          url: '/ase/auth/selectMenuList',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ authId: authId }),
+          success: function(result) {
+            let parsedResult;
+            try {
+              parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
+              if (parsedResult.success && parsedResult.menuList) {
+                const menuList = parsedResult.menuList;
+                let options = '<option value="">메뉴 선택</option>';
+                menuList.forEach(function(menu) {
+                  const indent = menu.menuLevel ? '&nbsp;'.repeat(menu.menuLevel * 4) : '';
+                  options += `<option value="${menu.menuId}">${indent}${menu.menuNm}</option>`;
+                });
+                $('#menuId').html(options);
+              } else {
+                alert(parsedResult.message || '메뉴 목록 조회에 실패했습니다.');
+                $('#menuId').html('<option value="">메뉴 선택</option>');
+              }
+            } catch (e) {
+              console.error('Error parsing response:', e);
+              $('#menuId').html('<option value="">메뉴 선택</option>');
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('Error:', error);
+            $('#menuId').html('<option value="">메뉴 선택</option>');
+          }
+        });
+      });
+    }
+
+    function saveMenuAuth() {
+      const authId = $('#authId').val();
+      const menuId = $('#menuId').val();
+      
+      if (!authId) {
+        alert('권한을 선택해주세요.');
+        return;
+      }
+      if (!menuId) {
+        alert('메뉴를 선택해주세요.');
+        return;
+      }
+
+      const saveData = {
+        authId: authId,
+        menuIds: [menuId],
+        accessYns: ['Y']  // 기본값으로 접근허용 설정
+      };
+
+      $.ajax({
+        url: '/ase/auth/saveAuthMenu',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(saveData),
+        success: function(result) {
+          let parsedResult;
+          try {
+            parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
+            if (parsedResult.success) {
+              alert(parsedResult.message || '저장되었습니다.');
+              history.back();
+            } else {
+              alert(parsedResult.message || '저장에 실패했습니다.');
+            }
+          } catch (e) {
+            console.error('Error parsing response:', e);
+            alert('응답 데이터 처리 중 오류가 발생했습니다.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error:', error);
+          alert('저장 중 오류가 발생했습니다.');
+        }
+      });
+    }
+  </script>
+
+  </body>
+</div>
+</html> 
