@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+    <body>
+    <div class="content-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">장소 예약</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="formCreatePlaceReservation">
+                                <div class="row mb-4">
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="reservationId">예약 ID
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="reservationId" name="reservationId" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="reservationUser">예약자명
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="reservationUser" name="reservationUser" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="reservationNumber">인원</label>
+                                            <div class="col-lg-8">
+                                                <input type="number" class="form-control" id="reservationNumber" name="reservationNumber" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="reservationDate">예약 일자</label>
+                                            <div class="col-lg-8">
+                                                <input type="date" class="form-control" id="reservationDate" name="reservationDate" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="placeName">장소명</label>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="placeName" name="placeName">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="placeAddress">장소 위치</label>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="placeAddress" name="placeAddress">
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="placeId" name="placeId" style="display:none">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-center">
+                                        <button type="button" class="btn btn-primary me-2" id="btnSave">저장</button>
+                                        <button type="button" class="btn btn-light" id="btnCancel">취소</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            // URL 파라미터에서 menuId 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const reservationParam = urlParams.get('reservation');
+            const placeParam = urlParams.get('place');
+
+            if (placeParam) {
+                try {
+                    const placeData = JSON.parse(decodeURIComponent(placeParam));
+                    // 입력 필드에 데이터 채우기
+                    $('#placeName').val(placeData.placeName).prop('readonly', true); // menuId는 수정 불가
+                    $('#placeAddress').val(placeData.placeAddress).prop('readonly', true)
+                    $('#placeId').val(placeData.placeId).prop('readonly', true);
+                } catch (e) {
+                    console.error('메뉴 데이터 파싱 실패:', e);
+                }
+            } else if (reservationParam) {
+                try {
+                    const reservationData = JSON.parse(decodeURIComponent(reservationParam));
+                    // 입력 필드에 데이터 채우기
+                    $('#reservationId').val(reservationData.reservationId).prop('readonly', true); // menuId는 수정 불가
+                    $('#reservationUser').val(reservationData.reservationUser);
+                    $('#reservationNumber').val(reservationData.reservationNumber);
+                    $('#reservationDate').val(reservationData.reservationDate);
+                    $('#placeName').val(reservationData.placeName).prop('readonly', true);
+                    $('#placeAddress').val(reservationData.placeAddress).prop('readonly', true);
+                    $('#placeId').val(reservationData.placeId).prop('readonly', true);
+                } catch (e) {
+                    console.error('메뉴 데이터 파싱 실패:', e);
+                }
+            }
+
+            // 상위 메뉴 목록 조회
+            // loadParentMenus();
+
+            // 저장 버튼 클릭
+            $('#btnSave').on('click', function() {
+                if (!validateForm()) {
+                    return;
+                }
+
+                // if (!checkReservationId()) {
+                //     return;
+                // }
+
+                const reservationData = {
+                    reservationId: $('#reservationId').val(),
+                    reservationUser: $('#reservationUser').val(),
+                    // parentMenuId: $('#parentMenuId').val() || null,
+                    reservationNumber: $('#reservationNumber').val(),
+                    reservationDate: $('#reservationDate').val(),
+                    // useYn: $('#useYn').val(),
+                    // createUserId: 'SYSTEM'  // 임시로 SYSTEM 사용
+                    placeId: $('#placeId').val()
+                };
+
+                JS_COMMON.callAjaxForm('/placeReservation/savePlaceReservation', reservationData, 'POST', function(result) {
+                    if (result.code === 200) {
+                        alert(result.successMsg);
+                        window.location.href = '/placeReservation/placeReservationList';
+                    } else {
+                        alert(result.failMsg);
+                    }
+                }, true);
+            });
+
+            // 취소 버튼 클릭
+            $('#btnCancel').on('click', function() {
+                window.location.href = '/placeReservation/placeReservationList';
+            });
+        });
+
+        // 상위 메뉴 목록 조회
+        // function loadParentMenus() {
+        //     JS_COMMON.callAjaxForm('/ase/menu/selectMenuList', {}, 'POST', function(result) {
+        //         if (result.code === 200) {
+        //             const menus = result.data;
+        //             const select = $('#parentMenuId');
+        //
+        //             menus.forEach(menu => {
+        //                 select.append(new Option(menu.menuNm, menu.menuId));
+        //             });
+        //         }
+        //     }, true);
+        // }
+
+        function checkReservationId() {
+            const reservationId = $('#reservationId').val().replace(/\s/g, '');
+            if(reservationId == '' || reservationId.length == 0) {
+                alert('공백은 예약 ID로 사용하실 수 없습니다.');
+                $('#reservationId').focus();
+                return false;
+            }
+
+            $.ajax({
+                url: '/placeReservation/checkReservationId',
+                type: 'POST',
+                data: { reservationId: reservationId },
+                dataType: 'json',
+                success: function(result) {
+                    if (result == 1) {
+                        $('#reservationId').focus();
+                        alert('중복되는 예약 ID 입니다.');
+                        return false;
+                    }
+                }, error : function (error) {
+                    alert("error:" + error);
+                }
+            });
+            return true;
+        }
+
+        // 폼 유효성 검사
+        function validateForm() {
+            const reservationId = $('#reservationId').val();
+            const reservationUser = $('#reservationUser').val();
+            const reservationNumber = $('#reservationNumber').val();
+            const reservationDate = $('#reservationDate').val();
+
+            if (!reservationId) {
+                alert('예약 ID를 입력해주세요.');
+                $('#reservationId').focus();
+                return false;
+            }
+            if (!reservationNumber) {
+                alert('인원 수를 입력해주세요.');
+                $('#reservationNumber').focus();
+                return false;
+            }
+            if (!reservationUser) {
+                alert('예약자명을 입력해주세요.');
+                $('#reservationUser').focus();
+                return false;
+            }
+            if (!reservationDate) {
+                alert('예약일자를 입력해주세요.');
+                $('#reservationDate').focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+    </body>
+</div>
+</html>

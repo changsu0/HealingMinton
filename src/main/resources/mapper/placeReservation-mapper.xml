@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.place.mapper.PlaceReservationMapper">
+    
+    <select id="selectPlaceReservationList" resultType="placeReservationVO">
+        SELECT tpr.RESERVATION_ID, tpr.RESERVATION_NUMBER, tpr.RESERVATION_USER, tpr.RESERVATION_DATE,
+        tpr.PLACE_ID, tp.PLACE_NAME, tp.PLACE_ADDRESS
+        FROM tb_place_reservation tpr, tb_place tp
+        <where>
+            AND tpr.PLACE_ID = tp.PLACE_ID
+            <if test="placeName != null and placeName != ''">
+                AND tp.PLACE_NAME LIKE CONCAT('%', #{placeName}, '%')
+            </if>
+        </where>
+        ORDER BY tpr.RESERVATION_DATE DESC
+    </select>
+
+    <select id="checkReservationExists" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM tb_place_reservation
+            WHERE RESERVATION_ID = #{reservationId}
+        )
+    </select>
+
+    <insert id="insertPlaceReservation" parameterType="placeReservationVO">
+        INSERT INTO tb_place_reservation (RESERVATION_ID,RESERVATION_NUMBER,RESERVATION_USER,RESERVATION_DATE,PLACE_ID)
+        VALUES (#{reservationId},#{reservationNumber},#{reservationUser},#{reservationDate},#{placeId})
+    </insert>
+
+    <update id="updatePlaceReservation" parameterType="placeReservationVO">
+        UPDATE tb_place_reservation
+        SET RESERVATION_NUMBER = #{reservationNumber},
+            RESERVATION_USER = #{reservationUser},
+            RESERVATION_DATE = #{reservationDate}
+        WHERE RESERVATION_ID = #{reservationId}
+    </update>
+
+    <select id="selectPlaceReservationByReservationId" resultType="placeReservationVO">
+        SELECT tpr.RESERVATION_ID, tpr.RESERVATION_NUMBER, tpr.RESERVATION_USER, tpr.RESERVATION_DATE,
+               tpr.PLACE_ID, tp.PLACE_NAME, tp.PLACE_ADDRESS
+        FROM tb_place_reservation tpr, tb_place tp
+        WHERE tpr.PLACE_ID = tp.PLACE_ID
+        AND tpr.RESERVATION_ID = #{reservationId}
+    </select>
+
+    <delete id="deletePlaceReservation" parameterType="String">
+        DELETE FROM tb_place_reservation
+        WHERE RESERVATION_ID = #{reservationId}
+    </delete>
+
+    <select id="checkReservationId" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_place_reservation
+        WHERE RESERVATION_ID = #{reservationId}
+    </select>
+
+</mapper>

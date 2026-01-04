@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.place.mapper.PlaceMapper">
+    
+    <select id="selectPlaceList" resultType="placeVO">
+        SELECT * FROM tb_place
+        <where>
+            <if test="placeName != null and placeName != ''">
+                AND place_name LIKE CONCAT('%', #{placeName}, '%')
+            </if>
+        </where>
+        ORDER BY create_date desc
+    </select>
+
+    <select id="checkPlaceExists" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM tb_place
+            WHERE place_id = #{placeId}
+        )
+    </select>
+
+    <insert id="insertPlace" parameterType="placeVO">
+        INSERT INTO tb_place (place_id,place_name,place_address,create_date,update_date)
+        VALUES (#{placeId},#{placeName},#{placeAddress},NOW(),NULL)
+    </insert>
+
+    <update id="updatePlace" parameterType="placeVO">
+        UPDATE tb_place
+        SET place_name = #{placeName},
+            place_address = #{placeAddress},
+            update_date = NOW()
+        WHERE place_id = #{placeId}
+    </update>
+
+    <select id="selectPlaceByPlaceId" resultType="placeVO">
+        SELECT * FROM tb_place
+        WHERE place_id = #{placeId}
+    </select>
+
+    <delete id="deletePlace" parameterType="String">
+        DELETE FROM tb_place
+        WHERE place_id = #{placeId}
+    </delete>
+
+</mapper>
