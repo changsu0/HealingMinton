@@ -93,10 +93,38 @@
 
     <script th:inline="javascript">
         $(document).ready(function() {
+
             // URL 파라미터에서 menuId 가져오기
             const urlParams = new URLSearchParams(window.location.search);
             const reservationParam = urlParams.get('reservation');
             const placeParam = urlParams.get('place');
+
+            if (!reservationParam) {
+                $("#reservationId").on("focusout", function () {
+                    var reservationId = $("#reservationId").val().replace(/\s/g, '');
+
+                    if(reservationId == '' || reservationId.length == 0) {
+                        alert('공백은 예약 ID로 사용하실 수 없습니다.');
+                        return false;
+                    }
+
+                    $.ajax({
+                        url: '/placeReservation/checkReservationId',
+                        type: 'POST',
+                        data: { reservationId: reservationId },
+                        dataType: 'json',
+                        success: function(result) {
+                            if (result == 1) {
+                                alert('중복되는 예약 ID 입니다.');
+                                $("#reservationId").val('');
+                            } else if (result == 0) {
+                            }
+                        }, error : function (error) {
+                            alert("error:" + error);
+                        }
+                    });
+                })
+            }
 
             if (placeParam) {
                 try {
@@ -132,10 +160,6 @@
                 if (!validateForm()) {
                     return;
                 }
-
-                // if (!checkReservationId()) {
-                //     return;
-                // }
 
                 const reservationData = {
                     reservationId: $('#reservationId').val(),
@@ -178,32 +202,6 @@
         //     }, true);
         // }
 
-        function checkReservationId() {
-            const reservationId = $('#reservationId').val().replace(/\s/g, '');
-            if(reservationId == '' || reservationId.length == 0) {
-                alert('공백은 예약 ID로 사용하실 수 없습니다.');
-                $('#reservationId').focus();
-                return false;
-            }
-
-            $.ajax({
-                url: '/placeReservation/checkReservationId',
-                type: 'POST',
-                data: { reservationId: reservationId },
-                dataType: 'json',
-                success: function(result) {
-                    if (result == 1) {
-                        $('#reservationId').focus();
-                        alert('중복되는 예약 ID 입니다.');
-                        return false;
-                    }
-                }, error : function (error) {
-                    alert("error:" + error);
-                }
-            });
-            return true;
-        }
-
         // 폼 유효성 검사
         function validateForm() {
             const reservationId = $('#reservationId').val();
@@ -233,6 +231,7 @@
             }
             return true;
         }
+
     </script>
 
     </body>

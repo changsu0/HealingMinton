@@ -47,4 +47,8 @@ public class PlaceService {
     public void deletePlace(String placeId) {
         placeMapper.deletePlace(placeId);
     }
+
+    public int checkPlaceId(String placeId) {
+        return placeMapper.checkPlaceId(placeId);
+    }
 }

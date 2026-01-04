@@ -122,4 +122,11 @@ public class PlaceController {
         }
         return new Gson().toJson(rstMap);
     }
+
+    @PostMapping("/checkPlaceId")
+    @ResponseBody
+    public int checkPlaceId(String placeId) {
+        int result = placeService.checkPlaceId(placeId);
+        return result;
+    }
 }

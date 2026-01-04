@@ -95,9 +95,37 @@
 
     <script th:inline="javascript">
         $(document).ready(function() {
+
             // URL 파라미터에서 menuId 가져오기
             const urlParams = new URLSearchParams(window.location.search);
             const placeParam = urlParams.get('place');
+
+            if (!placeParam) {
+                $("#placeId").on("focusout", function () {
+                    var placeId = $("#placeId").val().replace(/\s/g, '');
+
+                    if(placeId == '' || placeId.length == 0) {
+                        alert('공백은 장소 ID로 사용하실 수 없습니다.');
+                        return false;
+                    }
+
+                    $.ajax({
+                        url: '/place/checkPlaceId',
+                        type: 'POST',
+                        data: { placeId: placeId },
+                        dataType: 'json',
+                        success: function(result) {
+                            if (result == 1) {
+                                alert('중복되는 장소 ID 입니다.');
+                                $("#placeId").val('');
+                            } else if (result == 0) {
+                            }
+                        }, error : function (error) {
+                            alert("error:" + error);
+                        }
+                    });
+                })
+            }
 
             if (placeParam) {
                 try {

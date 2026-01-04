@@ -44,4 +44,10 @@
         WHERE place_id = #{placeId}
     </delete>
 
+    <select id="checkPlaceId" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_place
+        WHERE place_id = #{placeId}
+    </select>
+
 </mapper>

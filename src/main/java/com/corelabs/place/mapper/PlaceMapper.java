@@ -14,4 +14,5 @@ public interface PlaceMapper {
     int updatePlace(PlaceVO placeVO);
     PlaceVO selectPlaceByPlaceId(String placeId);
     void deletePlace(@Param("placeId") String placeId);
+    int checkPlaceId(String placeId);
 }
