@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경력 관리 시스템 - 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 50px auto;
+        }
+
+        /* 헤더 섹션 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        /* 리스트 카드 스타일 */
+        .resume-list-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: none;
+        }
+
+        /* 테이블 커스텀 */
+        .table {
+            margin-bottom: 0;
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            border-top: none;
+            color: #adb5bd;
+            font-weight: 500;
+            font-size: 0.85rem;
+            padding: 15px;
+        }
+
+        .table tbody td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .resume-title {
+            font-weight: 600;
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .resume-title:hover {
+            color: #0d6efd;
+        }
+
+        .author-badge {
+            background-color: #f1f3f5;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .date-text {
+            color: #adb5bd;
+            font-size: 0.85rem;
+        }
+
+        /* 작업 버튼 스타일 */
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f1f3f5;
+            background: white;
+            transition: 0.2s;
+            color: #6c757d;
+        }
+
+        .btn-edit:hover {
+            background-color: #e7f1ff;
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-delete:hover {
+            background-color: #fff5f5;
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        /* 새 이력서 작성 버튼 */
+        .btn-create {
+            background-color: #212529;
+            color: white;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .btn-create:hover {
+            background-color: #000;
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<div layout:fragment="content">
+    <body>
+        <div class="content-body">
+            <div class="container-fluid">
+
+                <div class="container dashboard-container">
+                    <div class="page-header">
+                        <div class="page-title"><i class="bi bi-file-earmark-person me-2"></i>이력서 목록</div>
+                        <a href="#" class="btn-create" id="btnCreate"><i class="bi bi-plus-lg me-1"></i> 새 이력서 작성</a>
+                    </div>
+
+                    <div class="card resume-list-card">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45%;">이력서 제목</th>
+                                        <th style="width: 15%;">작성자</th>
+                                        <th style="width: 20%;">작성일</th>
+                                        <th style="width: 20%;">최종 수정일</th>
+                                        <th style="width: 20%; text-align: center;">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resumeTableBody">
+                                    <tr>
+                                        <td><a href="#" class="resume-title">신입 프론트엔드 개발자 지원_홍길동</a></td>
+                                        <td><span class="author-badge">홍길동</span></td>
+                                        <td><span class="date-text">2023.01.10 14:30</span></td>
+                                        <td><span class="date-text">2024.03.20 14:30</span></td>
+                                        <td class="text-center">
+                                            <button class="btn-action btn-edit me-1" onclick="editResume(1)" title="수정">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="deleteResume(this)" title="삭제">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#" class="resume-title">경력직 UI/UX 디자이너_홍길동 (국문)</a></td>
+                                        <td><span class="author-badge">홍길동</span></td>
+                                        <td><span class="date-text">2023.01.10 14:30</span></td>
+                                        <td><span class="date-text">2024.03.18 09:15</span></td>
+                                        <td class="text-center">
+                                            <button class="btn-action btn-edit me-1" onclick="editResume(2)" title="수정">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="deleteResume(this)" title="삭제">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            <script>
+                $('#btnCreate').on('click', () => {
+                    window.location.href = '/resume/createResume';
+                });
+
+                // 수정 함수 (이전 폼 페이지로 연결하는 로직을 여기에 작성)
+                function editResume(id) {
+                    if (confirm(id + "번 이력서를 수정하시겠습니까?")) {
+                        // location.href = 'edit_page.html?id=' + id; // 실제 구현 시 주석 해제
+                        alert("수정 페이지로 이동합니다.");
+                    }
+                }
+
+                // 삭제 함수
+                function deleteResume(btn) {
+                    if (confirm("정말로 이 이력서를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
+                        // 해당 버튼이 속한 행(tr)을 찾아 제거
+                        const row = btn.closest('tr');
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        row.style.transition = '0.4s';
+
+                        setTimeout(() => {
+                            row.remove();
+                            // 모든 행이 삭제되었는지 확인
+                            const tbody = document.getElementById('resumeTableBody');
+                            if (tbody.children.length === 0) {
+                                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted">등록된 이력서가 없습니다.</td></tr>';
+                            }
+                        }, 400);
+                    }
+                }
+            </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            </div>
+        </div>
+    </body>
+</div>
+</html>
