@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.resume.mapper.ResumeMapper">
+    
+    <select id="selectResumeList" resultType="resumeVO">
+        SELECT * FROM resume
+        ORDER BY created_time desc
+    </select>
+
+    <insert id="insertResume" parameterType="resumeVO">
+        INSERT INTO resume
+        (resume_id, title, created_user, created_time, updated_time, name, birth, gender, military, role, marriage, landline_number, phone_number, email, address)
+        VALUES(#{resumeId}, #{title}, #{createdUser}, NOW(), NULL, #{name}, #{birth}, #{gender}, #{military}, #{role}, #{marriage}, #{landlineNumber}, #{phoneNumber}, #{email}, #{address})
+    </insert>
+
+    <insert id="insertEducation" parameterType="resumeEducationVO">
+        INSERT INTO resume_education
+        (school_name, school_status, school_date, created_time, resume_id)
+        VALUES
+        (#{schoolName}, #{schoolStatus}, #{schoolDate}, NOW(), #{resumeId})
+    </insert>
+
+    <insert id="insertCareer" parameterType="resumeCareerVO">
+        INSERT INTO resume_career
+        (company_name, company_role, company_work, company_start_term, company_end_term, created_time, resume_id)
+        VALUES(#{companyName}, #{companyRole}, #{companyWork}, #{companyStartTerm}, #{companyEndTerm}, NOW(), #{resumeId});
+    </insert>
+
+    <insert id="insertLicense" parameterType="resumeLicenseVO">
+        INSERT INTO resume_license
+        (license_name, license_issuer, license_date, created_time, resume_id)
+        VALUES(#{licenseName}, #{licenseIssuer}, #{licenseDate}, NOW(), #{resumeId});
+    </insert>
+
+    <insert id="insertSkill" parameterType="resumeSkillVO">
+        INSERT INTO resume_skill
+        (project_name, project_customer, project_company, project_work, project_language, project_db, project_tool, project_framework, project_start_term, project_end_term, project_work_detail, project_etc, created_time, resume_id)
+        VALUES(#{projectName}, #{projectCustomer}, #{projectCompany}, #{projectWork}, #{projectLanguage}, #{projectDb}, #{projectTool}, #{projectFramework}, #{projectStartTerm}, #{projectEndTerm}, #{projectWorkDetail}, #{projectEtc}, NOW(), #{resumeId});
+    </insert>
+
+    <resultMap id="resumeDetailMap" type="resumeVO">
+        <id property="resumeId" column="resume_id"></id>
+        <result property="title" column="title"></result>
+        <result property="createdUser" column="created_user"></result>
+        <result property="createdTime" column="created_time"></result>
+        <result property="updatedTime" column="updated_time"></result>
+        <result property="name" column="name"></result>
+        <result property="birth" column="birth"></result>
+        <result property="gender" column="gender"></result>
+        <result property="military" column="military"></result>
+        <result property="role" column="role"></result>
+        <result property="marriage" column="marriage"></result>
+        <result property="landlineNumber" column="landline_number"></result>
+        <result property="phoneNumber" column="phone_number"></result>
+        <result property="email" column="email"></result>
+        <result property="address" column="address"></result>
+
+        <collection property="educationList" ofType="resumeEducationVO">
+            <result property="schoolName" column="school_name"></result>
+            <result property="schoolStatus" column="school_status"></result>
+            <result property="schoolDate" column="school_date"></result>
+            <result property="createdTime" column="created_time"></result>
+        </collection>
+
+        <collection property="careerList" ofType="resumeCareerVO">
+            <result property="companyName" column="company_name"></result>
+            <result property="companyRole" column="company_role"></result>
+            <result property="companyWork" column="company_work"></result>
+            <result property="companyStartTerm" column="company_start_term"></result>
+            <result property="companyEndTerm" column="company_end_term"></result>
+            <result property="createdTime" column="created_time"></result>
+        </collection>
+
+        <collection property="licenseList" ofType="resumeLicenseVO">
+            <result property="licenseName" column="license_name"></result>
+            <result property="licenseIssuer" column="license_issuer"></result>
+            <result property="licenseDate" column="license_date"></result>
+            <result property="createdTime" column="created_time"></result>
+        </collection>
+
+        <collection property="skillList" ofType="resumeSkillVO">
+            <result property="projectName" column="project_name"></result>
+            <result property="projectCustomer" column="project_customer"></result>
+            <result property="projectCompany" column="project_company"></result>
+            <result property="projectWork" column="project_work"></result>
+            <result property="projectLanguage" column="project_language"></result>
+            <result property="projectDb" column="project_db"></result>
+            <result property="projectTool" column="project_tool"></result>
+            <result property="projectFramework" column="project_framework"></result>
+            <result property="projectStartTerm" column="project_start_term"></result>
+            <result property="projectEndTerm" column="project_end_term"></result>
+            <result property="projectWorkDetail" column="project_work_detail"></result>
+            <result property="projectEtc" column="project_etc"></result>
+            <result property="createdTime" column="created_time"></result>
+        </collection>
+
+    </resultMap>
+
+    <select id="selectResumeById" resultMap="resumeDetailMap">
+        SELECT
+            r.*,
+            e.id, e.school_name, e.school_status, e.school_date, e.created_time,
+            c.company_name, c.company_role, c.company_work, c.company_start_term, c.company_end_term, c.created_time,
+            l.license_name, l.license_issuer, l.license_date, l.created_time,
+            s.project_name, s.project_customer, s.project_company, s.project_work, s.project_language, s.project_db, s.project_tool, s.project_framework, s.project_start_term, s.project_end_term, s.project_work_detail, s.project_etc, s.created_time
+        FROM resume r
+        LEFT JOIN resume_education e ON r.resume_id = e.resume_id
+        LEFT JOIN resume_career c ON r.resume_id = c.resume_id
+        LEFT JOIN resume_license l ON r.resume_id = l.resume_id
+        LEFT JOIN resume_skill s ON r.resume_id = s.resume_id
+        WHERE r.resume_id = #{resumeId}
+        ORDER BY e.created_time DESC, c.created_time DESC, l.created_time DESC, s.created_time DESC
+    </select>
+
+    <update id="updateResume" parameterType="resumeVO">
+        UPDATE resume
+        SET title = #{title},
+            created_user = #{createdUser},
+            updated_time = NOW(),
+            name = #{name},
+            birth = #{birth},
+            gender = #{gender},
+            military = #{military},
+            role = #{role},
+            marriage = #{marriage},
+            landline_number = #{landlineNumber},
+            phone_number = #{phoneNumber},
+            email = #{email},
+            address = #{address}
+        WHERE resume_id = #{resumeId}
+    </update>
+
+    <delete id="deleteResume" parameterType="string">
+        DELETE FROM resume WHERE resume_id = #{resumeId}
+    </delete>
+
+    <delete id="deleteEducation" parameterType="string">
+        DELETE FROM resume_education WHERE resume_id = #{resumeId}
+    </delete>
+
+    <delete id="deleteCareer" parameterType="string">
+        DELETE FROM resume_career WHERE resume_id = #{resumeId}
+    </delete>
+
+    <delete id="deleteLicense" parameterType="string">
+        DELETE FROM resume_license WHERE resume_id = #{resumeId}
+    </delete>
+
+    <delete id="deleteSkill" parameterType="string">
+        DELETE FROM resume_skill WHERE resume_id = #{resumeId}
+    </delete>
+
+</mapper>

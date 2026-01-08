@@ -9,7 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-
         /* 푸터 입력창 전용 필수 표시 */
         .footer-input-wrapper {
             position: relative;
@@ -48,6 +47,13 @@
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 상단 헤더 영역 */
+        .resume-header {
+            border-bottom: 2px solid #f1f3f5;
+            padding-bottom: 30px;
+            margin-bottom: 30px;
         }
 
         /* 탭 스타일 */
@@ -347,6 +353,19 @@
 
         <script th:inline="javascript">
 
+            $(document).ready(function () {
+                // 1. URL 파라미터에서 'id' 추출
+                const urlParams = new URLSearchParams(window.location.search);
+                const resumeId = urlParams.get('id');
+
+                if (resumeId) {
+                    loadResumeDetail(resumeId);
+                } else {
+                    alert("잘못된 접근입니다.");
+                    history.back();
+                }
+            })
+
             // 저장 함수
             function saveResume() {
 
@@ -354,7 +373,11 @@
                     return;
                 }
 
-                // 학력 데이터 수집
+                // 1. URL 파라미터에서 'id' 추출
+                const urlParams = new URLSearchParams(window.location.search);
+                const resumeId = urlParams.get('id');
+
+                // 2. 학력 데이터 수집
                 let eduList = [];
                 $('#edu-list > .entry-card').each(function() {
                     eduList.push({
@@ -364,7 +387,7 @@
                     })
                 });
 
-                // 경력 데이터 수집
+                // 3. 경력 데이터 수집
                 let careerList = [];
                 $('#career-list > .entry-card').each(function() {
                     careerList.push({
@@ -376,7 +399,7 @@
                     })
                 });
 
-                // 자격증명 데이터 수집
+                // 4. 자격증명 데이터 수집
                 let licenseList = [];
                 $('#license-list > .entry-card').each(function() {
                     licenseList.push({
@@ -386,7 +409,7 @@
                     })
                 });
 
-                // 기술경력 데이터 수집
+                // 5. 기술경력 데이터 수집
                 let skillList = [];
                 $('#skill-list > .entry-card').each(function() {
                     skillList.push({
@@ -405,8 +428,9 @@
                     })
                 });
 
-                // 전체 데이터 구조화
+                // 6. 전체 데이터 구조화
                 let formData = {
+                    resumeId: resumeId,
                     title: $('#title').val(),
                     createdUser: $('#createdUser').val(),
                     name: $('#name').val(),
@@ -426,18 +450,18 @@
                 };
 
                 $.ajax({
-                    url: "/resume/saveResume",
+                    url: "/resume/updateResume",
                     type: "POST",
                     data: JSON.stringify(formData),
                     dataType: "json",
                     contentType: 'application/json',
                     traditional : true,
                     success: function(data) {
-                        alert("이력서 정보가 안전하게 저장되었습니다!");
+                        alert("이력서 정보가 안전하게 수정되었습니다!");
                         location.href = '/resume/resumeList';
                     },
                     error: function(error) {
-                        alert("이력서 정보가 정상적으로 저장되지 않았습니다.");
+                        alert("이력서 정보가 정상적으로 수정되지 않았습니다.");
                     }
                 });
             }
@@ -445,10 +469,6 @@
             // 항목 추가 함수
             function addEntry(containerId) {
                 const container = document.getElementById(containerId);
-
-                //1. 마지막 row를 찾거나 새로 생성해야 하는지 판단
-                // let rows = container.getElementsByClassName('row');
-                // let lastRow = rows[rows.length - 1];
 
                 // 경력 섹션의 '항목 없음' 메시지 제거용
                 if (container.querySelector('p')) container.innerHTML = '';
@@ -466,7 +486,7 @@
                         <label class="form-label">졸업여부</label>
                         <div class="custom-input-group">
                             <select id="schoolStatus">
-                                <option value="졸업예정" selected>졸업예정</option>
+                                <option value="졸업예정">졸업예정</option>
                                 <option value="졸업">졸업</option>
                                 <option value="중퇴">중퇴</option>
                                 <option value="재학">재학</option>
@@ -514,7 +534,7 @@
                         <div class="custom-input-group"><input type="text" placeholder="발급기관" id="licenseIssuer"></div>
 
                         <label class="form-label">취득일자</label>
-                        <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate"></div>`;
+                        <div class="custom-input-group"><input type="date" value="0000-00-00" placeholder="취득일자" id="licenseDate"></div>`;
                 } else if (containerId == 'skill-list') {
                     newEntry.innerHTML = `
                         <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
@@ -570,6 +590,7 @@
                             <textarea class="form-control" rows="5" id="projectWorkDetail"></textarea>
                         </div>`;
                 }
+
                 container.appendChild(newEntry);
             }
 
@@ -578,6 +599,179 @@
                     location.href = '/resume/resumeList';
                     alert("목록 페이지로 이동합니다.");
                 }
+            }
+
+            function loadResumeDetail(resumeId) {
+                $.ajax({
+                    url: '/resume/resumeDetail/' + resumeId,
+                    type: 'GET',
+                    success: function(data) {
+
+                        // 1. 기본 정보 세팅
+                        $('#title').val(data.title);
+                        $('#createdUser').val(data.createdUser);
+                        $('#name').val(data.name);
+                        $('#birth').val(data.birth);
+                        $('#gender').val(data.gender);
+                        $('#military').val(data.military);
+                        $('#role').val(data.role);
+                        $('#marriage').val(data.military);
+                        $('#landlineNumber').val(data.landlineNumber);
+                        $('#phoneNumber').val(data.phoneNumber);
+                        $('#email').val(data.email);
+                        $('#address').val(data.address);
+
+                        // 2. 학력 리스트 출력
+                        if(data.educationList && data.educationList.length > 0) {
+                            let innerHTML = '';
+                            for (const edu of data.educationList) {
+                                innerHTML += `
+                                <div class="entry-card">
+                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label">학교명</label>
+                                <div class="custom-input-group"><input type="text" placeholder="학교명" id="schoolName" value=${edu.schoolName || ''}></div>
+
+                                <label class="form-label">졸업여부</label>
+                                <div class="custom-input-group">
+                                <select id="schoolStatus">
+                                <option value="졸업예정" ${edu.schoolStatus == '졸업예정' ? 'selected' : ''}>졸업예정</option>
+                                <option value="졸업" ${edu.schoolStatus == '졸업' ? 'selected' : ''}>졸업</option>
+                                <option value="중퇴" ${edu.schoolStatus == '중퇴' ? 'selected' : ''}>중퇴</option>
+                                <option value="재학" ${edu.schoolStatus == '재학' ? 'selected' : ''}>재학</option>
+                                <option value="휴학" ${edu.schoolStatus == '휴학' ? 'selected' : ''}>휴학</option>
+                                </select>
+                                </div>
+
+                                <label class="form-label">졸업일자</label>
+                                <div class="custom-input-group"><input type="date" id="schoolDate" value=${edu.schoolDate || ''}></div>
+                                </div>`;
+                            }
+                            $('#edu-list').html(innerHTML);
+                        }
+
+                        // 3. 경력 리스트 출력
+                        if(data.careerList && data.careerList.length > 0) {
+                            let innerHTML = '';
+                            for (const career of data.careerList) {
+                                innerHTML += `
+                                <div class="entry-card">
+                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label">회사명</label>
+                                <div class="custom-input-group"><input type="text" placeholder="회사명" id="companyName" value=${career.companyName || ''}></div>
+
+                                <label class="form-label">직위</label>
+                                <div class="custom-input-group"><input type="text" placeholder="직위" id="companyRole" value=${career.companyRole || ''}></div>
+
+                                <label class="form-label">담당업무</label>
+                                <div class="custom-input-group"><input type="text" placeholder="담당업무" id="companyWork" value=${career.companyWork || ''}></div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">시작일자</label>
+                                        <div class="custom-input-group">
+                                        <input type="date" id="companyStartTerm" value=${career.companyStartTerm || ''}>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">종료일자</label>
+                                        <div class="custom-input-group">
+                                        <input type="date" id="companyEndTerm" value=${career.companyEndTerm || ''}>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>`;
+                            }
+                            $('#career-list').html(innerHTML);
+                        }
+
+                        // 4. 자격증명 리스트 출력
+                        if(data.licenseList && data.licenseList.length > 0) {
+                            let innerHTML = '';
+                            for (const license of data.licenseList) {
+                                innerHTML += `
+                                <div class="entry-card">
+                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label">자격증명</label>
+                                <div class="custom-input-group"><input type="text" placeholder="자격증명" id="licenseName" value=${license.licenseName || ''}></div>
+
+                                <label class="form-label">발급기관</label>
+                                <div class="custom-input-group"><input type="text" placeholder="발급기관" id="licenseIssuer" value=${license.licenseIssuer || ''}></div>
+
+                                <label class="form-label">취득일자</label>
+                                <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate" value=${license.licenseDate || ''}></div>
+                                </div>`;
+                            }
+                            $('#license-list').html(innerHTML);
+                        }
+
+                        // 5. 기술경력 리스트 출력
+                        if(data.skillList && data.skillList.length > 0) {
+                            let innerHTML = '';
+                            for (const skill of data.skillList) {
+                                innerHTML += `
+                                <div class="entry-card">
+                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label">프로젝트명</label>
+                                <div class="custom-input-group"><input type="text" placeholder="프로젝트명" id="projectName" value=${skill.projectName || ''}></div>
+
+                                <label class="form-label">고객사</label>
+                                <div class="custom-input-group"><input type="text" placeholder="고객사" id="projectCustomer" value=${skill.projectCustomer || ''}></div>
+
+                                <label class="form-label">근무회사</label>
+                                <div class="custom-input-group"><input type="text" placeholder="근무회사" id="projectCompany" value=${skill.projectCompany || ''}></div>
+
+                                <label class="form-label">역할</label>
+                                <div class="custom-input-group"><input type="text" placeholder="역할" id="projectWork" value=${skill.projectWork || ''}></div>
+
+                                <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label"">언어</label>
+                                        <div class="custom-input-group"><input type="text" placeholder="언어" id="projectLanguage" value=${skill.projectLanguage || ''}></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">DB</label>
+                                        <div class="custom-input-group"><input type="text" placeholder="DB" id="projectDb" value=${skill.projectDb || ''}></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">Tool</label>
+                                        <div class="custom-input-group"><input type="text" placeholder="Tool" id="projectTool" value=${skill.projectTool || ''}></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">FrameWork</label>
+                                        <div class="custom-input-group"><input type="text" placeholder="FrameWork" id="projectFramework" value=${skill.projectFramework || ''}></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">시작일자</label>
+                                        <div class="custom-input-group"><input type="date" id="projectStartTerm" value=${skill.projectStartTerm || ''}></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">종료일자</label>
+                                        <div class="custom-input-group"><input type="date" id="projectEndTerm" value=${skill.projectEndTerm || ''}></div>
+                                    </div>
+                                </div>
+
+                                <label class="form-label">기타</label>
+                                <div class="custom-input-group"><input type="text" placeholder="기타" id="projectEtc" value=${skill.projectEtc || ''}></div>
+
+                                <label class="form-label">상세업무내용</label>
+                                <div class="custom-input-group">
+                                    <textarea class="form-control" rows="5" id="projectWorkDetail">${skill.projectWorkDetail || ''}</textarea>
+                                </div>
+                                </div>`;
+                            }
+                            $('#skill-list').html(innerHTML);
+                        }
+
+                    },
+                    error: function () {
+                        alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                    }
+                });
             }
 
             // 폼 유효성 검사

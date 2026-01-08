@@ -157,34 +157,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="resumeTableBody">
-                                    <tr>
-                                        <td><a href="#" class="resume-title">신입 프론트엔드 개발자 지원_홍길동</a></td>
-                                        <td><span class="author-badge">홍길동</span></td>
-                                        <td><span class="date-text">2023.01.10 14:30</span></td>
-                                        <td><span class="date-text">2024.03.20 14:30</span></td>
-                                        <td class="text-center">
-                                            <button class="btn-action btn-edit me-1" onclick="editResume(1)" title="수정">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                            <button class="btn-action btn-delete" onclick="deleteResume(this)" title="삭제">
-                                                <i class="bi bi-trash3"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#" class="resume-title">경력직 UI/UX 디자이너_홍길동 (국문)</a></td>
-                                        <td><span class="author-badge">홍길동</span></td>
-                                        <td><span class="date-text">2023.01.10 14:30</span></td>
-                                        <td><span class="date-text">2024.03.18 09:15</span></td>
-                                        <td class="text-center">
-                                            <button class="btn-action btn-edit me-1" onclick="editResume(2)" title="수정">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                            <button class="btn-action btn-delete" onclick="deleteResume(this)" title="삭제">
-                                                <i class="bi bi-trash3"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+
                                 </tbody>
                             </table>
                         </div>
@@ -192,35 +165,80 @@
                 </div>
 
             <script>
+
+                $(document).ready(function() {
+                    init();
+                });
+
+                function init() {
+                    selectGridList();
+                }
+
+                const selectGridList = function() {
+                    $.ajax({
+                        url: "/resume/selectResumeList",
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            cb_selectGridList(data);
+                        },
+                        error: function(error) {
+
+                        }
+                    });
+                };
+
+                function cb_selectGridList(resultData) {
+                    let innerHtml = '';
+                    if (resultData.data.length === 0) {
+                        innerHtml += '<tr><td colspan="4" class="text-center py-5 text-muted">등록된 이력서가 없습니다.</td></tr>';
+                        $('#resumeTableBody').html(innerHtml);
+                    } else {
+                        for (const data of resultData.data) {
+                            innerHtml += '<tr>';
+                            innerHtml += '<td><a href="#" class="resume-title">' + (data.title || '') + '</a></td>'
+                            innerHtml += '<td><span class="author-badge">' + (data.createdUser) + '</span></td>'
+                            innerHtml += '<td><span class="date-text">' + (data.createdTime) + '</span></td>'
+                            innerHtml += '<td><span class="date-text">' + (data.updatedTime || '') + '</span></td>'
+                            innerHtml += '<td class="text-center">'
+                            innerHtml += '<button class="btn-action btn-edit me-1" onClick="editResume(\'' + (data.resumeId) + '\')" title="수정">'
+                            innerHtml += '<i class="bi bi-pencil-square"></i>'
+                            innerHtml += '</button>'
+                            innerHtml += '<button class="btn-action btn-delete" onClick="deleteResume(\'' + (data.resumeId) + '\')" title="삭제">'
+                            innerHtml += '<i class="bi bi-trash3"></i>'
+                            innerHtml += '</button>'
+                            innerHtml += '</td>'
+                            innerHtml += '</tr>';
+                        }
+                        $('#resumeTableBody').html(innerHtml);
+                    }
+
+                }
+
                 $('#btnCreate').on('click', () => {
                     window.location.href = '/resume/createResume';
                 });
 
                 // 수정 함수 (이전 폼 페이지로 연결하는 로직을 여기에 작성)
                 function editResume(id) {
-                    if (confirm(id + "번 이력서를 수정하시겠습니까?")) {
-                        // location.href = 'edit_page.html?id=' + id; // 실제 구현 시 주석 해제
-                        alert("수정 페이지로 이동합니다.");
-                    }
+                        location.href = '/resume/resumeDetail?id=' + id;
                 }
 
                 // 삭제 함수
-                function deleteResume(btn) {
+                function deleteResume(id) {
                     if (confirm("정말로 이 이력서를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
-                        // 해당 버튼이 속한 행(tr)을 찾아 제거
-                        const row = btn.closest('tr');
-                        row.style.opacity = '0';
-                        row.style.transform = 'translateX(20px)';
-                        row.style.transition = '0.4s';
+                        $.ajax({
+                            url: "/resume/deleteResume",
+                            type: "POST",
+                            data: { resumeId : id },
+                            dataType: "json",
+                            success: function(data) {
+                                location.href = '/resume/resumeList';
+                            },
+                            error: function(error) {
 
-                        setTimeout(() => {
-                            row.remove();
-                            // 모든 행이 삭제되었는지 확인
-                            const tbody = document.getElementById('resumeTableBody');
-                            if (tbody.children.length === 0) {
-                                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted">등록된 이력서가 없습니다.</td></tr>';
                             }
-                        }, 400);
+                        });
                     }
                 }
             </script>
