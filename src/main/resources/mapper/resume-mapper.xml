@@ -60,7 +60,6 @@
             <result property="schoolName" column="school_name"></result>
             <result property="schoolStatus" column="school_status"></result>
             <result property="schoolDate" column="school_date"></result>
-            <result property="createdTime" column="created_time"></result>
         </collection>
 
         <collection property="careerList" ofType="resumeCareerVO">
@@ -69,14 +68,12 @@
             <result property="companyWork" column="company_work"></result>
             <result property="companyStartTerm" column="company_start_term"></result>
             <result property="companyEndTerm" column="company_end_term"></result>
-            <result property="createdTime" column="created_time"></result>
         </collection>
 
         <collection property="licenseList" ofType="resumeLicenseVO">
             <result property="licenseName" column="license_name"></result>
             <result property="licenseIssuer" column="license_issuer"></result>
             <result property="licenseDate" column="license_date"></result>
-            <result property="createdTime" column="created_time"></result>
         </collection>
 
         <collection property="skillList" ofType="resumeSkillVO">
@@ -92,7 +89,6 @@
             <result property="projectEndTerm" column="project_end_term"></result>
             <result property="projectWorkDetail" column="project_work_detail"></result>
             <result property="projectEtc" column="project_etc"></result>
-            <result property="createdTime" column="created_time"></result>
         </collection>
 
     </resultMap>
@@ -110,7 +106,7 @@
         LEFT JOIN resume_license l ON r.resume_id = l.resume_id
         LEFT JOIN resume_skill s ON r.resume_id = s.resume_id
         WHERE r.resume_id = #{resumeId}
-        ORDER BY e.created_time DESC, c.created_time DESC, l.created_time DESC, s.created_time DESC
+        ORDER BY e.id, c.id, l.id, s.id
     </select>
 
     <update id="updateResume" parameterType="resumeVO">

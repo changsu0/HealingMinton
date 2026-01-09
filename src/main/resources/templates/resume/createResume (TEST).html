@@ -262,7 +262,7 @@
                         <div class="row">
                             <div class="col">
                                 <label class="form-label required-mark">이름</label>
-                                <div class="custom-input-group"><input type="text" placeholder="이름" class="form-control" maxlength="50" id="name"></div>
+                                <div class="custom-input-group"><input type="text" placeholder="" class="form-control" id="name"></div>
                             </div>
                             <div class="col">
                                 <label class="form-label">성별</label>
@@ -281,7 +281,7 @@
                         <div class="row">
                             <div class="col">
                                 <label class="form-label">직위</label>
-                                <div class="custom-input-group"><input type="text" class="form-control" maxlength="10" id="role"></div>
+                                <div class="custom-input-group"><input type="text" class="form-control" id="role"></div>
                             </div>
                             <div class="col">
                                 <label class="form-label">병역</label>
@@ -307,14 +307,14 @@
                                 <label class="form-label">전화번호(유선)</label>
                                 <span id="landlineError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                                 <div class="custom-input-group">
-                                    <input type="text" class="form-control" id="landlineNumber" maxlength="30">
+                                    <input type="text" class="form-control" id="landlineNumber">
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="form-label">전화번호(무선)</label>
                                 <span id="phoneError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                                 <div class="custom-input-group">
-                                    <input type="text" class="form-control" id="phoneNumber" maxlength="30">
+                                    <input type="text" class="form-control" id="phoneNumber">
                                 </div>
                             </div>
                         </div>
@@ -322,10 +322,10 @@
                         <span id="emailError" class="error-message text-danger" style="display: none">올바른 이메일 형식이 아닙니다.</span>
                         <div class="custom-input-group">
                             <i class="bi bi-envelope"></i>
-                            <input type="email" class="form-control" placeholder="이메일" id="email" maxlength="100">
+                            <input type="email" class="form-control" placeholder="email@example.com" id="email">
                         </div>
                         <label class="form-label">주소</label>
-                        <div class="custom-input-group"><input type="text" class="form-control" placeholder="주소" id="address" maxlength="255"></div>
+                        <div class="custom-input-group"><input type="text" class="form-control" id="address"></div>
                     </div>
 
                     <div class="tab-pane fade" id="content-edu">
@@ -374,11 +374,9 @@
 
         <div class="sticky-footer">
             <div class="footer-content">
-                <span id="titleError" class="error-message text-danger" style="display: none">100자 이내로 작성해주세요.</span>
                 <div class="footer-input-wrapper required" style="flex-grow: 1;">
                     <input type="text" class="footer-input w-100" placeholder="이력서 제목" id="title">
                 </div>
-                <span id="createdUserError" class="error-message text-danger" style="display: none">50자 이내로 작성해주세요.</span>
                 <div class="footer-input-wrapper required" style="width: 150px;">
                     <input type="text" class="footer-input w-100" placeholder="작성자 성함" id="createdUser">
                 </div>
@@ -401,15 +399,12 @@
 
             document.addEventListener('DOMContentLoaded', function() {
 
-                function lengthField(inputEl, errorId, len) {
+                function lengthField(errorId, len) {
                     const errorEl = document.getElementById(errorId);
-                    const value = inputEl.value;
-                    if (value.length > len) {
-                        inputEl.classList.add('is-invalid');
-                        errorEl.style.display = 'inline';
+                    if (errorEl.value.length > len) {
+                        errorEl.classList.add('is-invalid');
                     } else {
-                        inputEl.classList.remove('is-invalid');
-                        errorEl.style.display = 'none';
+                        errorEl.classList.remove('is-invalid');
                     }
                 }
 
@@ -457,28 +452,28 @@
                 }
 
                 titleInput.addEventListener('focusout', function () {
-                    lengthField(this, 'titleError', 100);
+                    lengthField('title', 100);
                 })
 
                 createdUserInput.addEventListener('focusout', function () {
-                    lengthField(this, 'createdUserError', 50);
+                    lengthField('createdUser', 50);
                 })
 
-                // nameInput.addEventListener('focusout', function () {
-                //     lengthField('name', 50);
-                // })
-                //
-                // roleInput.addEventListener('focusout', function () {
-                //     lengthField('role', 10);
-                // })
-                //
-                // emailInput.addEventListener('focusout', function () {
-                //     lengthField('email', 100);
-                // })
-                //
-                // addressInput.addEventListener('focusout', function () {
-                //     lengthField('address', 255);
-                // })
+                nameInput.addEventListener('focusout', function () {
+                    lengthField('name', 50);
+                })
+
+                roleInput.addEventListener('focusout', function () {
+                    lengthField('role', 10);
+                })
+
+                emailInput.addEventListener('focusout', function () {
+                    lengthField('email', 100);
+                })
+
+                addressInput.addEventListener('focusout', function () {
+                    lengthField('address', 255);
+                })
 
                 // 유선전화번호 focusout 이벤트
                 landlineInput.addEventListener('focusout', function() {
@@ -548,6 +543,7 @@
 
             // 저장 함수
             function saveResume() {
+
                 if (!validateForm()) {
                     return;
                 }
@@ -596,8 +592,8 @@
                         projectDb: $(this).find('#projectDb').val(),
                         projectTool: $(this).find('#projectTool').val(),
                         projectFramework: $(this).find('#projectFramework').val(),
-                        projectStartTerm: $(this).find('#projectStartTerm').val() + '-01',
-                        projectEndTerm: $(this).find('#projectEndTerm').val() + '-01',
+                        projectStartTerm: $(this).find('#projectStartTerm').val(),
+                        projectEndTerm: $(this).find('#projectEndTerm').val(),
                         projectWorkDetail: $(this).find('#projectWorkDetail').val(),
                         projectEtc: $(this).find('#projectEtc').val()
                     })
@@ -640,6 +636,32 @@
                 });
             }
 
+            /**
+             * 동적으로 생성된 필드의 유효성 검사
+             */
+            function validateDynamicField(inputEl, min, max) {
+                const errorEl = inputEl.closest('.entry-card').querySelector('.error-message');
+                const val = inputEl.value.trim();
+
+                // 1~10자 정규식
+                // const regex = /^.{1,10}$/;
+                const regex = new RegExp(`^.{${min},${max}}$`);
+
+                if (val === "") {
+                    inputEl.classList.remove('is-invalid', 'is-valid');
+                    errorEl.style.display = 'none';
+                } else if (!regex.test(val)) {
+                    inputEl.classList.add('is-invalid');
+                    inputEl.classList.remove('is-valid');
+                    errorEl.style.display = 'inline';
+                } else {
+                    inputEl.classList.remove('is-invalid');
+                    inputEl.classList.add('is-valid');
+                    errorEl.style.display = 'none';
+                }
+
+            }
+
             // 항목 추가 함수
             function addEntry(containerId) {
                 const container = document.getElementById(containerId);
@@ -659,6 +681,7 @@
                     newEntry.innerHTML = `
                         <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
                         <label class="form-label required-mark">학교명</label>
+                        <span class="error-message text-danger" style="display: none">100자 이내로 작성해주세요.</span>
                         <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength='100' id="schoolName"></div>
 
                         <label class="form-label">졸업여부</label>
@@ -674,6 +697,13 @@
 
                         <label class="form-label">졸업일자</label>
                         <div class="custom-input-group"><input type="date" id="schoolDate"></div>`;
+
+                    container.appendChild(newEntry);
+                    // [핵심] 생성 직후 해당 입력창에 실시간 검사 이벤트 바인딩
+                    const input = newEntry.querySelector('#schoolName');
+                    input.addEventListener('input', function() {
+                        validateDynamicField(this, 0, 100);
+                    });
                 } else if (containerId == 'career-list') {
                     newEntry.innerHTML = `
                         <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
@@ -768,7 +798,7 @@
                             <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail"></textarea>
                         </div>`;
                 }
-                container.appendChild(newEntry);
+
             }
 
             function confirmExit() {

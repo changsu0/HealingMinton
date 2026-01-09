@@ -23,7 +23,10 @@ public class ResumeController {
     }
 
     @GetMapping("/resumeDetail")
-    public String updateResume() { return "resume/resumeDetail"; }
+    public String detailResume() { return "resume/resumeDetail"; }
+
+    @GetMapping("/modifyResume")
+    public String modifyResume() { return "resume/modifyResume"; }
 
     @GetMapping("/createResume")
     public String createResume() {
@@ -60,6 +63,13 @@ public class ResumeController {
     @GetMapping("/resumeDetail/{resumeId}")
     @ResponseBody
     public ResumeVO selectResumeById(@PathVariable String resumeId) {
+        ResumeVO resumeVO = resumeService.selectResumeById(resumeId);
+        return resumeVO;
+    }
+
+    @GetMapping("/modifyResume/{resumeId}")
+    @ResponseBody
+    public ResumeVO detailResume(@PathVariable String resumeId) {
         ResumeVO resumeVO = resumeService.selectResumeById(resumeId);
         return resumeVO;
     }

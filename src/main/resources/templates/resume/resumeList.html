@@ -196,7 +196,7 @@
                     } else {
                         for (const data of resultData.data) {
                             innerHtml += '<tr>';
-                            innerHtml += '<td><a href="#" class="resume-title">' + (data.title || '') + '</a></td>'
+                            innerHtml += '<td><a href="#" onClick="detailResume(\'' + (data.resumeId) + '\')" class="resume-title">' + (data.title || '') + '</a></td>'
                             innerHtml += '<td><span class="author-badge">' + (data.createdUser) + '</span></td>'
                             innerHtml += '<td><span class="date-text">' + (data.createdTime) + '</span></td>'
                             innerHtml += '<td><span class="date-text">' + (data.updatedTime || '') + '</span></td>'
@@ -215,13 +215,19 @@
 
                 }
 
+                // 생성 함수
                 $('#btnCreate').on('click', () => {
                     window.location.href = '/resume/createResume';
                 });
 
-                // 수정 함수 (이전 폼 페이지로 연결하는 로직을 여기에 작성)
+                // 미리보기 함수
+                function detailResume(id) {
+                    location.href = '/resume/resumeDetail?id=' + id;
+                }
+
+                // 수정 함수
                 function editResume(id) {
-                        location.href = '/resume/resumeDetail?id=' + id;
+                        location.href = '/resume/modifyResume?id=' + id;
                 }
 
                 // 삭제 함수

@@ -3,798 +3,306 @@
       xmlns:th="http://www.thymeleaf.org">
 <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>경력 관리 시스템 - 작성</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        /* 푸터 입력창 전용 필수 표시 */
-        .footer-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이력서 미리보기 - 여백 최적화 버전</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-        .footer-input-wrapper.required::after {
-            content: '*';
-            color: #dc3545;
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            font-size: 1.1rem;
-            pointer-events: none; /* 별표 클릭 시에도 입력창이 선택되도록 설정 */
-        }
+  <style>
+    body { background-color: #e9ecef; font-family: 'Pretendard', sans-serif; padding: 30px 0; }
 
-        /* 별표와 텍스트가 겹치지 않도록 오른쪽 패딩 확보 */
-        .footer-input-wrapper.required .footer-input {
-            padding-right: 25px !important;
-        }
+    .resume-paper {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 30px auto;
+      background: white;
+      padding: 15mm 20mm; /* 기본 화면 패딩 */
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      box-sizing: border-box;
+      position: relative;
+    }
 
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Pretendard', sans-serif;
-            /* 하단 바에 콘텐츠가 가려지지 않도록 패딩 추가 */
-            padding-bottom: 100px;
-        }
+    .header-info h4 { font-size: 1.7rem; font-weight: 800; margin-bottom: 3px; }
 
-        .profile-card {
-            max-width: 800px;
-            margin: 50px auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
+    .header-info p {
+      font-size: 0.95rem;
+      margin-bottom: 5px; /* 단락 사이 여백 제거 */
+      line-height: 1.4;
+    }
 
-        /* 상단 헤더 영역 */
-        .resume-header {
-            border-bottom: 2px solid #f1f3f5;
-            padding-bottom: 30px;
-            margin-bottom: 30px;
-        }
+    .compact-section { font-size: 0.75rem; }
 
-        /* 탭 스타일 */
-        .nav-pills {
-            background-color: #f1f3f5;
-            border-radius: 15px;
-            padding: 5px;
-        }
+    .compact-section .section-title {
+      border-left: 4px solid #0d6efd;
+      padding-left: 10px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      background-color: white;
+      /* 페이지 넘김 시 위쪽 여백 확보 */
+      padding-top: 15px;
+    }
 
-        .nav-pills .nav-link {
-            color: #495057;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
+    .side-by-side { display: flex; gap: 40px; margin-bottom: 2rem; }
+    .side-by-side > div { flex: 1; }
 
-        .nav-pills .nav-link.active {
-            background-color: white;
-            color: black !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+    /* 테이블 반복 제목 스타일 */
+    table.print-table { width: 100%; border-collapse: collapse; }
+    table.print-table thead { display: table-header-group; }
 
-        /* 입력 폼 공통 스타일 */
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
+    /* [핵심] 반복되는 헤더 셀에 여백 추가 */
+    table.print-table thead td {
+      padding-top: 10mm; /* 페이지 상단에서 제목 사이의 간격 */
+      background-color: white;
+    }
 
-        .custom-input-group {
-            background-color: #f1f3f5;
-            border-radius: 10px;
-            border: none;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    .experience-item, .project-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 1rem;
+    }
 
-        .custom-input-group i {
-            color: #adb5bd;
-            margin-right: 12px;
-        }
+    .project-card { border: none; background-color: #f8f9fa; }
 
-        .custom-input-group input {
-            background: transparent;
-            border: none;
-            width: 100%;
-            outline: none;
-        }
+    @media print {
+      /* 1. 물리적 종이 여백 설정 */
+      @page {
+        size: A4;
+        margin: 0;
+      }
 
-        .custom-input-group select {
-            background: transparent;
-            border: none;
-            width: 100%;
-            outline: none;
-            /*color: #495057;*/
-            appearance: none; /* 기본 화살표 숨기기 (필요시) */
-            -webkit-appearance: none;
-        }
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        background: none;
+        margin: 0;
+        padding: 0;
+      }
 
-        .custom-input-group textarea {
-            background: transparent;
-            border: none;
-            width: 100%;
-            outline: none;
-        }
+      .no-print { display: none !important; }
 
-        /* 학력/경력 카드 스타일 */
-        .entry-card {
-            border: 1px solid #eeeeee;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            position: relative;
-        }
+      .resume-paper {
+        width: 100%;
+        margin: 0;
+        box-shadow: none;
+        padding: 10mm 20mm; /* 인쇄 시 내부 패딩 조정 */
+        height: auto;
+      }
 
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: #adb5bd;
-            cursor: pointer;
-            border: none;
-            background: none;
-        }
+      /* 새 페이지 강제 시작 시 상단 여백 */
+      .force-new-page {
+        page-break-before: always;
+        padding-top: 20mm !important;
+      }
 
-        .delete-btn:hover {
-            color: #dc3545;
-        }
+      /* 테이블 제목이 페이지 상단에 너무 붙지 않게 함 */
+      .section-title { margin-top: 0; }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .add-btn {
-            border: 1px solid #dee2e6;
-            background: white;
-            border-radius: 8px;
-            padding: 5px 15px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* [핵심] 하단 고정 바 스타일 */
-        .sticky-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 15px 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-            z-index: 1000;
-            border-top: 1px solid #eee;
-        }
-        .footer-content {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 0 20px;
-        }
-        .footer-input {
-            background-color: #f1f3f5;
-            border: none;
-            border-radius: 10px;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        /* 버튼 스타일 */
-        .btn-save-sm { background-color: #212529; color: white; border-radius: 10px; padding: 8px 25px; font-weight: 600; border: none; }
-        .btn-exit { background-color: white; color: #dc3545; border: 1px solid #ffc1c1; border-radius: 10px; padding: 8px 20px; font-weight: 600; }
-        .btn-exit:hover { background-color: #fff5f5; }
-
-        .add-btn { border: 1px solid #dee2e6; background: white; border-radius: 8px; padding: 5px 15px; font-size: 0.85rem; }
-
-    </style>
+    }
+  </style>
 </head>
-    <body>
-        <div class="container">
-            <div class="profile-card">
+<body>
 
-                <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" id="tab-info" data-bs-toggle="pill" data-bs-target="#content-info">개인정보</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-edu" data-bs-toggle="pill" data-bs-target="#content-edu">학력</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-career" data-bs-toggle="pill" data-bs-target="#content-career">경력</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-license" data-bs-toggle="pill" data-bs-target="#content-license">자격증</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-skill" data-bs-toggle="pill" data-bs-target="#content-skill">기술경력</button>
-                    </li>
-                </ul>
+<div class="container d-flex justify-content-end mb-4 no-print" style="max-width: 210mm;">
+  <button class="btn btn-outline-secondary me-2" onclick="window.print()"><i class="bi bi-printer"></i> 프린트 출력</button>
+  <button class="btn btn-primary" onclick="downloadPDF()"><i class="bi bi-file-earmark-pdf"></i> PDF 다운로드</button>
+</div>
 
-                <div class="tab-content" id="pills-tabContent">
+<div id="resume-container">
+  <div class="resume-paper">
+    <header class="header-info text-center mb-4">
+      <div class="row text-start border-top border-bottom py-3">
+        <div class="col-8">
+          <h4 class="text-primary"><strong><span id="name"></span></strong></h4>
+          <p style="font-size: 0.90rem; margin-bottom: 5px; line-height: 1.4;"><span id="gender"></span> | <span id="military"></span> | <span id="marriage"></span></p>
+          <p><strong>생년월일:</strong> <span id="birth"></span></p>
+          <p><strong>주소:</strong> <span id="address"></span></p>
+          <p><strong>연락처:</strong> (유선) <span id="landlineNumber"></span> | (무선) <span id="phoneNumber"></span></p>
+          <p><strong>이메일:</strong> <span id="email"></span></p>
+        </div>
+        <div class="col-4 text-end">
+          <div class="border bg-light d-inline-block text-center pt-4 text-muted" style="width: 100px; height: 130px; font-size: 0.7rem;">사진</div>
+        </div>
+      </div>
+    </header>
 
-                    <div class="tab-pane fade show active" id="content-info">
-                        <div class="section-title mb-4"><i class="bi bi-person"></i> 개인정보</div>
-                        <div class="row">
-                            <div class="col">
-                                <label class="form-label">이름</label>
-                                <div class="custom-input-group"><input type="text" placeholder="홍길동" id="name"></div>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">성별</label>
-                                <div class="custom-input-group">
-                                    <select id="gender">
-                                        <option value="남자" selected>남자</option>
-                                        <option value="여자">여자</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">생년월일</label>
-                                <div class="custom-input-group"><input type="date" id="birth"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <label class="form-label">직위</label>
-                                <div class="custom-input-group"><input type="text" id="role"></div>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">병역</label>
-                                <div class="custom-input-group">
-                                    <select id="military">
-                                        <option value="미필" selected>미필</option>
-                                        <option value="군필">군필</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">결혼</label>
-                                <div class="custom-input-group">
-                                    <select id="marriage">
-                                        <option value="미혼" selected>미혼</option>
-                                        <option value="기혼">기혼</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <label class="form-label">전화번호(유선)</label>
-                                <div class="custom-input-group"><input type="text" id="landlineNumber"></div>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">전화번호(무선)</label>
-                                <div class="custom-input-group"><input type="text" id="phoneNumber"></div>
-                            </div>
-                        </div>
-                        <label class="form-label">이메일</label>
-                        <div class="custom-input-group"><i class="bi bi-envelope"></i><input type="email" placeholder="email@example.com" id="email"></div>
-                        <label class="form-label">주소</label>
-                        <div class="custom-input-group"><input type="text" id="address"></div>
-                    </div>
+    <div class="compact-section">
+      <div class="side-by-side">
 
-                    <div class="tab-pane fade" id="content-edu">
-                        <div class="section-header">
-                            <div class="section-title"><i class="bi bi-mortarboard"></i> 학력</div>
-                            <button class="add-btn" onclick="addEntry('edu-list')">+ 추가</button>
-                        </div>
-                        <div id="edu-list">
-                            <p class="text-muted text-center py-4">학력 사항을 추가해 주세요.</p>
-                        </div>
-                    </div>
+        <div>
+          <h4 class="section-title">학 력 사 항</h4>
+          <table class="table table-sm border-top" id="edu-table">
 
-                    <div class="tab-pane fade" id="content-career">
-                        <div class="section-header">
-                            <div class="section-title"><i class="bi bi-briefcase"></i> 경력</div>
-                            <button class="add-btn" onclick="addEntry('career-list')">+ 추가</button>
-                        </div>
-                        <div id="career-list">
-                            <p class="text-muted text-center py-4">경력 사항을 추가해 주세요.</p>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="content-license">
-                        <div class="section-header">
-                            <div class="section-title"><i class="bi bi-person-vcard"></i> 자격증</div>
-                            <button class="add-btn" onclick="addEntry('license-list')">+ 추가</button>
-                        </div>
-                        <div id="license-list">
-                            <p class="text-muted text-center py-4">보유 자격증을 추가해 주세요.</p>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="content-skill">
-                        <div class="section-header">
-                            <div class="section-title"><i class="bi bi-cpu"></i> 기술경력</div>
-                            <button class="add-btn" onclick="addEntry('skill-list')">+ 추가</button>
-                        </div>
-                        <div id="skill-list">
-                            <p class="text-muted text-center py-4">보유하신 기술 경력을 추가해 주세요.</p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+          </table>
         </div>
 
-        <div class="sticky-footer">
-            <div class="footer-content">
-                <div class="footer-input-wrapper required" style="flex-grow: 1;">
-                    <input type="text" class="footer-input w-100" placeholder="이력서 제목을 입력하세요 (예: 프론트엔드 개발자_홍길동)" id="title">
-                </div>
-                <div class="footer-input-wrapper required" style="width: 150px;">
-                    <input type="text" class="footer-input w-100" placeholder="작성자 성함" id="createdUser">
-                </div>
-                <button class="btn-save-sm" onclick="saveResume()">
-                    <i class="bi bi-cloud-check me-1"></i> 저장
-                </button>
-                <button class="btn-exit" onclick="confirmExit()">나가기</button>
-            </div>
+        <div>
+          <h4 class="section-title">자 격 증 명</h4>
+          <table class="table table-sm border-top" id="license-table">
+
+          </table>
         </div>
 
-        <script th:inline="javascript">
+      </div>
 
-            $(document).ready(function () {
-                // 1. URL 파라미터에서 'id' 추출
-                const urlParams = new URLSearchParams(window.location.search);
-                const resumeId = urlParams.get('id');
+      <table class="print-table" id="career-table">
+        <thead>
+        <tr><td><h4 class="section-title">경 력 사 항</h4></td></tr>
+        </thead>
 
-                if (resumeId) {
-                    loadResumeDetail(resumeId);
-                } else {
-                    alert("잘못된 접근입니다.");
-                    history.back();
-                }
-            })
+      </table>
+    </div>
+  </div>
 
-            // 저장 함수
-            function saveResume() {
+  <div class="resume-paper force-new-page">
+    <div class="compact-section">
+      <table class="print-table" id="skill-table">
+        <thead>
+        <tr><td><h4 class="section-title">PROJECTS</h4></td></tr>
+        </thead>
 
-                if (!validateForm()) {
-                    return;
-                }
+      </table>
+    </div>
+  </div>
+</div>
 
-                // 1. URL 파라미터에서 'id' 추출
-                const urlParams = new URLSearchParams(window.location.search);
-                const resumeId = urlParams.get('id');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
 
-                // 2. 학력 데이터 수집
-                let eduList = [];
-                $('#edu-list > .entry-card').each(function() {
-                    eduList.push({
-                        schoolName: $(this).find('#schoolName').val(),
-                        schoolStatus: $(this).find('#schoolStatus').val(),
-                        schoolDate: $(this).find('#schoolDate').val()
-                    })
-                });
+  $(document).ready(function () {
+    // 1. URL 파라미터에서 'id' 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeId = urlParams.get('id');
 
-                // 3. 경력 데이터 수집
-                let careerList = [];
-                $('#career-list > .entry-card').each(function() {
-                    careerList.push({
-                        companyName: $(this).find('#companyName').val(),
-                        companyRole: $(this).find('#companyRole').val(),
-                        companyWork: $(this).find('#companyWork').val(),
-                        companyStartTerm: $(this).find('#companyStartTerm').val(),
-                        companyEndTerm: $(this).find('#companyEndTerm').val()
-                    })
-                });
+    if (resumeId) {
+      loadResumeDetail(resumeId);
+    } else {
+      alert("잘못된 접근입니다.");
+      history.back();
+    }
+  })
 
-                // 4. 자격증명 데이터 수집
-                let licenseList = [];
-                $('#license-list > .entry-card').each(function() {
-                    licenseList.push({
-                        licenseName: $(this).find('#licenseName').val(),
-                        licenseIssuer: $(this).find('#licenseIssuer').val(),
-                        licenseDate: $(this).find('#licenseDate').val()
-                    })
-                });
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pages = document.querySelectorAll('.resume-paper');
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    }
+    pdf.save('이력서_여백수정.pdf');
+  }
 
-                // 5. 기술경력 데이터 수집
-                let skillList = [];
-                $('#skill-list > .entry-card').each(function() {
-                    skillList.push({
-                        projectName: $(this).find('#projectName').val(),
-                        projectCustomer: $(this).find('#projectCustomer').val(),
-                        projectCompany: $(this).find('#projectCompany').val(),
-                        projectWork: $(this).find('#projectWork').val(),
-                        projectLanguage: $(this).find('#projectLanguage').val(),
-                        projectDb: $(this).find('#projectDb').val(),
-                        projectTool: $(this).find('#projectTool').val(),
-                        projectFramework: $(this).find('#projectFramework').val(),
-                        projectStartTerm: $(this).find('#projectStartTerm').val(),
-                        projectEndTerm: $(this).find('#projectEndTerm').val(),
-                        projectWorkDetail: $(this).find('#projectWorkDetail').val(),
-                        projectEtc: $(this).find('#projectEtc').val()
-                    })
-                });
+  function loadResumeDetail(resumeId) {
+    $.ajax({
+      url: '/resume/resumeDetail/' + resumeId,
+      type: 'GET',
+      success: function(data) {
 
-                // 6. 전체 데이터 구조화
-                let formData = {
-                    resumeId: resumeId,
-                    title: $('#title').val(),
-                    createdUser: $('#createdUser').val(),
-                    name: $('#name').val(),
-                    birth: $('#birth').val(),
-                    gender: $('#gender').val(),
-                    military: $('#military').val(),
-                    role: $('#role').val(),
-                    marriage: $('#marriage').val(),
-                    landlineNumber: $('#landlineNumber').val(),
-                    phoneNumber: $('#phoneNumber').val(),
-                    email: $('#email').val(),
-                    address: $('#address').val(),
-                    educationList: eduList,
-                    careerList: careerList,
-                    licenseList: licenseList,
-                    skillList: skillList
-                };
+        $('#title').text(data.title);
+        $('#createdUser').text(data.createdUser);
+        $('#name').text(data.name);
+        $('#birth').text(data.birth);
+        $('#gender').text(data.gender);
+        $('#military').text(data.military);
+        $('#role').text(data.role);
+        $('#marriage').text(data.marriage);
+        $('#landlineNumber').text(data.landlineNumber);
+        $('#phoneNumber').text(data.phoneNumber);
+        $('#email').text(data.email);
+        $('#address').text(data.address);
 
-                $.ajax({
-                    url: "/resume/updateResume",
-                    type: "POST",
-                    data: JSON.stringify(formData),
-                    dataType: "json",
-                    contentType: 'application/json',
-                    traditional : true,
-                    success: function(data) {
-                        alert("이력서 정보가 안전하게 수정되었습니다!");
-                        location.href = '/resume/resumeList';
-                    },
-                    error: function(error) {
-                        alert("이력서 정보가 정상적으로 수정되지 않았습니다.");
-                    }
-                });
-            }
+        if (data.educationList && data.educationList.length > 0) {
+          let innerHTML = '';
+          for (const edu of data.educationList) {
+            innerHTML += `
+            <tbody>
+            <tr><td class="fw-bold" id="schoolName">${edu.schoolName || ''}</td><td class="text-md-center" style="width: 35%;" id="schoolStatus">${edu.schoolStatus || ''}</td><td class="text-end text-muted" id="schoolDate">${edu.schoolDate || ''}</td></tr>
+            </tbody>
+            `;
+          }
+          $('#edu-table').html(innerHTML);
+        }
 
-            // 항목 추가 함수
-            function addEntry(containerId) {
-                const container = document.getElementById(containerId);
+        if (data.licenseList && data.licenseList.length > 0) {
+          let innerHTML = '';
+          for (const license of data.licenseList) {
+            innerHTML += `
+            <tbody>
+            <tr><td class="fw-bold" id="licenseName">${license.licenseName || ''}</td><td class="text-md-center" style="width: 35%;" id="licenseIssuer">${license.licenseIssuer || ''}</td><td class="text-end text-muted" id="licenseDate">${license.licenseDate || ''}</td></tr>
+            </tbody>
+            `;
+          }
+          $('#license-table').html(innerHTML);
+        }
 
-                // 경력 섹션의 '항목 없음' 메시지 제거용
-                if (container.querySelector('p')) container.innerHTML = '';
-
-                const newEntry = document.createElement('div');
-                newEntry.className = 'entry-card';
-
-                // 학력 입력 폼 템플릿 (경력일 경우 내용을 조건문으로 변경 가능)
-                if (containerId == 'edu-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">학교명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="학교명" id="schoolName"></div>
-
-                        <label class="form-label">졸업여부</label>
-                        <div class="custom-input-group">
-                            <select id="schoolStatus">
-                                <option value="졸업예정">졸업예정</option>
-                                <option value="졸업">졸업</option>
-                                <option value="중퇴">중퇴</option>
-                                <option value="재학">재학</option>
-                                <option value="휴학">휴학</option>
-                            </select>
+        if (data.careerList && data.careerList.length > 0) {
+          let innerHTML = '<thead><tr><td><h4 class="section-title">경 력 사 항</h4></td></tr></thead>';
+          for (const career of data.careerList) {
+            innerHTML += `
+            <tbody>
+            <tr>
+                <td>
+                    <div class="experience-item border-bottom pb-2">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="fw-bold mb-0" id="companyName">${career.companyName || ''}</h6>
+                            <span class="text-muted"><span id="companyStartTerm">${career.companyStartTerm || ''}</span> ~ <span id="companyEndTerm">${career.companyEndTerm || ''}</span></span>
                         </div>
+                        <div class="text-primary fw-bold mb-1"><span id="companyRole">${career.companyRole || ''}</span></div>
+                        <p class="text-secondary mb-0"><span id="companyWork">${career.companyWork || ''}</span></p>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            `;
+          }
+          $('#career-table').html(innerHTML);
+        }
 
-                        <label class="form-label">졸업일자</label>
-                        <div class="custom-input-group"><input type="date" value="0000-00-00" id="schoolDate"></div>`;
-                } else if (containerId == 'career-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">회사명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="회사명" id="companyName"></div>
-
-                        <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" placeholder="직위" id="companyRole"></div>
-
-                        <label class="form-label">담당업무</label>
-                        <div class="custom-input-group"><input type="text" placeholder="담당업무" id="companyWork"></div>
-
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">시작일자</label>
-                                <div class="custom-input-group">
-                                    <input type="date" value="0000-00-00" id="companyStartTerm">
-<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
-                                </div>
+        if (data.skillList && data.skillList.length > 0) {
+          let innerHTML = '<thead><tr><td><h4 class="section-title">기 술 경 력 사 항</h4></td></tr>\n</thead>';
+          for (const skill of data.skillList) {
+            innerHTML += `
+            <tbody>
+            <tr>
+                <td>
+                    <div class="card project-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="fw-bold m-0 text-primary" id="projectName">${skill.projectName || ''}</h6>
+                                <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="projectStartTerm">${skill.projectStartTerm || ''}</span> ~ <span id="projectEndTerm">${skill.projectEndTerm || ''}</span></span>
                             </div>
-                            <div class="col-6">
-                                <label class="form-label">종료일자</label>
-                                <div class="custom-input-group">
-                                    <input type="date" value="0000-00-00" id="companyEndTerm">
-<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
-                                </div>
+                            <div class="mb-2">
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectLanguage">${skill.projectLanguage || ''}</span>
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectDb">${skill.projectDb || ''}</span>
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectTool">${skill.projectTool || ''}</span>
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectFramework">${skill.projectFramework || ''}</span>
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectEtc">${skill.projectEtc || ''}</span>
                             </div>
-                        </div>`;
-                } else if (containerId == 'license-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">자격증명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="자격증명" id="licenseName"></div>
-
-                        <label class="form-label">발급기관</label>
-                        <div class="custom-input-group"><input type="text" placeholder="발급기관" id="licenseIssuer"></div>
-
-                        <label class="form-label">취득일자</label>
-                        <div class="custom-input-group"><input type="date" value="0000-00-00" placeholder="취득일자" id="licenseDate"></div>`;
-                } else if (containerId == 'skill-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">프로젝트명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="프로젝트명" id="projectName"></div>
-
-                        <label class="form-label">고객사</label>
-                        <div class="custom-input-group"><input type="text" placeholder="고객사" id="projectCustomer"></div>
-
-                        <label class="form-label">근무회사</label>
-                        <div class="custom-input-group"><input type="text" placeholder="근무회사" id="projectCompany"></div>
-
-                        <label class="form-label">역할</label>
-                        <div class="custom-input-group"><input type="text" placeholder="역할" id="projectWork"></div>
-
-                        <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label"">언어</label>
-                                <div class="custom-input-group"><input type="text" placeholder="언어" id="projectLanguage"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">DB</label>
-                                <div class="custom-input-group"><input type="text" placeholder="DB" id="projectDb"></div>
-                            </div>
+                            <p class="mb-0 text-secondary" id="projectWorkDetail">${skill.projectWorkDetail || ''}</p>
                         </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">Tool</label>
-                                <div class="custom-input-group"><input type="text" placeholder="Tool" id="projectTool"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">FrameWork</label>
-                                <div class="custom-input-group"><input type="text" placeholder="FrameWork" id="projectFramework"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">시작일자</label>
-                                <div class="custom-input-group"><input type="date" value="0000-00-00" id="projectStartTerm"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">종료일자</label>
-                                <div class="custom-input-group"><input type="date" value="0000-00-00" id="projectEndTerm"></div>
-                            </div>
-                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            `;
+          }
+          $('#skill-table').html(innerHTML);
+        }
 
-                        <label class="form-label">기타</label>
-                        <div class="custom-input-group"><input type="text" placeholder="기타" id="projectEtc"></div>
+      },
+      error: function () {
+        alert('데이터를 불러오는 중 오류가 발생했습니다.');
+      }
+    });
+  }
 
-                        <label class="form-label">상세업무내용</label>
-                        <div class="custom-input-group">
-                            <textarea class="form-control" rows="5" id="projectWorkDetail"></textarea>
-                        </div>`;
-                }
-
-                container.appendChild(newEntry);
-            }
-
-            function confirmExit() {
-                if(confirm("작성 중인 내용이 저장되지 않을 수 있습니다. 목록으로 나가시겠습니까?")) {
-                    location.href = '/resume/resumeList';
-                    alert("목록 페이지로 이동합니다.");
-                }
-            }
-
-            function loadResumeDetail(resumeId) {
-                $.ajax({
-                    url: '/resume/resumeDetail/' + resumeId,
-                    type: 'GET',
-                    success: function(data) {
-
-                        // 1. 기본 정보 세팅
-                        $('#title').val(data.title);
-                        $('#createdUser').val(data.createdUser);
-                        $('#name').val(data.name);
-                        $('#birth').val(data.birth);
-                        $('#gender').val(data.gender);
-                        $('#military').val(data.military);
-                        $('#role').val(data.role);
-                        $('#marriage').val(data.military);
-                        $('#landlineNumber').val(data.landlineNumber);
-                        $('#phoneNumber').val(data.phoneNumber);
-                        $('#email').val(data.email);
-                        $('#address').val(data.address);
-
-                        // 2. 학력 리스트 출력
-                        if(data.educationList && data.educationList.length > 0) {
-                            let innerHTML = '';
-                            for (const edu of data.educationList) {
-                                innerHTML += `
-                                <div class="entry-card">
-                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">학교명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="학교명" id="schoolName" value=${edu.schoolName || ''}></div>
-
-                                <label class="form-label">졸업여부</label>
-                                <div class="custom-input-group">
-                                <select id="schoolStatus">
-                                <option value="졸업예정" ${edu.schoolStatus == '졸업예정' ? 'selected' : ''}>졸업예정</option>
-                                <option value="졸업" ${edu.schoolStatus == '졸업' ? 'selected' : ''}>졸업</option>
-                                <option value="중퇴" ${edu.schoolStatus == '중퇴' ? 'selected' : ''}>중퇴</option>
-                                <option value="재학" ${edu.schoolStatus == '재학' ? 'selected' : ''}>재학</option>
-                                <option value="휴학" ${edu.schoolStatus == '휴학' ? 'selected' : ''}>휴학</option>
-                                </select>
-                                </div>
-
-                                <label class="form-label">졸업일자</label>
-                                <div class="custom-input-group"><input type="date" id="schoolDate" value=${edu.schoolDate || ''}></div>
-                                </div>`;
-                            }
-                            $('#edu-list').html(innerHTML);
-                        }
-
-                        // 3. 경력 리스트 출력
-                        if(data.careerList && data.careerList.length > 0) {
-                            let innerHTML = '';
-                            for (const career of data.careerList) {
-                                innerHTML += `
-                                <div class="entry-card">
-                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">회사명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="회사명" id="companyName" value=${career.companyName || ''}></div>
-
-                                <label class="form-label">직위</label>
-                                <div class="custom-input-group"><input type="text" placeholder="직위" id="companyRole" value=${career.companyRole || ''}></div>
-
-                                <label class="form-label">담당업무</label>
-                                <div class="custom-input-group"><input type="text" placeholder="담당업무" id="companyWork" value=${career.companyWork || ''}></div>
-
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label class="form-label">시작일자</label>
-                                        <div class="custom-input-group">
-                                        <input type="date" id="companyStartTerm" value=${career.companyStartTerm || ''}>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">종료일자</label>
-                                        <div class="custom-input-group">
-                                        <input type="date" id="companyEndTerm" value=${career.companyEndTerm || ''}>
-                                        </div>
-                                    </div>
-                                </div>
-                                </div>`;
-                            }
-                            $('#career-list').html(innerHTML);
-                        }
-
-                        // 4. 자격증명 리스트 출력
-                        if(data.licenseList && data.licenseList.length > 0) {
-                            let innerHTML = '';
-                            for (const license of data.licenseList) {
-                                innerHTML += `
-                                <div class="entry-card">
-                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">자격증명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="자격증명" id="licenseName" value=${license.licenseName || ''}></div>
-
-                                <label class="form-label">발급기관</label>
-                                <div class="custom-input-group"><input type="text" placeholder="발급기관" id="licenseIssuer" value=${license.licenseIssuer || ''}></div>
-
-                                <label class="form-label">취득일자</label>
-                                <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate" value=${license.licenseDate || ''}></div>
-                                </div>`;
-                            }
-                            $('#license-list').html(innerHTML);
-                        }
-
-                        // 5. 기술경력 리스트 출력
-                        if(data.skillList && data.skillList.length > 0) {
-                            let innerHTML = '';
-                            for (const skill of data.skillList) {
-                                innerHTML += `
-                                <div class="entry-card">
-                                <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">프로젝트명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="프로젝트명" id="projectName" value=${skill.projectName || ''}></div>
-
-                                <label class="form-label">고객사</label>
-                                <div class="custom-input-group"><input type="text" placeholder="고객사" id="projectCustomer" value=${skill.projectCustomer || ''}></div>
-
-                                <label class="form-label">근무회사</label>
-                                <div class="custom-input-group"><input type="text" placeholder="근무회사" id="projectCompany" value=${skill.projectCompany || ''}></div>
-
-                                <label class="form-label">역할</label>
-                                <div class="custom-input-group"><input type="text" placeholder="역할" id="projectWork" value=${skill.projectWork || ''}></div>
-
-                                <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label class="form-label"">언어</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="언어" id="projectLanguage" value=${skill.projectLanguage || ''}></div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">DB</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="DB" id="projectDb" value=${skill.projectDb || ''}></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label class="form-label">Tool</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="Tool" id="projectTool" value=${skill.projectTool || ''}></div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">FrameWork</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="FrameWork" id="projectFramework" value=${skill.projectFramework || ''}></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label class="form-label">시작일자</label>
-                                        <div class="custom-input-group"><input type="date" id="projectStartTerm" value=${skill.projectStartTerm || ''}></div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">종료일자</label>
-                                        <div class="custom-input-group"><input type="date" id="projectEndTerm" value=${skill.projectEndTerm || ''}></div>
-                                    </div>
-                                </div>
-
-                                <label class="form-label">기타</label>
-                                <div class="custom-input-group"><input type="text" placeholder="기타" id="projectEtc" value=${skill.projectEtc || ''}></div>
-
-                                <label class="form-label">상세업무내용</label>
-                                <div class="custom-input-group">
-                                    <textarea class="form-control" rows="5" id="projectWorkDetail">${skill.projectWorkDetail || ''}</textarea>
-                                </div>
-                                </div>`;
-                            }
-                            $('#skill-list').html(innerHTML);
-                        }
-
-                    },
-                    error: function () {
-                        alert('데이터를 불러오는 중 오류가 발생했습니다.');
-                    }
-                });
-            }
-
-            // 폼 유효성 검사
-            function validateForm() {
-                const title = $("#title").val().replace(/\s/g, '');
-                const createdUser = $("#createdUser").val().replace(/\s/g, '');
-
-                if(title == '' || title.length == 0) {
-                    alert('제목은 필수 입력값입니다.');
-                    $('#title').focus();
-                    return false;
-                }
-
-                if(createdUser == '' || createdUser.length == 0) {
-                    alert('작성자명은 필수 입력값입니다.');
-                    $('#createdUser').focus();
-                    return false;
-                }
-
-                return true;
-            }
-
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+</script>
+</body>
 </html>
