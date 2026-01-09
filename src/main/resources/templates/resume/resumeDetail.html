@@ -138,7 +138,7 @@
         </div>
 
         <div>
-          <h4 class="section-title">자 격 증 명</h4>
+          <h4 class="section-title">자 격 증</h4>
           <table class="table table-sm border-top" id="license-table">
 
           </table>
@@ -159,7 +159,7 @@
     <div class="compact-section">
       <table class="print-table" id="skill-table">
         <thead>
-        <tr><td><h4 class="section-title">PROJECTS</h4></td></tr>
+        <tr><td><h4 class="section-title">기 술 경 력 사 항</h4></td></tr>
         </thead>
 
       </table>
@@ -223,7 +223,7 @@
           for (const edu of data.educationList) {
             innerHTML += `
             <tbody>
-            <tr><td class="fw-bold" id="schoolName">${edu.schoolName || ''}</td><td class="text-md-center" style="width: 35%;" id="schoolStatus">${edu.schoolStatus || ''}</td><td class="text-end text-muted" id="schoolDate">${edu.schoolDate || ''}</td></tr>
+            <tr><td class="fw-bold" id="schoolName">${edu.schoolName || ''}</td><td class="text-md-center" style="width: 20%;" id="schoolStatus">${edu.schoolStatus || ''}</td><td class="text-end text-muted" id="schoolDate">${edu.schoolDate || ''}</td></tr>
             </tbody>
             `;
           }
@@ -235,7 +235,14 @@
           for (const license of data.licenseList) {
             innerHTML += `
             <tbody>
-            <tr><td class="fw-bold" id="licenseName">${license.licenseName || ''}</td><td class="text-md-center" style="width: 35%;" id="licenseIssuer">${license.licenseIssuer || ''}</td><td class="text-end text-muted" id="licenseDate">${license.licenseDate || ''}</td></tr>
+            <tr>
+                <td class="py-3">
+                    <div class="fw-bold" id="licenseName" style="font-size: 0.9rem;">${license.licenseName || ''}</div>
+                    <div class="small text-muted d-block mt-1" id="licenseIssuer">${license.licenseIssuer || ''}</div>
+                </td>
+
+                <td class="text-end text-muted align-middle" id="licenseDate">${license.licenseDate || ''}</td>
+            </tr>
             </tbody>
             `;
           }
@@ -276,7 +283,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h6 class="fw-bold m-0 text-primary" id="projectName">${skill.projectName || ''}</h6>
-                                <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="projectStartTerm">${skill.projectStartTerm || ''}</span> ~ <span id="projectEndTerm">${skill.projectEndTerm || ''}</span></span>
+                                <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="projectStartTerm">${skill.projectStartTerm.toString() == '1970-01-01' ? '' : skill.projectStartTerm.slice(0, -3)}</span> ~ <span id="projectEndTerm">${skill.projectEndTerm.toString() == '1970-01-01' ? '' : skill.projectEndTerm.slice(0, -3)}</span></span>
                             </div>
                             <div class="mb-2">
                                 <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectLanguage">${skill.projectLanguage || ''}</span>
