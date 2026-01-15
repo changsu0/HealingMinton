@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경력 관리 시스템 - 탭 방식 작성</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* 기존 스타일 유지 및 탭 관련 추가 */
+        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; padding-bottom: 100px; }
+        .profile-card { max-width: 900px; margin: 30px auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+
+        /* 메인 탭 스타일 */
+        .nav-pills { background-color: #f1f3f5; border-radius: 15px; padding: 5px; }
+        .nav-pills .nav-link { color: #495057; border-radius: 12px; font-weight: 500; }
+        .nav-pills .nav-link.active { background-color: white; color: black !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+        /* 서브 탭(항목 추가용) 스타일 */
+        .sub-tab-nav { border-bottom: 1px solid #dee2e6; margin-bottom: 20px; gap: 5px; }
+        .sub-tab-nav .nav-link { border: none; border-radius: 8px 8px 0 0; background: #f8f9fa; color: #6c757d; font-size: 0.85rem; padding: 8px 15px; }
+        .sub-tab-nav .nav-link.active { background: white; border: 1px solid #dee2e6; border-bottom: 2px solid white; color: #0d6efd; font-weight: bold; margin-bottom: -1px; }
+
+        .form-label { font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        .custom-input-group { background-color: #f1f3f5; border-radius: 10px; padding: 8px 15px; display: flex; align-items: center; margin-bottom: 15px; }
+        .custom-input-group input, .custom-input-group select, .custom-input-group textarea { background: transparent; border: none; width: 100%; outline: none; }
+
+        .entry-pane { padding: 10px; position: relative; }
+        .delete-tab-btn { position: absolute; top: 0; right: 0; color: #adb5bd; border: none; background: none; font-size: 1.2rem; }
+        .delete-tab-btn:hover { color: #dc3545; }
+
+        .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; border-top: 1px solid #eee; }
+        .footer-content { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 15px; padding: 0 20px; }
+        .footer-input { background-color: #f1f3f5; border: none; border-radius: 10px; padding: 8px 15px; outline: none; }
+        .btn-save-sm { background-color: #212529; color: white; border-radius: 10px; padding: 8px 25px; font-weight: 600; border: none; }
+        .btn-exit { background-color: white; color: #dc3545; border: 1px solid #ffc1c1; border-radius: 10px; padding: 8px 20px; font-weight: 600; }
+
+        .required-mark::after { content: ' *'; color: #dc3545; font-weight: bold; }
+        .is-invalid { border: 1px solid #dc3545 !important; background-color: #fff8f8; }
+
+        /* 에러가 있는 탭 버튼 스타일 */
+        .nav-link .error-dot {
+            font-size: 0.6rem;
+            vertical-align: middle;
+        }
+
+        /* 입력 성공 시 초록색 테두리 (Bootstrap 클래스 활용) */
+        .is-valid {
+            border: 1px solid #198754 !important;
+            background-color: #f8fff9 !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="profile-card">
+        <ul class="nav nav-pills nav-fill mb-4" id="mainTab" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-info">개인정보</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-edu">학력</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-career">경력</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-license">자격증</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-skill">기술경력</button></li>
+        </ul>
+
+        <div class="tab-content" id="mainTabContent">
+            <div class="tab-pane fade show active" id="content-info">
+                <div class="section-title mb-4"><i class="bi bi-person"></i> 기본 정보</div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label required-mark">이름</label>
+                        <div class="custom-input-group"><input type="text" class="name required" maxlength="50" placeholder="성함 입력"></div>
+                        <div class="invalid-feedback" style="display:none; color:red; font-size:0.8rem; margin-top:-10px; margin-bottom:10px;"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">성별</label>
+                        <div class="custom-input-group"><select id="gender"><option value="남자">남자</option><option value="여자">여자</option></select></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">생년월일</label>
+                        <div class="custom-input-group"><input type="date" id="birth"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">직위</label>
+                        <div class="custom-input-group"><input type="text" id="role" maxlength="10"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">병역</label>
+                        <div class="custom-input-group"><select id="military"><option value="미필">미필</option><option value="군필">군필</option></select></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">결혼</label>
+                        <div class="custom-input-group"><select id="marriage"><option value="미혼">미혼</option><option value="기혼">기혼</option></select></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">전화번호(유선)</label>
+                        <div class="custom-input-group"><input type="text" id="landlineNumber" placeholder="00-000-0000"></div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">전화번호(무선)</label>
+                        <div class="custom-input-group"><input type="text" id="phoneNumber" placeholder="010-0000-0000"></div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">이메일</label>
+                        <div class="custom-input-group"><input type="email" id="email" placeholder="email@example.com"></div>
+                    </div>
+                </div>
+                <label class="form-label">주소</label>
+                <div class="custom-input-group"><input type="text" id="address" placeholder="거주지 주소"></div>
+            </div>
+
+            <div class="tab-pane fade" id="content-edu">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="section-title"><i class="bi bi-mortarboard"></i> 학력 사항</div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('edu')">+ 항목 추가</button>
+                </div>
+                <ul class="nav nav-tabs sub-tab-nav" id="edu-tab-nav" role="tablist"></ul>
+                <div class="tab-content" id="edu-tab-content">
+                    <p class="text-muted text-center py-5">추가 버튼을 눌러 학력 정보를 입력해주세요.</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-career">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="section-title"><i class="bi bi-briefcase"></i> 경력 사항</div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('career')">+ 항목 추가</button>
+                </div>
+                <ul class="nav nav-tabs sub-tab-nav" id="career-tab-nav" role="tablist"></ul>
+                <div class="tab-content" id="career-tab-content">
+                    <p class="text-muted text-center py-5">추가 버튼을 눌러 경력 정보를 입력해주세요.</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-license">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="section-title"><i class="bi bi-person-vcard"></i> 자격증</div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('license')">+ 항목 추가</button>
+                </div>
+                <ul class="nav nav-tabs sub-tab-nav" id="license-tab-nav" role="tablist"></ul>
+                <div class="tab-content" id="license-tab-content">
+                    <p class="text-muted text-center py-5">추가 버튼을 눌러 자격증 정보를 입력해주세요.</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-skill">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="section-title"><i class="bi bi-cpu"></i> 기술경력</div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('skill')">+ 항목 추가</button>
+                </div>
+                <ul class="nav nav-tabs sub-tab-nav" id="skill-tab-nav" role="tablist"></ul>
+                <div class="tab-content" id="skill-tab-content">
+                    <p class="text-muted text-center py-5">추가 버튼을 눌러 기술경력 정보를 입력해주세요.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sticky-footer">
+    <div class="footer-content">
+        <input type="text" class="footer-input flex-grow-1" id="title" placeholder="이력서 제목을 입력하세요 (예: 2024 백엔드 개발자 지원)">
+        <input type="text" class="footer-input" id="createdUser" placeholder="작성자명" style="width: 150px;">
+        <button class="btn-save-sm" onclick="saveResume()"><i class="bi bi-cloud-check"></i> 저장</button>
+        <button class="btn-exit" onclick="confirmExit()">나가기</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let tabCounts = { edu: 0, career: 0, license: 0, skill: 0 };
+
+    // 탭 기반 항목 추가 함수
+    function addTabEntry(type) {
+        tabCounts[type]++;
+        const count = tabCounts[type];
+        const navId = `${type}-tab-nav`;
+        const contentId = `${type}-tab-content`;
+        const entryId = `${type}-entry-${count}`;
+
+        // 처음 추가 시 안내 문구 삭제
+        if (count === 1) $(`#${contentId}`).empty();
+
+        const $tabBtn = $(`
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="${entryId}-tab" data-bs-toggle="tab" data-bs-target="#${entryId}" type="button">
+                    ${getTabLabel(type)} ${count}
+                </button>
+            </li>
+        `);
+
+        $(`#${navId}`).append($tabBtn);
+
+        // 2. 탭 내용(입력 폼) 생성
+        const $tabPane = $('<div>')
+            .addClass('tab-pane fade entry-pane')
+            .attr({
+                'id': entryId,
+                'role': 'tabpanel'
+            })
+            .html(getFormTemplate(type));
+
+
+        // 3. 삭제 버튼 추가 (항목이 1개 이상일 때 추천하지만 여기선 모두 추가)
+        const $delBtn = $('<button>')
+            .addClass('delete-tab-btn')
+            .html('<i class="bi bi-x-circle"></i>')
+            .on('click', function () {
+                $tabBtn.remove();
+                $tabPane.remove();
+                // 탭이 하나도 없으면 메시지 복구
+                if ($(`#${navId}`).children().length === 0) {
+                    const emptyMsg = '<p class="text-muted text-center py-5">추가 버튼을 눌러 ' + $(`#content-${type}`).find('.section-title').text() + ' 정보를 입력해주세요.</p>';
+                    $(`#${contentId}`).html(emptyMsg);
+                    tabCounts[type] = 0;
+                } else {
+                    const bsTab = new bootstrap.Tab($(`#${navId}`).children('.nav-item').last().find('.nav-link'));
+                    bsTab.show();
+                }
+            });
+
+        $tabPane.append($delBtn);
+
+        // 탭 내용(입력 폼) 추가
+        $(`#${contentId}`).append($tabPane);
+
+        // 새 탭 활성화
+        const bsTab = new bootstrap.Tab($(`#${entryId}-tab`));
+        bsTab.show();
+    }
+
+    function getTabLabel(type) {
+        const labels = { edu: '학력', career: '경력', license: '자격증', skill: '기술' };
+        return labels[type];
+    }
+
+    // 폼 템플릿 반환
+    function getFormTemplate(type) {
+        if (type === 'edu') {
+            return `
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label required-mark">학교명</label>
+                            <div class="custom-input-group"><input type="text" class="schoolName required" maxlength="100" placeholder="학교명"></div>
+                            <div class="invalid-feedback" style="display:none; color:red; font-size:0.8rem; margin-top:-10px; margin-bottom:10px;"></div>
+                            <div class="char-count text-end small text-muted">0/100</div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">전공</label>
+                            <div class="custom-input-group"><input type="text" class="schoolMajor" maxlength="100" placeholder="전공"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">졸업여부</label>
+                            <div class="custom-input-group">
+                                <select class="schoolStatus">
+                                    <option value="졸업예정" selected>졸업예정</option>
+                                    <option value="졸업">졸업</option>
+                                    <option value="중퇴">중퇴</option>
+                                    <option value="재학">재학</option>
+                                    <option value="휴학">휴학</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">졸업일자</label>
+                            <div class="custom-input-group"><input type="date" class="schoolDate"></div>
+                        </div>
+                    </div>`;
+        } else if (type === 'career') {
+            return `
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label required-mark">회사명</label>
+                            <div class="custom-input-group">
+                                <input type="text" class="companyName required" maxlength="100" placeholder="회사명">
+                            </div>
+                            <div class="invalid-feedback" style="display:none; color:red; font-size:0.8rem; margin-top:-10px; margin-bottom:10px;">
+                                회사명을 입력해주세요.
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">직위</label>
+                            <div class="custom-input-group">
+                                <input type="text" class="companyRole" maxlength="100" placeholder="직위">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6"><label class="form-label">시작일자</label><div class="custom-input-group"><input type="date" class="companyStartTerm"></div></div>
+                        <div class="col-6"><label class="form-label">종료일자</label><div class="custom-input-group"><input type="date" class="companyEndTerm"></div></div>
+                    </div>
+                    <label class="form-label">담당업무</label>
+                    <div class="custom-input-group"><textarea class="companyWork" maxlength="100" rows="3"></textarea></div>`;
+        } else if (type === 'license') {
+            return `
+                    <label class="form-label required-mark">자격증명</label>
+                    <div class="custom-input-group"><input type="text" class="licenseName required" maxlength="100"></div>
+                    <div class="row">
+                        <div class="col-6"><label class="form-label">발급기관</label><div class="custom-input-group"><input type="text" class="licenseIssuer" maxlength="100"></div></div>
+                        <div class="col-6"><label class="form-label">취득일자</label><div class="custom-input-group"><input type="date" class="licenseDate"></div></div>
+                    </div>`;
+        } else if (type === 'skill') {
+            return `
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label required-mark">프로젝트명</label>
+                            <div class="custom-input-group"><input type="text" class="projectName" maxlength="100"></div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">고객사</label>
+                            <div class="custom-input-group"><input type="text" class="projectCustomer" maxlength="100"></div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">근무회사</label>
+                            <div class="custom-input-group"><input type="text" class="projectCompany" maxlength="100"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label">역할</label>
+                            <div class="custom-input-group"><input type="text" class="projectWork" maxlength="100"></div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">시작일자</label>
+                            <div class="custom-input-group"><input type="month" class="projectStartTerm"></div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">종료일자</label>
+                            <div class="custom-input-group"><input type="month" class="projectEndTerm"></div>
+                        </div>
+                    </div>
+                    <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
+                    <div class="row">
+                        <div class="col"><label class="form-label">언어</label><div class="custom-input-group"><input type="text" class="projectLanguage" maxlength="100"></div></div>
+                        <div class="col"><label class="form-label">DB</label><div class="custom-input-group"><input type="text" class="projectDb" maxlength="100"></div></div>
+                        <div class="col"><label class="form-label">Tool</label><div class="custom-input-group"><input type="text" class="projectTool" maxlength="100"></div></div>
+                        <div class="col"><label class="form-label">Framework</label><div class="custom-input-group"><input type="text" class="projectFramework" maxlength="100"></div></div>
+                        <div class="col"><label class="form-label">기타</label><div class="custom-input-group"><input type="text" class="projectEtc" maxlength="100"></div></div>
+                    </div>
+                    <label class="form-label">상세업무내용</label>
+                    <div class="custom-input-group"><textarea class="projectWorkDetail" rows="4" maxlength="4000"></textarea></div>`;
+        }
+    }
+
+    // 데이터 수집 및 저장
+    function saveResume() {
+        if(!validateResume()) return;
+
+        const getData = function (containerId, selectors) {
+            // 1. 해당 컨테이너 안의 .entry-pane들을 찾아서 바로 배열로 변환(map)합니다.
+            return $(`#${containerId} .entry-pane`).map(function () {
+                let obj = {};
+                let $this = $(this); // 현재 순회 중인 .entry-pane 요소를 jQuery 객체로 저장
+                console.log($this);
+
+                // 2. Vanilla JS의 forEach 대신 jQuery의 $.each를 사용
+                $.each(selectors, function(index, s) {
+                    obj[s] = $this.find(`.${s}`).val();
+                });
+
+                return obj;
+            }).get();
+        };
+
+        const formData = {
+            title: $('#title').val(),
+            name: $('#name').val(),
+            phoneNumber: $('#phoneNumber').val(),
+            email: $('#email').val(),
+            educationList: getData('edu-tab-content', ['schoolName', 'schoolStatus', 'schoolDate']),
+            careerList: getData('career-tab-content', ['companyName', 'companyRole', 'companyWork', 'companyStartTerm', 'companyEndTerm']),
+            licenseList: getData('license-tab-content', ['licenseName', 'licenseIssuer', 'licenseDate']),
+            skillList: getData('skill-tab-content', ['projectName', 'projectLanguage', 'projectDb', 'projectFramework', 'projectWorkDetail'])
+        };
+
+        console.log("전송 데이터:", formData);
+        // $.ajax({ ... }); // 실제 저장 로직
+        alert("저장되었습니다.");
+    }
+
+    $(document).ready(function() {
+        // 1. 실시간 입력 검사 (input 이벤트: 글자 수 체크 중심)
+        $(document).on('input', 'input.required, textarea.required', function() {
+            validateField($(this), 'input');
+        });
+
+        // 2. 포커스 아웃 검사 (blur 이벤트: 필수 입력 누락 중심)
+        $(document).on('focusout', 'input.required, textarea.required', function() {
+            validateField($(this), 'blur');
+        });
+    });
+
+    // 1. 실시간 글자 수 업데이트 이벤트 (페이지 로드 시 연결)
+    $(document).on('input', 'input, textarea', function() {
+        const $this = $(this);
+        const max = $this.attr('maxlength');
+
+        if (max) {
+            const len = $this.val().length;
+            // 가장 가까운 글자 수 표시창 업데이트
+            $this.closest('.entry-pane, .tab-pane, .sticky-footer')
+                .find('.char-count').first().text(`${len}/${max}`);
+
+            if (len >= max) {
+                $this.addClass('is-warning'); // 선택사항: 가득 찼을 때 스타일링
+            }
+        }
+    });
+
+    /**
+     * 개별 필드 유효성 검사 공통 함수
+     * @param $el - 검사할 jQuery 요소
+     * @param eventType - 'input' 또는 'blur'
+     */
+    function validateField($el, eventType) {
+        const val = $el.val().trim();
+        const max = parseInt($el.attr('maxlength'));
+        let errorMsg = "";
+
+        // [검사 로직]
+        if (val.length === 0 && eventType === 'blur') {
+            errorMsg = "필수 입력 항목입니다.";
+        } else if (max && val.length > max) {
+            errorMsg = `${max}자 이내로 입력해주세요. (현재 ${val.length}자)`;
+        }
+
+        // [UI 피드백]
+        if (errorMsg) {
+            $el.addClass('is-invalid').removeClass('is-valid');
+            $el.closest('.custom-input-group').next('.invalid-feedback').text(errorMsg).show();
+        } else {
+            $el.removeClass('is-invalid');
+            if (val.length > 0) $el.addClass('is-valid'); // 값이 잘 입력되면 초록색 표시
+            $el.closest('.custom-input-group').next('.invalid-feedback').hide();
+        }
+
+        // [탭 상태 업데이트] 해당 필드가 속한 탭의 헤더에 에러 표시
+        updateTabStatus($el);
+    }
+
+    /**
+     * 탭 헤더에 에러 배지 표시/제거
+     */
+    function updateTabStatus($el) {
+        const $pane = $el.closest('.tab-pane');
+        const paneId = $pane.attr('id');
+        const $tabBtn = $(`button[data-bs-target="#${paneId}"], #${paneId}-tab`);
+
+        // 해당 탭 안에 is-invalid가 하나라도 있는지 확인
+        const hasError = $pane.find('.is-invalid').length > 0;
+
+        if (hasError) {
+            if ($tabBtn.find('.error-dot').length === 0) {
+                $tabBtn.append('<span class="error-dot text-danger ms-1">●</span>');
+            }
+        } else {
+            $tabBtn.find('.error-dot').remove();
+        }
+    }
+
+    // // 2. 통합 유효성 검사 함수
+    // function validateResume() {
+    //     let isValid = true;
+    //     let firstErrorTabId = null;
+    //
+    //     $('input, textarea').each(function() {
+    //         const $input = $(this);
+    //         const val = $input.val().trim();
+    //         const max = parseInt($input.attr('maxlength'));
+    //         const isRequired = $input.hasClass('required');
+    //
+    //         let errorMsg = "";
+    //
+    //         // [체크 1] 필수 입력 검사
+    //         if (isRequired && !val) {
+    //             errorMsg = "필수 입력 항목입니다.";
+    //         }
+    //         // [체크 2] 글자 수 초과 검사 (maxlength가 있어도 복사/붙여넣기 대비)
+    //         else if (max && val.length > max) {
+    //             errorMsg = `${max}자 이내로 입력해주세요. (현재 ${val.length}자)`;
+    //         }
+    //
+    //         if (errorMsg) {
+    //             isValid = false;
+    //             $input.addClass('is-invalid');
+    //             // 에러 메시지 표시 (기존에 만든 구조 활용)
+    //             $input.parent().next('.invalid-feedback').text(errorMsg).show();
+    //
+    //             if (!firstErrorTabId) {
+    //                 const $pane = $input.closest('.tab-pane');
+    //                 if ($pane.attr('id') === 'content-info') {
+    //                     firstErrorTabId = {
+    //                         main: $pane.attr('id'),
+    //                         sub: null
+    //                     };
+    //                 } else {
+    //                     const $mainPane = $input.parents('.tab-pane').last();
+    //                     firstErrorTabId = {
+    //                         main: $mainPane.attr('id'),
+    //                         sub: $pane.attr('id')
+    //                     };
+    //                 }
+    //
+    //             }
+    //         } else {
+    //             $input.removeClass('is-invalid');
+    //             $input.parent().next('.invalid-feedback').hide();
+    //         }
+    //     });
+    //
+    //     if (!isValid) {
+    //         moveToErrorTab(firstErrorTabId);
+    //         alert("입력 내용을 확인해주세요.");
+    //     }
+    //     return isValid;
+    // }
+    //
+    // // 에러 발생 시 해당 탭으로 이동하는 함수 (분리하여 가독성 향상)
+    // function moveToErrorTab(tabInfo) {
+    //     if (!tabInfo) return;
+    //
+    //     // 메인 카테고리 이동
+    //     const mainTabBtn = $(`#mainTab button[data-bs-target="#${tabInfo.main}"]`);
+    //     bootstrap.Tab.getOrCreateInstance(mainTabBtn[0]).show();
+    //
+    //     // 상세 항목 서브 탭 이동
+    //     if (tabInfo.sub) {
+    //         const subTabBtn = $(`#${tabInfo.sub}-tab`);
+    //         if (subTabBtn.length > 0) {
+    //             bootstrap.Tab.getOrCreateInstance(subTabBtn[0]).show();
+    //         }
+    //     }
+    // }
+
+    function confirmExit() { if(confirm("변경사항이 저장되지 않을 수 있습니다. 나가시겠습니까?")) location.href='/'; }
+
+    // 초기화: 각 항목 1개씩 자동 추가
+    // window.onload = () => { ['edu', 'career', 'license', 'skill'].forEach(t => addTabEntry(t)); };
+
+    $(function() {
+        $.each(['edu', 'career', 'license', 'skill'], function(_, t) {
+            addTabEntry(t);
+        });
+    });
+</script>
+</body>
+</html>

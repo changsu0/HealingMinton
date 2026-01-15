@@ -4,10 +4,10 @@ import com.corelabs.resume.service.ResumeService;
 import com.corelabs.resume.vo.ResumeVO;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("/resume")
@@ -16,6 +16,23 @@ public class ResumeController {
     final ResumeService resumeService;
 
     public ResumeController(ResumeService resumeService) { this.resumeService = resumeService; }
+
+    @GetMapping("/resumeThymeleaf")
+    public String resumeThymeleaf(Model model) {
+        List<ResumeVO> resumeVO = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            ResumeVO resume = new ResumeVO();
+            resume.setTitle("타임리프 값 넘기기 " + i);
+            resume.setCreatedUser("홍길동 " + i);
+
+            resumeVO.add(resume);
+        }
+
+        model.addAttribute("resumeList", resumeVO);
+
+        return "resume/resumeThymeleaf";
+    }
 
     @GetMapping("/resumeList")
     public String resume() {
@@ -135,4 +152,5 @@ public class ResumeController {
         }
         return new Gson().toJson(rstMap);
     }
+
 }
