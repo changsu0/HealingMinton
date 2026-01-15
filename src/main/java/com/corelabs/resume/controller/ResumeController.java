@@ -19,17 +19,18 @@ public class ResumeController {
 
     @GetMapping("/resumeThymeleaf")
     public String resumeThymeleaf(Model model) {
-        List<ResumeVO> resumeVO = new ArrayList<>();
+//        List<ResumeVO> resumeVO = new ArrayList<>();
+        List<ResumeVO> resume = resumeService.selectResumeList();
 
-        for (int i = 0; i < 10; i++) {
-            ResumeVO resume = new ResumeVO();
-            resume.setTitle("타임리프 값 넘기기 " + i);
-            resume.setCreatedUser("홍길동 " + i);
+//        for (int i = 0; i < 10; i++) {
+//            ResumeVO resume = new ResumeVO();
+//            resume.setTitle("타임리프 값 넘기기 " + i);
+//            resume.setCreatedUser("홍길동 " + i);
+//
+//            resumeVO.add(resume);
+//        }
 
-            resumeVO.add(resume);
-        }
-
-        model.addAttribute("resumeList", resumeVO);
+        model.addAttribute("resumeList", resume);
 
         return "resume/resumeThymeleaf";
     }

@@ -20,6 +20,10 @@ public class ResumeService {
         return resumeMapper.selectResumeList();
     }
 
+    public List<ResumeVO> selectResumeList() {
+        return resumeMapper.selectResumeList();
+    }
+
     public ResumeVO selectResumeById(String resumeId) {
         return resumeMapper.selectResumeById(resumeId);
     }

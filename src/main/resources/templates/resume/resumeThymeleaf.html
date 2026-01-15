@@ -160,8 +160,8 @@
               <tr th:each="resume : ${resumeList}">
               <td><a href="#" class="resume-title" th:text="${resume.title}">제목 없음</a></td>
               <td><span class="author-badge" th:text="${resume.createdUser}">작성자 없음</span></td>
-              <td><span class="date-text"></span></td>
-              <td><span class="date-text"></span></td>
+              <td><span class="date-text" th:text="${resume.createdTime}"></span></td>
+              <td><span class="date-text" th:text="${resume.updatedTime}"></span></td>
               </tr>
               </tbody>
             </table>
