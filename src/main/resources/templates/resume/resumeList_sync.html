@@ -217,11 +217,15 @@
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">성별</label>
-                  <input type="text" name="gender" th:value="${SearchVO.gender}" class="form-control form-control-sm">
+                  <select name="gender" th:value="${SearchVO.gender}" class="form-control form-control-sm">
+                    <option value="" selected>선택안함</option>
+                    <option value="남자">남자</option>
+                    <option value="여자">여자</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">생년월일</label>
-                  <input type="text" name="birth" th:value="${SearchVO.birth}" class="form-control form-control-sm">
+                  <input type="date" name="birth" th:value="${SearchVO.birth}" class="form-control form-control-sm">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">직위</label>
@@ -231,11 +235,19 @@
               <div class="row g-3">
                 <div class="col-md-3">
                   <label class="form-label small">병역</label>
-                  <input type="text" name="military" th:value="${SearchVO.military}" class="form-control form-control-sm">
+                  <select name="military" th:value="${SearchVO.military}" class="form-control form-control-sm">
+                    <option value="" selected>선택안함</option>
+                    <option value="미필">미필</option>
+                    <option value="군필">군필</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">결혼</label>
-                  <input type="text" name="marriage" th:value="${SearchVO.marriage}" class="form-control form-control-sm">
+                  <select name="marriage" th:value="${SearchVO.marriage}" class="form-control form-control-sm">
+                    <option value="" selected>선택안함</option>
+                    <option value="미혼">미혼</option>
+                    <option value="기혼">기혼</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">전화번호(유선)</label>
@@ -264,11 +276,18 @@
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">졸업여부</label>
-                  <input type="text" name="schoolStatus" th:value="${SearchVO.schoolStatus}" class="form-control form-control-sm">
+                  <select name="schoolStatus" th:value="${SearchVO.schoolStatus}" class="form-control form-control-sm">
+                    <option value="" selected>선택안함</option>
+                    <option value="졸업예정">졸업예정</option>
+                    <option value="졸업">졸업</option>
+                    <option value="중퇴">중퇴</option>
+                    <option value="재학">재학</option>
+                    <option value="휴학">휴학</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">졸업일자</label>
-                  <input type="text" name="schoolDate" th:value="${SearchVO.schoolDate}" class="form-control form-control-sm">
+                  <input type="date" name="schoolDate" th:value="${SearchVO.schoolDate}" class="form-control form-control-sm">
                 </div>
               </div>
               <div class="row g-3" style="padding-top: 30px">
@@ -283,7 +302,7 @@
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">발급일자</label>
-                  <input type="text" name="licenseDate" th:value="${SearchVO.licenseDate}" class="form-control form-control-sm">
+                  <input type="date" name="licenseDate" th:value="${SearchVO.licenseDate}" class="form-control form-control-sm">
                 </div>
               </div>
               <div class="row g-3" style="padding-top: 30px">
@@ -304,11 +323,11 @@
               <div class="row g-3">
                 <div class="col-md-3">
                   <label class="form-label small">시작일자</label>
-                  <input type="text" name="companyStartTerm" th:value="${SearchVO.companyStartTerm}" class="form-control form-control-sm">
+                  <input type="date" name="companyStartTerm" th:value="${SearchVO.companyStartTerm}" class="form-control form-control-sm">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">종료일자</label>
-                  <input type="text" name="companyEndTerm" th:value="${SearchVO.companyEndTerm}" class="form-control form-control-sm">
+                  <input type="date" name="companyEndTerm" th:value="${SearchVO.companyEndTerm}" class="form-control form-control-sm">
                 </div>
               </div>
               <div class="row g-3" style="padding-top: 30px">
@@ -351,11 +370,11 @@
               <div class="row g-3">
                 <div class="col-md-3">
                   <label class="form-label small">시작일자</label>
-                  <input type="text" name="projectStartTerm" th:value="${SearchVO.projectStartTerm}" class="form-control form-control-sm">
+                  <input type="month" name="projectStartTerm" th:value="${SearchVO.projectStartTerm}" class="form-control form-control-sm">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">종료일자</label>
-                  <input type="text" name="projectEndTerm" th:value="${SearchVO.projectEndTerm}" class="form-control form-control-sm">
+                  <input type="month" name="projectEndTerm" th:value="${SearchVO.projectEndTerm}" class="form-control form-control-sm">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small">기타</label>

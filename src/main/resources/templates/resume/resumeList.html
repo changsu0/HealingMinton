@@ -245,11 +245,15 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">성별</label>
-                                    <input type="text" id="searchGender" class="form-control form-control-sm">
+                                    <select id="searchGender" class="form-control form-control-sm">
+                                        <option value="" selected>선택안함</option>
+                                        <option value="남자">남자</option>
+                                        <option value="여자">여자</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">생년월일</label>
-                                    <input type="text" id="searchBirth" class="form-control form-control-sm">
+                                    <input type="date" class="form-control form-control-sm" id="searchBirth">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">직위</label>
@@ -259,11 +263,19 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label small">병역</label>
-                                    <input type="text" id="searchMilitary" class="form-control form-control-sm">
+                                    <select id="searchMilitary" class="form-control form-control-sm">
+                                        <option value="" selected>선택안함</option>
+                                        <option value="미필">미필</option>
+                                        <option value="군필">군필</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">결혼</label>
-                                    <input type="text" id="searchMarriage" class="form-control form-control-sm">
+                                    <select id="searchMarriage" class="form-control form-control-sm">
+                                        <option value="" selected>선택안함</option>
+                                        <option value="미혼">미혼</option>
+                                        <option value="기혼">기혼</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">전화번호(유선)</label>
@@ -292,11 +304,18 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">졸업여부</label>
-                                    <input type="text" id="SearchSchoolStatus" class="form-control form-control-sm">
+                                    <select id="SearchSchoolStatus" class="form-control form-control-sm">
+                                        <option value="" selected>선택안함</option>
+                                        <option value="졸업예정">졸업예정</option>
+                                        <option value="졸업">졸업</option>
+                                        <option value="중퇴">중퇴</option>
+                                        <option value="재학">재학</option>
+                                        <option value="휴학">휴학</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">졸업일자</label>
-                                    <input type="text" id="SearchSchoolDate" class="form-control form-control-sm">
+                                    <input type="date" id="SearchSchoolDate" class="form-control form-control-sm">
                                 </div>
                             </div>
                             <div class="row g-3" style="padding-top: 30px">
@@ -311,7 +330,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">발급일자</label>
-                                    <input type="text" id="SearchLicenseDate" class="form-control form-control-sm">
+                                    <input type="date" id="SearchLicenseDate" class="form-control form-control-sm">
                                 </div>
                             </div>
                             <div class="row g-3" style="padding-top: 30px">
@@ -332,11 +351,11 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label small">시작일자</label>
-                                    <input type="text" id="SearchCompanyStartTerm" class="form-control form-control-sm">
+                                    <input type="date" id="SearchCompanyStartTerm" class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">종료일자</label>
-                                    <input type="text" id="SearchCompanyEndTerm" class="form-control form-control-sm">
+                                    <input type="date" id="SearchCompanyEndTerm" class="form-control form-control-sm">
                                 </div>
                             </div>
                             <div class="row g-3" style="padding-top: 30px">
@@ -379,11 +398,11 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label small">시작일자</label>
-                                    <input type="text" id="SearchProjectStartTerm" class="form-control form-control-sm">
+                                    <input type="month" id="SearchProjectStartTerm" class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">종료일자</label>
-                                    <input type="text" id="SearchProjectEndTerm" class="form-control form-control-sm">
+                                    <input type="month" id="SearchProjectEndTerm" class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">기타</label>
