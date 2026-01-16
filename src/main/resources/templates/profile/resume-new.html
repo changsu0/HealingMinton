@@ -4,16 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>경력 관리 시스템 - 탭 방식 작성</title>
+    <title>경력 관리 시스템 - 작성</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         /* 기존 스타일 유지 및 탭 관련 추가 */
-        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; padding-bottom: 100px; }
-        .profile-card { max-width: 900px; margin: 30px auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; padding: 50px 0; }
+        .profile-card { max-width: 900px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+
+        /* 상단 헤더 (스티키 해제) */
+        .top-header { border-bottom: 2px solid #f1f3f5; padding-bottom: 25px; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; }
+        .header-input { background-color: #f1f3f5; border: none; border-radius: 10px; padding: 12px 15px; outline: none; }
 
         /* 메인 탭 스타일 */
-        .nav-pills { background-color: #f1f3f5; border-radius: 15px; padding: 5px; }
+        .nav-pills { background-color: #f1f3f5; border-radius: 15px; padding: 5px; margin-bottom: 30px; }
         .nav-pills .nav-link { color: #495057; border-radius: 12px; font-weight: 500; }
         .nav-pills .nav-link.active { background-color: white; color: black !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 
@@ -23,18 +27,16 @@
         .sub-tab-nav .nav-link.active { background: white; border: 1px solid #dee2e6; border-bottom: 2px solid white; color: #0d6efd; font-weight: bold; margin-bottom: -1px; }
 
         .form-label { font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
-        .custom-input-group { background-color: #f1f3f5; border-radius: 10px; padding: 8px 15px; display: flex; align-items: center; margin-bottom: 15px; }
+        .custom-input-group { background-color: #f1f3f5; border-radius: 10px; padding: 10px 15px; display: flex; align-items: center; margin-bottom: 15px; }
         .custom-input-group input, .custom-input-group select, .custom-input-group textarea { background: transparent; border: none; width: 100%; outline: none; }
 
         .entry-pane { padding: 10px; position: relative; }
         .delete-tab-btn { position: absolute; top: 0; right: 0; color: #adb5bd; border: none; background: none; font-size: 1.2rem; }
         .delete-tab-btn:hover { color: #dc3545; }
 
-        .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; border-top: 1px solid #eee; }
-        .footer-content { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 15px; padding: 0 20px; }
-        .footer-input { background-color: #f1f3f5; border: none; border-radius: 10px; padding: 8px 15px; outline: none; }
-        .btn-save-sm { background-color: #212529; color: white; border-radius: 10px; padding: 8px 25px; font-weight: 600; border: none; }
-        .btn-exit { background-color: white; color: #dc3545; border: 1px solid #ffc1c1; border-radius: 10px; padding: 8px 20px; font-weight: 600; }
+        /* 버튼 */
+        .btn-save { background-color: #212529; color: white; border-radius: 10px; padding: 10px 30px; border: none; font-weight: 600; }
+        .btn-exit { background-color: white; color: #dc3545; border: 1px solid #ffc1c1; border-radius: 10px; padding: 10px 20px; font-weight: 600; }
 
         .required-mark::after { content: ' *'; color: #dc3545; font-weight: bold; }
         .is-invalid { border: 1px solid #dc3545 !important; background-color: #fff8f8; }
@@ -50,12 +52,31 @@
             border: 1px solid #198754 !important;
             background-color: #f8fff9 !important;
         }
+
+        /* 사진 업로드 */
+        .photo-upload-container {
+            width: 130px; height: 165px; border: 2px dashed #dee2e6; border-radius: 12px;
+            background-color: #f8f9fa; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; cursor: pointer; overflow: hidden; position: relative;
+        }
+        .photo-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .photo-placeholder { color: #adb5bd; text-align: center; font-size: 0.85rem; }
+
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="profile-card">
-        <ul class="nav nav-pills nav-fill mb-4" id="mainTab" role="tablist">
+
+        <div class="top-header">
+            <input type="text" class="header-input flex-grow-1" id="title" placeholder="이력서 제목을 입력하세요 (예: 자바 백엔드 개발자 홍길동)" maxlength="100">
+            <input type="text" class="header-input" id="createdUser" placeholder="작성자" style="width: 120px;" maxlength="50">
+            <button class="btn-save" onclick="saveResume()">저장</button>
+            <button class="btn-exit" onclick="confirmExit()">나가기</button>
+        </div>
+
+        <ul class="nav nav-pills nav-fill" id="mainTab" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-info">개인정보</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-edu">학력</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-career">경력</button></li>
@@ -65,52 +86,97 @@
 
         <div class="tab-content" id="mainTabContent">
             <div class="tab-pane fade show active" id="content-info">
-                <div class="section-title mb-4"><i class="bi bi-person"></i> 기본 정보</div>
                 <div class="row">
-                    <div class="col-md-4">
-                        <label class="form-label required-mark">이름</label>
-                        <div class="custom-input-group"><input type="text" class="name required" maxlength="50" placeholder="성함 입력"></div>
-                        <div class="invalid-feedback" style="display:none; color:red; font-size:0.8rem; margin-top:-10px; margin-bottom:10px;"></div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label required-mark">이름</label>
+                                <div class="custom-input-group"><input type="text" id="name" class="required" maxlength="50" placeholder="성함 입력"></div>
+                                <div class="invalid-feedback" style="display:none; color:red; font-size:0.8rem; margin-top:-10px; margin-bottom:10px;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">생년월일</label>
+                                <div class="custom-input-group"><input type="date" id="birth"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">성별</label>
+                                <div class="custom-input-group"><select id="gender"><option value="남자" selected>남자</option><option value="여자">여자</option></select></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">직위</label>
+                                <div class="custom-input-group"><input type="text" id="role" maxlength="10"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">성별</label>
-                        <div class="custom-input-group"><select id="gender"><option value="남자">남자</option><option value="여자">여자</option></select></div>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">생년월일</label>
-                        <div class="custom-input-group"><input type="date" id="birth"></div>
+                    <div class="col-md-3">
+                        <label class="form-label">이력서 사진</label>
+                        <div class="photo-upload-container" onclick="$('#photoInput').click()">
+                            <div class="photo-placeholder" id="photoPlaceholder">
+                                <i class="bi bi-person-bounding-box fs-2 d-block mb-1"></i>
+                                <span>사진 추가</span>
+                            </div>
+                            <img src="" id="photoPreview" class="photo-preview">
+                        </div>
+                        <input type="file" id="photoInput" hidden accept="image/*">
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-md-4">
-                        <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" id="role" maxlength="10"></div>
-                    </div>
-                    <div class="col-md-4">
                         <label class="form-label">병역</label>
-                        <div class="custom-input-group"><select id="military"><option value="미필">미필</option><option value="군필">군필</option></select></div>
+                        <div class="custom-input-group"><select id="military"><option value="미필" selected>미필</option><option value="군필">군필</option></select></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">결혼</label>
-                        <div class="custom-input-group"><select id="marriage"><option value="미혼">미혼</option><option value="기혼">기혼</option></select></div>
+                        <div class="custom-input-group"><select id="marriage"><option value="미혼" selected>미혼</option><option value="기혼">기혼</option></select></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">이메일</label>
+                        <div class="custom-input-group"><input type="email" id="email" maxlength="100" placeholder="email@example.com"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <label class="form-label">전화번호(유선)</label>
-                        <div class="custom-input-group"><input type="text" id="landlineNumber" placeholder="00-000-0000"></div>
+                        <div class="custom-input-group"><input type="text" id="landlineNumber" maxlength="30" placeholder="00-000-0000"></div>
                     </div>
                     <div class="col">
                         <label class="form-label">전화번호(무선)</label>
-                        <div class="custom-input-group"><input type="text" id="phoneNumber" placeholder="010-0000-0000"></div>
-                    </div>
-                    <div class="col">
-                        <label class="form-label">이메일</label>
-                        <div class="custom-input-group"><input type="email" id="email" placeholder="email@example.com"></div>
+                        <div class="custom-input-group"><input type="text" id="phoneNumber" maxlength="30" placeholder="010-0000-0000"></div>
                     </div>
                 </div>
                 <label class="form-label">주소</label>
-                <div class="custom-input-group"><input type="text" id="address" placeholder="거주지 주소"></div>
+                <div class="custom-input-group"><input type="text" id="address" maxlength="255" placeholder="거주지 주소"></div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <label class="form-label"><i class="bi bi-paperclip"></i> 첨부된 파일</label>
+
+                        <input type="hidden" name="deleteFileIds" id="deleteFileIds">
+
+                        <div id="existing-file-list" class="list-group mb-3">
+                            <p th:if="${#lists.isEmpty(fileList)}" class="text-muted small">첨부된 파일이 없습니다.</p>
+
+                            <div th:each="file : ${fileList}" class="list-group-item d-flex justify-content-between align-items-center file-item" th:data-file-id="${file.fileId}">
+                                <div>
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    <span th:text="${file.originalName}">파일명.pdf</span>
+                                    <small class="text-muted" th:text="'(' + ${file.fileSize} + ' KB)'"></small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger border-0"
+                                        th:onclick="markFileForDelete(this, [[${file.fileId}]])">
+                                    <i class="bi bi-trash"></i> 삭제
+                                </button>
+                            </div>
+                        </div>
+
+                        <label class="form-label"><i class="bi bi-plus-circle"></i> 새 파일 추가</label>
+                        <div class="custom-input-group">
+                            <input type="file" id="attachFiles" multiple class="form-control">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="content-edu">
@@ -160,17 +226,22 @@
     </div>
 </div>
 
-<div class="sticky-footer">
-    <div class="footer-content">
-        <input type="text" class="footer-input flex-grow-1" id="title" placeholder="이력서 제목을 입력하세요 (예: 2024 백엔드 개발자 지원)">
-        <input type="text" class="footer-input" id="createdUser" placeholder="작성자명" style="width: 150px;">
-        <button class="btn-save-sm" onclick="saveResume()"><i class="bi bi-cloud-check"></i> 저장</button>
-        <button class="btn-exit" onclick="confirmExit()">나가기</button>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+    // 1. 사진 미리보기
+    $('#photoInput').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                $('#photoPreview').attr('src', e.target.result).show();
+                $('#photoPlaceholder').hide();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     let tabCounts = { edu: 0, career: 0, license: 0, skill: 0 };
 
     // 탭 기반 항목 추가 함수
@@ -310,7 +381,7 @@
                     <div class="row">
                         <div class="col-4">
                             <label class="form-label required-mark">프로젝트명</label>
-                            <div class="custom-input-group"><input type="text" class="projectName" maxlength="100"></div>
+                            <div class="custom-input-group"><input type="text" class="projectName required" maxlength="100"></div>
                         </div>
                         <div class="col-4">
                             <label class="form-label">고객사</label>
@@ -350,7 +421,9 @@
 
     // 데이터 수집 및 저장
     function saveResume() {
-        if(!validateResume()) return;
+        //if(!validateResume()) return;
+
+        let formData = new FormData();
 
         const getData = function (containerId, selectors) {
             // 1. 해당 컨테이너 안의 .entry-pane들을 찾아서 바로 배열로 변환(map)합니다.
@@ -368,50 +441,74 @@
             }).get();
         };
 
-        const formData = {
+        const resumeData = {
             title: $('#title').val(),
+            createdUser: $('#createdUser').val(),
             name: $('#name').val(),
-            phoneNumber: $('#phoneNumber').val(),
+            birth: $('#birth').val(),
+            gender: $('#gender').val(),
+            role: $('#role').val(),
+            military: $('#military').val(),
+            marriage: $('#marriage').val(),
             email: $('#email').val(),
-            educationList: getData('edu-tab-content', ['schoolName', 'schoolStatus', 'schoolDate']),
-            careerList: getData('career-tab-content', ['companyName', 'companyRole', 'companyWork', 'companyStartTerm', 'companyEndTerm']),
-            licenseList: getData('license-tab-content', ['licenseName', 'licenseIssuer', 'licenseDate']),
-            skillList: getData('skill-tab-content', ['projectName', 'projectLanguage', 'projectDb', 'projectFramework', 'projectWorkDetail'])
+            landlineNumber: $('#landlineNumber').val(),
+            phoneNumber: $('#phoneNumber').val(),
+            address: $('#address').val()
+            // educationList: getData('edu-tab-content', ['schoolName', 'schoolStatus', 'schoolDate']),
+            // careerList: getData('career-tab-content', ['companyName', 'companyRole', 'companyWork', 'companyStartTerm', 'companyEndTerm']),
+            // licenseList: getData('license-tab-content', ['licenseName', 'licenseIssuer', 'licenseDate']),
+            // skillList: getData('skill-tab-content', ['projectName', 'projectLanguage', 'projectDb', 'projectFramework', 'projectWorkDetail'])
         };
 
+        const photoFile = $('#photoInput')[0].files[0];
+        if (photoFile) {
+            console.log(photoFile);
+            formData.append("photoFile", photoFile);
+        }
+
+        formData.append("resumeData", new Blob([JSON.stringify(resumeData)], {type: "application/json"}));
+
         console.log("전송 데이터:", formData);
-        // $.ajax({ ... }); // 실제 저장 로직
-        alert("저장되었습니다.");
+
+        $.ajax({
+            url: "/resume/save",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function() { alert("저장 성공!"); },
+            error: function() { alert("저장 실패!"); }
+        });
     }
 
-    $(document).ready(function() {
-        // 1. 실시간 입력 검사 (input 이벤트: 글자 수 체크 중심)
-        $(document).on('input', 'input.required, textarea.required', function() {
-            validateField($(this), 'input');
-        });
-
-        // 2. 포커스 아웃 검사 (blur 이벤트: 필수 입력 누락 중심)
-        $(document).on('focusout', 'input.required, textarea.required', function() {
-            validateField($(this), 'blur');
-        });
-    });
-
-    // 1. 실시간 글자 수 업데이트 이벤트 (페이지 로드 시 연결)
-    $(document).on('input', 'input, textarea', function() {
-        const $this = $(this);
-        const max = $this.attr('maxlength');
-
-        if (max) {
-            const len = $this.val().length;
-            // 가장 가까운 글자 수 표시창 업데이트
-            $this.closest('.entry-pane, .tab-pane, .sticky-footer')
-                .find('.char-count').first().text(`${len}/${max}`);
-
-            if (len >= max) {
-                $this.addClass('is-warning'); // 선택사항: 가득 찼을 때 스타일링
-            }
-        }
-    });
+    // $(document).ready(function() {
+    //     // 1. 실시간 입력 검사 (input 이벤트: 글자 수 체크 중심)
+    //     $(document).on('input', 'input.required, textarea.required', function() {
+    //         validateField($(this), 'input');
+    //     });
+    //
+    //     // 2. 포커스 아웃 검사 (blur 이벤트: 필수 입력 누락 중심)
+    //     $(document).on('focusout', 'input.required, textarea.required', function() {
+    //         validateField($(this), 'blur');
+    //     });
+    // });
+    //
+    // // 1. 실시간 글자 수 업데이트 이벤트 (페이지 로드 시 연결)
+    // $(document).on('input', 'input, textarea', function() {
+    //     const $this = $(this);
+    //     const max = $this.attr('maxlength');
+    //
+    //     if (max) {
+    //         const len = $this.val().length;
+    //         // 가장 가까운 글자 수 표시창 업데이트
+    //         $this.closest('.entry-pane, .tab-pane, .sticky-footer')
+    //             .find('.char-count').first().text(`${len}/${max}`);
+    //
+    //         if (len >= max) {
+    //             $this.addClass('is-warning'); // 선택사항: 가득 찼을 때 스타일링
+    //         }
+    //     }
+    // });
 
     /**
      * 개별 필드 유효성 검사 공통 함수

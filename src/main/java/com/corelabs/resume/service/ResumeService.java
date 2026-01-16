@@ -24,6 +24,10 @@ public class ResumeService {
         return resumeMapper.selectResumeList();
     }
 
+    public List<ResumeVO> selectResumeList(String searchType, String keyword) {
+        return resumeMapper.selectResumeList(searchType, keyword);
+    }
+
     public ResumeVO selectResumeById(String resumeId) {
         return resumeMapper.selectResumeById(resumeId);
     }

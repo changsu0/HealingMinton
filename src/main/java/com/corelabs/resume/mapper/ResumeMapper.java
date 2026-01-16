@@ -7,26 +7,24 @@ import java.util.List;
 
 @Mapper
 public interface ResumeMapper {
-    // 조회
+
     List<ResumeVO> selectResumeList();
-
     ResumeVO selectResumeById(String resumeId);
-
-    // 저장
+    List<ResumeVO> selectResumeList(String searchType, String keyword);
     int insertResume(ResumeVO resumeVO);
-    int insertEducation(ResumeEducationVO resumeEducationVO);
-    int insertCareer(ResumeCareerVO resumeCareerVO);
-    int insertLicense(ResumeLicenseVO resumeLicenseVO);
-    int insertSkill(ResumeSkillVO resumeSkillVO);
-
-    // 수정
     int updateResume(ResumeVO resumeVO);
-
-    // 삭제
     int deleteResume(String resumeId);
+
+    int insertEducation(ResumeEducationVO resumeEducationVO);
     int deleteEducation(String resumeId);
+
+    int insertCareer(ResumeCareerVO resumeCareerVO);
     int deleteCareer(String resumeId);
+
+    int insertLicense(ResumeLicenseVO resumeLicenseVO);
     int deleteLicense(String resumeId);
+
+    int insertSkill(ResumeSkillVO resumeSkillVO);
     int deleteSkill(String resumeId);
 
 }

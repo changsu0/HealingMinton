@@ -4,8 +4,124 @@
 <mapper namespace="com.corelabs.resume.mapper.ResumeMapper">
     
     <select id="selectResumeList" resultType="resumeVO">
-        SELECT * FROM resume
-        ORDER BY created_time desc
+        SELECT
+            RESUME_ID,
+            TITLE,
+            CREATED_USER,
+            CREATED_TIME,
+            UPDATED_TIME,
+            NAME, BIRTH,
+            GENDER,
+            MILITARY,
+            ROLE,
+            MARRIAGE,
+            LANDLINE_NUMBER,
+            PHONE_NUMBER,
+            EMAIL,
+            ADDRESS
+        FROM resume
+        <where>
+            <if test="searchType == 'name' and keyword != null and keyword != ''">
+                AND NAME LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'gender' and keyword != null and keyword != ''">
+                AND GENDER LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'birth' and keyword != null and keyword != ''">
+                AND BIRTH LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'role' and keyword != null and keyword != ''">
+                AND ROLE LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'military' and keyword != null and keyword != ''">
+                AND MILITARY LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'marriage' and keyword != null and keyword != ''">
+                AND MARRIAGE LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'landlineNumber' and keyword != null and keyword != ''">
+                AND LANDLINE_NUMBER LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'phoneNumber' and keyword != null and keyword != ''">
+                AND PHONE_NUMBER LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'email' and keyword != null and keyword != ''">
+                AND EMAIL LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'address' and keyword != null and keyword != ''">
+                AND ADDRESS LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="searchType == 'schoolName' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_education WHERE SCHOOL_NAME LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'schoolStatus' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_education WHERE SCHOOL_STATUS LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'schoolDate' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_education WHERE SCHOOL_DATE LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'CompanyName' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_career WHERE COMPANY_NAME LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'CompanyRole' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_career WHERE COMPANY_ROLE LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'CompanyWork' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_career WHERE COMPANY_WORK LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'CompanyStartTerm' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_career WHERE COMPANY_START_TERM LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'CompanyEndTerm' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_career WHERE COMPANY_END_TERM LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'licenseName' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_license WHERE LICENSE_NAME LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'licenseIssuer' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_license WHERE LICENSE_ISSUER LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'licenseDate' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_license WHERE LICENSE_DATE LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectName' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_NAME LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectCustomer' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_CUSTOMER LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectCompany' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_COMPANY LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectWork' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_WORK LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectLanguage' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_LANGUAGE LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectDb' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_DB LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectTool' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_TOOL LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectFramework' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_FRAMEWORK LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectStartTerm' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_START_TERM LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectEndTerm' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_END_TERM LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectEtc' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_ETC LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="searchType == 'projectWorkDetail' and keyword != null and keyword != ''">
+                AND RESUME_ID IN (SELECT RESUME_ID FROM resume_skill WHERE PROJECT_WORK_DETAIL LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY CREATED_TIME desc
     </select>
 
     <insert id="insertResume" parameterType="resumeVO">

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.corelabs.profile.mapper.NewResumeMapper">
+
+    <select id="selectResumeList" resultType="newResumeVO">
+        SELECT
+            RESUME_ID,
+            TITLE,
+            CREATED_USER,
+            NAME, BIRTH,
+            GENDER, MILITARY,
+            ROLE,
+            MARRIAGE,
+            LANDLINE_NUMBER,
+            PHONE_NUMBER,
+            EMAIL,
+            ADDRESS,
+            PHOTO_PATH,
+            CREATED_AT,
+            UPDATED_AT
+        FROM resume_new
+    </select>
+
+    <insert id="insertResume">
+        INSERT INTO resume_new (
+            RESUME_ID,
+            TITLE,
+            CREATED_USER,
+            NAME,
+            BIRTH,
+            GENDER,
+            MILITARY,
+            ROLE,
+            MARRIAGE,
+            LANDLINE_NUMBER,
+            PHONE_NUMBER,
+            EMAIL,
+            ADDRESS,
+            PHOTO_PATH,
+            CREATED_AT,
+            UPDATED_AT
+            )
+        VALUES (
+            #{resumeId},
+            #{title},
+            #{createdUser},
+            #{name},
+            #{birth},
+            #{gender},
+            #{military},
+            #{role},
+            #{marriage},
+            #{landlineNumber},
+            #{phoneNumber},
+            #{email},
+            #{address},
+            #{photoPath},
+            NOW(),
+            NULL
+            )
+    </insert>
+</mapper>
