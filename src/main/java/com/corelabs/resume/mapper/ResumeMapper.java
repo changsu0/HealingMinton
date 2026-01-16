@@ -10,7 +10,8 @@ public interface ResumeMapper {
 
     List<ResumeVO> selectResumeList();
     ResumeVO selectResumeById(String resumeId);
-    List<ResumeVO> selectResumeList(String searchType, String keyword);
+//    List<ResumeVO> selectResumeList(String searchType, String keyword);
+    List<ResumeVO> selectResumeList(ResumeSearchVO resumeSearchVO);
     int insertResume(ResumeVO resumeVO);
     int updateResume(ResumeVO resumeVO);
     int deleteResume(String resumeId);

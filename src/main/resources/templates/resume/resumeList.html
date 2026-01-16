@@ -175,60 +175,228 @@
                 </div>
 
                 <div class="card resume-list-card">
-                    <div class="search-section">
-                        <div class="row g-2 justify-content-end">
-                            <div class="col-md-2">
-                                <select class="form-select search-select" id="searchType">
-                                    <optgroup label="1.개인정보">
-                                        <option value="name">이름</option>
-                                        <option value="gender">성별</option>
-                                        <option value="birth">생년월일</option>
-                                        <option value="role">직위</option>
-                                        <option value="military">병역</option>
-                                        <option value="marriage">결혼</option>
-                                        <option value="landlineNumber">전화번호(유선)</option>
-                                        <option value="phoneNumber">전화번호(무선)</option>
-                                        <option value="email">이메일</option>
-                                        <option value="address">주소</option>
-                                    </optgroup>
-                                    <optgroup label="2.학력사항">
-                                        <option value="schoolName">학교명</option>
-                                        <option value="schoolStatus">졸업여부</option>
-                                        <option value="schoolDate">졸업일자</option>
-                                    </optgroup>
-                                    <optgroup label="3.경력사항">
-                                        <option value="CompanyName">회사명</option>
-                                        <option value="CompanyRole">직위</option>
-                                        <option value="CompanyWork">담당업무</option>
-                                        <option value="CompanyStartTerm">시작일자</option>
-                                        <option value="CompanyEndTerm">종료일자</option>
-                                    </optgroup>
-                                    <optgroup label="4.자격증">
-                                        <option value="licenseName">자격증명</option>
-                                        <option value="licenseIssuer">발급기관</option>
-                                        <option value="licenseDate">취득일자</option>
-                                    </optgroup>
-                                    <optgroup label="5.기술경력">
-                                        <option value="projectName">프로젝트명</option>
-                                        <option value="projectCustomer">고객사</option>
-                                        <option value="projectCompany">근무회사</option>
-                                        <option value="projectWork">역할</option>
-                                        <option value="projectLanguage">언어</option>
-                                        <option value="projectDb">DB</option>
-                                        <option value="projectTool">Tool</option>
-                                        <option value="projectFramework">Framework</option>
-                                        <option value="projectStartTerm">시작일자</option>
-                                        <option value="projectEndTerm">종료일자</option>
-                                        <option value="projectEtc">기타</option>
-                                        <option value="projectWorkDetail">상세업무내용</option>
-                                    </optgroup>
-                                </select>
+<!--                    <div class="search-section">-->
+<!--                        <div class="row g-2 justify-content-end">-->
+<!--                            <div class="col-md-2">-->
+<!--                                <select class="form-select search-select" id="searchType">-->
+<!--                                    <optgroup label="1.개인정보">-->
+<!--                                        <option value="name">이름</option>-->
+<!--                                        <option value="gender">성별</option>-->
+<!--                                        <option value="birth">생년월일</option>-->
+<!--                                        <option value="role">직위</option>-->
+<!--                                        <option value="military">병역</option>-->
+<!--                                        <option value="marriage">결혼</option>-->
+<!--                                        <option value="landlineNumber">전화번호(유선)</option>-->
+<!--                                        <option value="phoneNumber">전화번호(무선)</option>-->
+<!--                                        <option value="email">이메일</option>-->
+<!--                                        <option value="address">주소</option>-->
+<!--                                    </optgroup>-->
+<!--                                    <optgroup label="2.학력사항">-->
+<!--                                        <option value="schoolName">학교명</option>-->
+<!--                                        <option value="schoolStatus">졸업여부</option>-->
+<!--                                        <option value="schoolDate">졸업일자</option>-->
+<!--                                    </optgroup>-->
+<!--                                    <optgroup label="3.경력사항">-->
+<!--                                        <option value="CompanyName">회사명</option>-->
+<!--                                        <option value="CompanyRole">직위</option>-->
+<!--                                        <option value="CompanyWork">담당업무</option>-->
+<!--                                        <option value="CompanyStartTerm">시작일자</option>-->
+<!--                                        <option value="CompanyEndTerm">종료일자</option>-->
+<!--                                    </optgroup>-->
+<!--                                    <optgroup label="4.자격증">-->
+<!--                                        <option value="licenseName">자격증명</option>-->
+<!--                                        <option value="licenseIssuer">발급기관</option>-->
+<!--                                        <option value="licenseDate">취득일자</option>-->
+<!--                                    </optgroup>-->
+<!--                                    <optgroup label="5.기술경력">-->
+<!--                                        <option value="projectName">프로젝트명</option>-->
+<!--                                        <option value="projectCustomer">고객사</option>-->
+<!--                                        <option value="projectCompany">근무회사</option>-->
+<!--                                        <option value="projectWork">역할</option>-->
+<!--                                        <option value="projectLanguage">언어</option>-->
+<!--                                        <option value="projectDb">DB</option>-->
+<!--                                        <option value="projectTool">Tool</option>-->
+<!--                                        <option value="projectFramework">Framework</option>-->
+<!--                                        <option value="projectStartTerm">시작일자</option>-->
+<!--                                        <option value="projectEndTerm">종료일자</option>-->
+<!--                                        <option value="projectEtc">기타</option>-->
+<!--                                        <option value="projectWorkDetail">상세업무내용</option>-->
+<!--                                    </optgroup>-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                            <div class="col-md-4">-->
+<!--                                <div class="input-group">-->
+<!--                                    <input type="text" id="keyword" class="form-control search-input" placeholder="검색어를 입력하세요..." onkeyup="if(window.event.keyCode==13){selectGridList()}">-->
+<!--                                    <button class="btn btn-dark btn-search" type="button" onclick="selectGridList()">-->
+<!--                                        <i class="bi bi-search me-1"></i> 검색-->
+<!--                                    </button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                    <div class="search-section mb-4">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-funnel-fill me-2"></i>상세 필터 검색</h6>
+                            <div class="row g-3" style="padding-top: 10px">
+                                <h6 class="fw-bold mb-3">개인정보</h6>
+                                <div class="col-md-3">
+                                    <label class="form-label small">이름</label>
+                                    <input type="text" id="searchName" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">성별</label>
+                                    <input type="text" id="searchGender" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">생년월일</label>
+                                    <input type="text" id="searchBirth" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">직위</label>
+                                    <input type="text" id="searchRole" class="form-control form-control-sm">
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="input-group">
-                                    <input type="text" id="keyword" class="form-control search-input" placeholder="검색어를 입력하세요..." onkeyup="if(window.event.keyCode==13){selectGridList()}">
-                                    <button class="btn btn-dark btn-search" type="button" onclick="selectGridList()">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small">병역</label>
+                                    <input type="text" id="searchMilitary" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">결혼</label>
+                                    <input type="text" id="searchMarriage" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">전화번호(유선)</label>
+                                    <input type="text" id="searchLandlineNumber" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">전화번호(무선)</label>
+                                    <input type="text" id="searchPhoneNumber" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small">이메일</label>
+                                    <input type="text" id="searchEmail" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">주소</label>
+                                    <input type="text" id="searchAddress" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3" style="padding-top: 30px">
+                                <h6 class="fw-bold mb-3">학력사항</h6>
+                                <div class="col-md-3">
+                                    <label class="form-label small">학교명</label>
+                                    <input type="text" id="SearchSchoolName" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">졸업여부</label>
+                                    <input type="text" id="SearchSchoolStatus" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">졸업일자</label>
+                                    <input type="text" id="SearchSchoolDate" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3" style="padding-top: 30px">
+                                <h6 class="fw-bold mb-3">자격증</h6>
+                                <div class="col-md-3">
+                                    <label class="form-label small">자격증명</label>
+                                    <input type="text" id="SearchLicenseName" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">발급기관</label>
+                                    <input type="text" id="SearchLicenseIssuer" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">발급일자</label>
+                                    <input type="text" id="SearchLicenseDate" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3" style="padding-top: 30px">
+                                <h6 class="fw-bold mb-3">경력사항</h6>
+                                <div class="col-md-3">
+                                    <label class="form-label small">회사명</label>
+                                    <input type="text" id="SearchCompanyName" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">직위</label>
+                                    <input type="text" id="SearchCompanyRole" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">담당업무</label>
+                                    <input type="text" id="SearchCompanyWork" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small">시작일자</label>
+                                    <input type="text" id="SearchCompanyStartTerm" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">종료일자</label>
+                                    <input type="text" id="SearchCompanyEndTerm" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3" style="padding-top: 30px">
+                                <h6 class="fw-bold mb-3">기술경력</h6>
+                                <div class="col-md-3">
+                                    <label class="form-label small">프로젝트명</label>
+                                    <input type="text" id="SearchProjectName" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">고객사</label>
+                                    <input type="text" id="SearchProjectCustomer" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">근무회사</label>
+                                    <input type="text" id="SearchProjectCompany" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">역할</label>
+                                    <input type="text" id="SearchProjectWork" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small">언어</label>
+                                    <input type="text" id="SearchProjectLanguage" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">DB</label>
+                                    <input type="text" id="SearchProjectDb" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">Tool</label>
+                                    <input type="text" id="SearchProjectTool" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">Framework</label>
+                                    <input type="text" id="SearchProjectFramework" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small">시작일자</label>
+                                    <input type="text" id="SearchProjectStartTerm" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">종료일자</label>
+                                    <input type="text" id="SearchProjectEndTerm" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">기타</label>
+                                    <input type="text" id="SearchProjectEtc" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row g-3 justify-content-end" style="padding-top: 50px">
+                                <div class="col-md-3 d-flex align-items-end gap-2">
+                                    <button class="btn btn-dark btn-sm w-100" onclick="selectGridList()">
                                         <i class="bi bi-search me-1"></i> 검색
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="resetSearch()">
+                                        <i class="bi bi-arrow-clockwise"></i>
                                     </button>
                                 </div>
                             </div>
@@ -266,16 +434,49 @@
 
                 const selectGridList = function() {
 
-                    const searchType = $('#searchType').val();
-                    const keyword = $('#keyword').val();
+                    const searchData = {
+                        name: $('#searchName').val(),
+                        gender: $('#searchGender').val(),
+                        birth: $('#searchBirth').val(),
+                        role: $('#searchRole').val(),
+                        military: $('#searchMilitary').val(),
+                        marriage: $('#searchMarriage').val(),
+                        landlineNumber: $('#searchLandlineNumber').val(),
+                        phoneNumber: $('#searchPhoneNumber').val(),
+                        email: $('#searchEmail').val(),
+                        address: $('#searchAddress').val(),
+                        schoolName: $('#SearchSchoolName').val(),
+                        schoolStatus: $('#SearchSchoolStatus').val(),
+                        schoolDate: $('#SearchSchoolDate').val(),
+                        licenseName: $('#SearchLicenseName').val(),
+                        licenseIssuer: $('#SearchLicenseIssuer').val(),
+                        licenseDate: $('#SearchLicenseDate').val(),
+                        companyName: $('#SearchCompanyName').val(),
+                        companyRole: $('#SearchCompanyRole').val(),
+                        companyWork: $('#SearchCompanyWork').val(),
+                        companyStartTerm: $('#SearchCompanyStartTerm').val(),
+                        companyEndTerm: $('#SearchCompanyEndTerm').val(),
+                        projectName: $('#SearchProjectName').val(),
+                        projectCustomer: $('#SearchProjectCustomer').val(),
+                        projectCompany: $('#SearchProjectCompany').val(),
+                        projectWork: $('#SearchProjectWork').val(),
+                        projectLanguage: $('#SearchProjectLanguage').val(),
+                        projectDb: $('#SearchProjectDb').val(),
+                        projectTool: $('#SearchProjectTool').val(),
+                        projectFramework: $('#SearchProjectFramework').val(),
+                        projectStartTerm: $('#SearchProjectStartTerm').val(),
+                        projectEndTerm: $('#SearchProjectEndTerm').val(),
+                        projectEtc: $('#SearchProjectEtc').val(),
+                        projectWorkDetail: $('#SearchProjectWorkDetail').val()
+                    }
+
+                    // const searchType = $('#searchType').val();
+                    // const keyword = $('#keyword').val();
 
                     $.ajax({
                         url: "/resume/selectResumeList",
                         type: "GET",
-                        data : {
-                            searchType: searchType,
-                            keyword: keyword
-                        },
+                        data : searchData,
                         dataType: "json",
                         success: function(data) {
                             cb_selectGridList(data);
@@ -285,6 +486,12 @@
                         }
                     });
                 };
+
+                // 검색 초기화 함수
+                function resetSearch() {
+                    $('.search-section input').val('');
+                    selectGridList();
+                }
 
                 function cb_selectGridList(resultData) {
                     let innerHtml = '';

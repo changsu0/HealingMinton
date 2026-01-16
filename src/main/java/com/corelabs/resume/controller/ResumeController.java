@@ -1,6 +1,7 @@
 package com.corelabs.resume.controller;
 
 import com.corelabs.resume.service.ResumeService;
+import com.corelabs.resume.vo.ResumeSearchVO;
 import com.corelabs.resume.vo.ResumeVO;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Controller;
@@ -18,23 +19,33 @@ public class ResumeController {
     public ResumeController(ResumeService resumeService) { this.resumeService = resumeService; }
 
     @GetMapping("/resumeList_sync")
-    public String resumeSync(
-            @RequestParam(value = "searchType", required = false) String searchType,
-            @RequestParam(value = "keyword", required = false) String keyword,
-            Model model) {
+    public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO resumeSearchVO, Model model) {
 
-        List<ResumeVO> resume = resumeService.selectResumeList(searchType, keyword);
-
-        System.out.println(resume);
-        System.out.println(searchType);
-        System.out.println(keyword);
+        List<ResumeVO> resume = resumeService.selectResumeList(resumeSearchVO);
 
         model.addAttribute("resumeList", resume);
-        model.addAttribute("searchType",searchType);
-        model.addAttribute("keyword",keyword);
 
         return "resume/resumeList_sync";
     }
+
+//    @GetMapping("/resumeList_sync")
+//    public String resumeSync(
+//            @RequestParam(value = "searchType", required = false) String searchType,
+//            @RequestParam(value = "keyword", required = false) String keyword,
+//            Model model) {
+//
+//        List<ResumeVO> resume = resumeService.selectResumeList(searchType, keyword);
+//
+//        System.out.println(resume);
+//        System.out.println(searchType);
+//        System.out.println(keyword);
+//
+//        model.addAttribute("resumeList", resume);
+//        model.addAttribute("searchType",searchType);
+//        model.addAttribute("keyword",keyword);
+//
+//        return "resume/resumeList_sync";
+//    }
 
     @GetMapping("/resumeList")
     public String resume() {
@@ -54,15 +65,13 @@ public class ResumeController {
 
     @GetMapping("/selectResumeList")
     @ResponseBody
-    public String selectResumeList(
-            @RequestParam(value="searchType", required=false) String searchType,
-            @RequestParam(value="keyword", required=false) String keyword) {
+    public String selectResumeList(@ModelAttribute ResumeSearchVO resumeSearchVO) {
 
         String rstJson = null;
         HashMap<String, Object> rstMap = new HashMap<>();
         Gson gson = new Gson();
         try {
-            List<ResumeVO> resumeList = resumeService.selectResumeList(searchType, keyword);
+            List<ResumeVO> resumeList = resumeService.selectResumeList(resumeSearchVO);
             System.out.println("Resume List Size: " + resumeList.size());
             for (ResumeVO resume : resumeList) {
                 System.out.println("Resume: " + resume.toString());
@@ -81,6 +90,36 @@ public class ResumeController {
             return rstJson;
         }
     }
+
+//    @GetMapping("/selectResumeList")
+//    @ResponseBody
+//    public String selectResumeList(
+//            @RequestParam(value="searchType", required=false) String searchType,
+//            @RequestParam(value="keyword", required=false) String keyword) {
+//
+//        String rstJson = null;
+//        HashMap<String, Object> rstMap = new HashMap<>();
+//        Gson gson = new Gson();
+//        try {
+//            List<ResumeVO> resumeList = resumeService.selectResumeList(searchType, keyword);
+//            System.out.println("Resume List Size: " + resumeList.size());
+//            for (ResumeVO resume : resumeList) {
+//                System.out.println("Resume: " + resume.toString());
+//            }
+//            rstMap.put("code", 200);
+//            rstMap.put("successMsg", "조회 성공");
+//            rstMap.put("data", resumeList);
+//        } catch (Exception e) {
+//            rstMap.put("code", -1);
+//            rstMap.put("failMsg", "처리중 에러발생");
+//            rstMap.put("failCause", e.getCause());
+//            System.out.println(e.getMessage());
+//        } finally {
+//            rstJson = gson.toJson(rstMap);
+//            System.out.println("Response JSON: " + rstJson);
+//            return rstJson;
+//        }
+//    }
 
 //    @GetMapping("/selectResumeList")
 //    @ResponseBody

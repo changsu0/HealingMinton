@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.corelabs.profile.mapper.NewResumeMapper">
+<mapper namespace="com.corelabs.profile.mapper.ProfileMapper">
 
-    <select id="selectResumeList" resultType="newResumeVO">
+    <select id="selectResumeList" resultType="profileVO">
         SELECT
             RESUME_ID,
             TITLE,
@@ -19,11 +19,11 @@
             PHOTO_PATH,
             CREATED_AT,
             UPDATED_AT
-        FROM resume_new
+        FROM profile
     </select>
 
     <insert id="insertResume">
-        INSERT INTO resume_new (
+        INSERT INTO profile (
             RESUME_ID,
             TITLE,
             CREATED_USER,

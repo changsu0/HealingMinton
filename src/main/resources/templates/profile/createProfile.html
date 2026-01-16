@@ -72,16 +72,16 @@
         <div class="top-header">
             <input type="text" class="header-input flex-grow-1" id="title" placeholder="이력서 제목을 입력하세요 (예: 자바 백엔드 개발자 홍길동)" maxlength="100">
             <input type="text" class="header-input" id="createdUser" placeholder="작성자" style="width: 120px;" maxlength="50">
-            <button class="btn-save" onclick="saveResume()">저장</button>
+            <button class="btn-save" onclick="saveProfile()">저장</button>
             <button class="btn-exit" onclick="confirmExit()">나가기</button>
         </div>
 
         <ul class="nav nav-pills nav-fill" id="mainTab" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-info">개인정보</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-edu">학력</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-academic">학력</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-career">경력</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-license">자격증</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-skill">기술경력</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-project">기술경력</button></li>
         </ul>
 
         <div class="tab-content" id="mainTabContent">
@@ -111,7 +111,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">이력서 사진</label>
+                        <label class="form-label">증명 사진</label>
                         <div class="photo-upload-container" onclick="$('#photoInput').click()">
                             <div class="photo-placeholder" id="photoPlaceholder">
                                 <i class="bi bi-person-bounding-box fs-2 d-block mb-1"></i>
@@ -179,13 +179,13 @@
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="content-edu">
+            <div class="tab-pane fade" id="content-academic">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="section-title"><i class="bi bi-mortarboard"></i> 학력 사항</div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('edu')">+ 항목 추가</button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('academic')">+ 항목 추가</button>
                 </div>
-                <ul class="nav nav-tabs sub-tab-nav" id="edu-tab-nav" role="tablist"></ul>
-                <div class="tab-content" id="edu-tab-content">
+                <ul class="nav nav-tabs sub-tab-nav" id="academic-tab-nav" role="tablist"></ul>
+                <div class="tab-content" id="academic-tab-content">
                     <p class="text-muted text-center py-5">추가 버튼을 눌러 학력 정보를 입력해주세요.</p>
                 </div>
             </div>
@@ -212,13 +212,13 @@
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="content-skill">
+            <div class="tab-pane fade" id="content-project">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="section-title"><i class="bi bi-cpu"></i> 기술경력</div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('skill')">+ 항목 추가</button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="addTabEntry('project')">+ 항목 추가</button>
                 </div>
-                <ul class="nav nav-tabs sub-tab-nav" id="skill-tab-nav" role="tablist"></ul>
-                <div class="tab-content" id="skill-tab-content">
+                <ul class="nav nav-tabs sub-tab-nav" id="project-tab-nav" role="tablist"></ul>
+                <div class="tab-content" id="project-tab-content">
                     <p class="text-muted text-center py-5">추가 버튼을 눌러 기술경력 정보를 입력해주세요.</p>
                 </div>
             </div>
@@ -242,7 +242,7 @@
         }
     });
 
-    let tabCounts = { edu: 0, career: 0, license: 0, skill: 0 };
+    let tabCounts = { academic: 0, career: 0, license: 0, project: 0 };
 
     // 탭 기반 항목 추가 함수
     function addTabEntry(type) {
@@ -270,7 +270,7 @@
             .addClass('tab-pane fade entry-pane')
             .attr({
                 'id': entryId,
-                'role': 'tabpanel'
+                'role': 'tab-panel'
             })
             .html(getFormTemplate(type));
 
@@ -304,13 +304,13 @@
     }
 
     function getTabLabel(type) {
-        const labels = { edu: '학력', career: '경력', license: '자격증', skill: '기술' };
+        const labels = { academic: '학력', career: '경력', license: '자격증', project: '기술' };
         return labels[type];
     }
 
     // 폼 템플릿 반환
     function getFormTemplate(type) {
-        if (type === 'edu') {
+        if (type === 'academic') {
             return `
                     <div class="row">
                         <div class="col-6">
@@ -460,15 +460,20 @@
             // skillList: getData('skill-tab-content', ['projectName', 'projectLanguage', 'projectDb', 'projectFramework', 'projectWorkDetail'])
         };
 
+        // 사진 파일 추가
         const photoFile = $('#photoInput')[0].files[0];
         if (photoFile) {
             console.log(photoFile);
             formData.append("photoFile", photoFile);
         }
 
-        formData.append("resumeData", new Blob([JSON.stringify(resumeData)], {type: "application/json"}));
+        // 다중 첨부 파일 추가
+        const attachFiles = $('#attachFiles')[0].files;
+        for(let i=0; i < attachFiles.length; i++) {
+            formData.append("attachFiles", attachFiles[i]);
+        }
 
-        console.log("전송 데이터:", formData);
+        formData.append("resumeData", new Blob([JSON.stringify(resumeData)], {type: "application/json"}));
 
         $.ajax({
             url: "/resume/save",

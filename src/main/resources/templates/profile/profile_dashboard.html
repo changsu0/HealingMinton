@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>ProfileManager - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    :root { --primary-color: #4361ee; --bg-color: #f8f9fa; }
+    body { background-color: var(--bg-color); font-family: 'Pretendard', sans-serif; }
+
+    /* 히어로 섹션 */
+    .hero-banner {
+      background: linear-gradient(135deg, #212529 0%, #495057 100%);
+      color: white; border-radius: 20px; padding: 40px; margin-bottom: 30px;
+    }
+
+    /* 통계 카드 */
+    .stat-card {
+      background: white; border: none; border-radius: 15px;
+      transition: transform 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+
+    /* 프로필 카드 */
+    .profile-item-card {
+      background: white; border-radius: 20px; border: none;
+      overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      transition: 0.3s; height: 100%;
+    }
+    .profile-item-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .card-img-top { height: 180px; object-fit: cover; background-color: #e9ecef; }
+
+    /* 뱃지 스타일 */
+    .skill-badge {
+      background-color: #f1f3f5; color: #495057; font-size: 0.75rem;
+      padding: 4px 10px; border-radius: 6px; margin-right: 5px;
+    }
+
+    .btn-add-profile {
+      background-color: var(--primary-color); border: none; border-radius: 12px;
+      padding: 12px 25px; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-5">
+  <div class="hero-banner d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="fw-bold">Welcome back, Developer!</h2>
+      <p class="text-white-50 mb-0">당신의 성장을 기록하고 관리하세요. 현재까지 5개의 프로필이 완성되었습니다.</p>
+    </div>
+    <a href="/profile/form" class="btn btn-light btn-add-profile text-primary">
+      <i class="bi bi-plus-lg me-2"></i>새 프로필 생성
+    </a>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-md-3">
+      <div class="card stat-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+            <i class="bi bi-file-earmark-person text-primary fs-4"></i>
+          </div>
+          <div><small class="text-muted">Total Profiles</small><h4 class="mb-0 fw-bold">12</h4></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+            <i class="bi bi-cpu text-success fs-4"></i>
+          </div>
+          <div><small class="text-muted">Skills Tracked</small><h4 class="mb-0 fw-bold">24</h4></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold">최근 관리 중인 프로필</h4>
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">최신순</button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#">최신순</a></li>
+        <li><a class="dropdown-item" href="#">이름순</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card profile-item-card">
+        <img src="/upload/resume/sample_photo.jpg" class="card-img-top" alt="Profile Photo">
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-primary small fw-bold">Full-Stack Dev</span>
+            <small class="text-muted">Updated 2 days ago</small>
+          </div>
+          <h5 class="card-title fw-bold">백엔드 중심 풀스택 프로필</h5>
+          <p class="card-text text-muted small">Spring Boot와 React를 활용한 대규모 시스템 설계 경험 중심...</p>
+          <div class="mb-3">
+            <span class="skill-badge">Java</span>
+            <span class="skill-badge">Spring</span>
+            <span class="skill-badge">React</span>
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="location.href='/profile/detail/1'">보기</button>
+            <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="location.href='/profile/form?id=1'">수정</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
