@@ -38,7 +38,7 @@ public class ProfileController {
             @RequestPart("resumeData") ProfileVO newResumeVO) {
 
         // 서비스 호출하여 파일 저장 및 DB 인서트 처리
-//        newResumeService.saveResume(newResumeVO, photoFile);
+        //profileService.saveResume(newResumeVO, photoFile);
 
         return "success";
     }

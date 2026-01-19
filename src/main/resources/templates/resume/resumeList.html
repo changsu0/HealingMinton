@@ -60,6 +60,7 @@
         .table tbody td {
             padding: 20px 15px;
             border-bottom: 1px solid #f1f3f5;
+            font-size: 0.8rem;
         }
 
         .table tbody tr:last-child td {
@@ -426,10 +427,16 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th style="width: 45%;">이력서 제목</th>
-                                <th style="width: 15%;">작성자</th>
-                                <th style="width: 20%;">작성일</th>
-                                <th style="width: 20%;">최종 수정일</th>
+                                <th style="width: 15%;">이름</th>
+                                <th style="width: 10%;">나이</th>
+                                <th style="width: 10%;">병역</th>
+                                <th style="width: 10%;">결혼</th>
+                                <th style="width: 35%;">주소</th>
+                                <th style="width: 20%;">최종학력</th>
+                                <th style="width: 20%;">자격증</th>
+                                <th style="width: 20%;">총경력</th>
+                                <th style="width: 20%;">주언어</th>
+                                <th style="width: 20%;">최종수정일</th>
                                 <th style="width: 20%; text-align: center;">관리</th>
                             </tr>
                             </thead>
@@ -489,9 +496,6 @@
                         projectWorkDetail: $('#SearchProjectWorkDetail').val()
                     }
 
-                    // const searchType = $('#searchType').val();
-                    // const keyword = $('#keyword').val();
-
                     $.ajax({
                         url: "/resume/selectResumeList",
                         type: "GET",
@@ -514,28 +518,29 @@
 
                 function cb_selectGridList(resultData) {
                     let innerHtml = '';
-                    if (resultData.data.length === 0) {
-                        innerHtml += '<tr><td colspan="4" class="text-center py-5 text-muted">등록된 이력서가 없습니다.</td></tr>';
-                        $('#resumeTableBody').html(innerHtml);
-                    } else {
-                        for (const data of resultData.data) {
-                            innerHtml += '<tr>';
-                            innerHtml += '<td><a href="#" onClick="detailResume(\'' + (data.resumeId) + '\')" class="resume-title">' + (data.title || '') + '</a></td>'
-                            innerHtml += '<td><span class="author-badge">' + (data.createdUser) + '</span></td>'
-                            innerHtml += '<td><span class="date-text">' + (data.createdTime) + '</span></td>'
-                            innerHtml += '<td><span class="date-text">' + (data.updatedTime || '') + '</span></td>'
-                            innerHtml += '<td class="text-center">'
-                            innerHtml += '<button class="btn-action btn-edit me-1" onClick="editResume(\'' + (data.resumeId) + '\')" title="수정">'
-                            innerHtml += '<i class="bi bi-pencil-square"></i>'
-                            innerHtml += '</button>'
-                            innerHtml += '<button class="btn-action btn-delete" onClick="deleteResume(\'' + (data.resumeId) + '\')" title="삭제">'
-                            innerHtml += '<i class="bi bi-trash3"></i>'
-                            innerHtml += '</button>'
-                            innerHtml += '</td>'
-                            innerHtml += '</tr>';
-                        }
-                        $('#resumeTableBody').html(innerHtml);
-                    }
+                    resultData.forEach(item => {
+                        innerHtml += '<tr>';
+                        innerHtml += '<td><a href="#" onClick="detailResume(\'' + (item.resumeId) + '\')" class="resume-title">' + (item.name) + '</a></td>'
+                        innerHtml += '<td><span>' + (item.age || '') + '</span></td>'
+                        innerHtml += '<td><span>' + (item.military) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.marriage) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.address || '') + '</span></td>'
+                        innerHtml += '<td><span>' + (item.finalEducation) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.licenseSummary) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.totalExperience) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.topSkill) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.updatedTime ? item.updatedTime : item.createdTime) + '</span></td>'
+                        innerHtml += '<td class="text-center">'
+                        innerHtml += '<button class="btn-action btn-edit me-1" onClick="editResume(\'' + (item.resumeId) + '\')" title="수정">'
+                        innerHtml += '<i class="bi bi-pencil-square"></i>'
+                        innerHtml += '</button>'
+                        innerHtml += '<button class="btn-action btn-delete" onClick="deleteResume(\'' + (item.resumeId) + '\')" title="삭제">'
+                        innerHtml += '<i class="bi bi-trash3"></i>'
+                        innerHtml += '</button>'
+                        innerHtml += '</td>'
+                        innerHtml += '</tr>';
+                    });
+                    $('#resumeTableBody').html(innerHtml);
 
                 }
 

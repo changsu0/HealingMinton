@@ -1,6 +1,7 @@
 package com.corelabs.profile.service;
 
 import com.corelabs.profile.mapper.ProfileMapper;
+import com.corelabs.profile.vo.AttachmentVO;
 import com.corelabs.profile.vo.ProfileVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,18 +19,18 @@ public class ProfileService {
 
     public ProfileService(ProfileMapper profileMapper) { this.profileMapper = profileMapper; }
 
-    private final String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "resume" + File.separator;
+    private final String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "profile" + File.separator;
 
     public List<ProfileVO> selectProfileList() {
         return profileMapper.selectProfileList();
     }
 
     @Transactional
-    public void saveResume(ProfileVO profileVO, MultipartFile file) {
+    public void saveResume(ProfileVO profileVO, MultipartFile photo, List<MultipartFile> attaches) {
         String uuid = UUID.randomUUID().toString();
-        if (file != null && !file.isEmpty()) {
+        if (photo != null && !photo.isEmpty()) {
             // 1. 고유한 파일명 생성 (UUID 사용)
-            String originalFilename = file.getOriginalFilename();
+            String originalFilename = photo.getOriginalFilename();
             String saveFilename = uuid + "_" + originalFilename;
 
             // 2. 물리적 폴더에 파일 저장
@@ -39,18 +40,43 @@ public class ProfileService {
                 if(!directory.exists()) directory.mkdirs();
 
                 File target = new File(uploadDir + saveFilename);
-                file.transferTo(target);
+                photo.transferTo(target);
 
                 // 3. DB에 저장할 상대 경로 설정
-                profileVO.setPhotoPath("/upload/resume/" + saveFilename);
+                //profileVO.setPhotoPath("/upload/resume/" + saveFilename);
             } catch (IOException e) {
                 throw new RuntimeException("파일 저장 실패", e);
             }
         }
 
         profileVO.setProfileId(uuid);
-        // 4. DB 저장 (기존 Mapper 호출)
         profileMapper.insertProfile(profileVO);
+
+        if (attaches != null && !attaches.isEmpty()) {
+            String baseDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "files" + File.separator;
+
+            for (MultipartFile file : attaches) {
+                if (file.isEmpty()) continue;
+
+                String saveName = uuid + "_" + file.getOriginalFilename();
+
+                try {
+                    File target = new File(baseDir, saveName);
+                    if(!target.getParentFile().exists()) target.getParentFile().mkdirs();
+                    file.transferTo(target);
+
+                    AttachmentVO attachmentVO = new AttachmentVO();
+                    attachmentVO.setProfileId(uuid);
+                    attachmentVO.setOriginalName(file.getOriginalFilename());
+                    attachmentVO.setSaveName(saveName);
+                    attachmentVO.setFilePath("/upload/files/" + saveName);
+
+                    profileMapper.insertAttachment(attachmentVO);
+                } catch (IOException e) {
+                    throw new RuntimeException("파일 저장 실패", e);
+                }
+            }
+        }
     }
 
 }

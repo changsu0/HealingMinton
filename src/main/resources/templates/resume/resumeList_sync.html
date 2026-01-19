@@ -146,66 +146,6 @@
 
         <div class="card resume-list-card">
 
-<!--          <form action="/resume/resumeList_sync" method="GET" class="search-section">-->
-<!--            <div class="row g-2 justify-content-end">-->
-<!--              <div class="col-md-2">-->
-<!--                <select class="form-select search-select" name="searchType">-->
-<!--                  <optgroup label="1.개인정보">-->
-<!--                    <option value="name" th:selected="${searchType == 'name'}">이름</option>-->
-<!--                    <option value="gender" th:selected="${searchType == 'gender'}">성별</option>-->
-<!--                    <option value="birth" th:selected="${searchType == 'birth'}">생년월일</option>-->
-<!--                    <option value="role" th:selected="${searchType == 'role'}">직위</option>-->
-<!--                    <option value="military" th:selected="${searchType == 'military'}">병역</option>-->
-<!--                    <option value="marriage" th:selected="${searchType == 'marriage'}">결혼</option>-->
-<!--                    <option value="landlineNumber" th:selected="${searchType == 'landlineNumber'}">전화번호(유선)</option>-->
-<!--                    <option value="phoneNumber" th:selected="${searchType == 'phoneNumber'}">전화번호(무선)</option>-->
-<!--                    <option value="email" th:selected="${searchType == 'email'}">이메일</option>-->
-<!--                    <option value="address" th:selected="${searchType == 'address'}">주소</option>-->
-<!--                  </optgroup>-->
-<!--                  <optgroup label="2.학력사항">-->
-<!--                    <option value="schoolName" th:selected="${searchType == 'schoolName'}">학교명</option>-->
-<!--                    <option value="schoolStatus" th:selected="${searchType == 'schoolStatus'}">졸업여부</option>-->
-<!--                    <option value="schoolDate" th:selected="${searchType == 'schoolDate'}">졸업일자</option>-->
-<!--                  </optgroup>-->
-<!--                  <optgroup label="3.경력사항">-->
-<!--                    <option value="CompanyName" th:selected="${searchType == 'CompanyName'}">회사명</option>-->
-<!--                    <option value="CompanyRole" th:selected="${searchType == 'CompanyRole'}">직위</option>-->
-<!--                    <option value="CompanyWork" th:selected="${searchType == 'CompanyWork'}">담당업무</option>-->
-<!--                    <option value="CompanyStartTerm" th:selected="${searchType == 'CompanyStartTerm'}">시작일자</option>-->
-<!--                    <option value="CompanyEndTerm" th:selected="${searchType == 'CompanyEndTerm'}">종료일자</option>-->
-<!--                  </optgroup>-->
-<!--                  <optgroup label="4.자격증">-->
-<!--                    <option value="licenseName" th:selected="${searchType == 'licenseName'}">자격증명</option>-->
-<!--                    <option value="licenseIssuer" th:selected="${searchType == 'licenseIssuer'}">발급기관</option>-->
-<!--                    <option value="licenseDate" th:selected="${searchType == 'licenseDate'}">취득일자</option>-->
-<!--                  </optgroup>-->
-<!--                  <optgroup label="5.기술경력">-->
-<!--                    <option value="projectName" th:selected="${searchType == 'projectName'}">프로젝트명</option>-->
-<!--                    <option value="projectCustomer" th:selected="${searchType == 'projectCustomer'}">고객사</option>-->
-<!--                    <option value="projectCompany" th:selected="${searchType == 'projectCompany'}">근무회사</option>-->
-<!--                    <option value="projectWork" th:selected="${searchType == 'projectWork'}">역할</option>-->
-<!--                    <option value="projectLanguage" th:selected="${searchType == 'projectLanguage'}">언어</option>-->
-<!--                    <option value="projectDb" th:selected="${searchType == 'projectDb'}">DB</option>-->
-<!--                    <option value="projectTool" th:selected="${searchType == 'projectTool'}">Tool</option>-->
-<!--                    <option value="projectFramework" th:selected="${searchType == 'projectFramework'}">Framework</option>-->
-<!--                    <option value="projectStartTerm" th:selected="${searchType == 'projectStartTerm'}">시작일자</option>-->
-<!--                    <option value="projectEndTerm" th:selected="${searchType == 'projectEndTerm'}">종료일자</option>-->
-<!--                    <option value="projectEtc" th:selected="${searchType == 'projectEtc'}">기타</option>-->
-<!--                    <option value="projectWorkDetail" th:selected="${searchType == 'projectWorkDetail'}">상세업무내용</option>-->
-<!--                  </optgroup>-->
-<!--                </select>-->
-<!--              </div>-->
-<!--              <div class="col-md-4">-->
-<!--                <div class="input-group">-->
-<!--                  <input type="text" name="keyword" class="form-control search-input" placeholder="검색어를 입력하세요..." th:value="${keyword}">-->
-<!--                  <button class="btn btn-dark btn-search" type="submit">-->
-<!--                    <i class="bi bi-search me-1"></i> 검색-->
-<!--                  </button>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </form>-->
-
           <form th:action="@{/resume/resumeList_sync}" method="get" class="search-section mb-4">
             <div class="card border-0 shadow-sm p-4">
               <h6 class="fw-bold mb-3"><i class="bi bi-funnel-fill me-2"></i>상세 필터 검색</h6>

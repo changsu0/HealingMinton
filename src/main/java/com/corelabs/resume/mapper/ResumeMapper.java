@@ -28,4 +28,6 @@ public interface ResumeMapper {
     int insertSkill(ResumeSkillVO resumeSkillVO);
     int deleteSkill(String resumeId);
 
+    List<ResumeFlatVO> selectResumeListRaw(ResumeSearchVO resumeSearchVO);
+
 }
