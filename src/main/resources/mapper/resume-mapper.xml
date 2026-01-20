@@ -161,16 +161,16 @@
                 AND s.project_work LIKE CONCAT('%', #{projectWork}, '%')
             </if>
             <if test="projectLanguage != null and projectLanguage != ''">
-                AND s.project_language LIKE CONCAT('%', #{projectLanguage}, '%')
+                AND LOWER(s.project_language) LIKE LOWER(CONCAT('%', #{projectLanguage}, '%'))
             </if>
             <if test="projectDb != null and projectDb != ''">
-                AND s.project_db LIKE CONCAT('%', #{projectDb}, '%')
+                AND LOWER(s.project_db) LIKE LOWER(CONCAT('%', #{projectDb}, '%'))
             </if>
             <if test="projectTool != null and projectTool != ''">
-                AND s.project_tool LIKE CONCAT('%', #{projectTool}, '%')
+                AND LOWER(s.project_tool) LIKE LOWER(CONCAT('%', #{projectTool}, '%'))
             </if>
             <if test="projectFramework != null and projectFramework != ''">
-                AND s.project_framework LIKE CONCAT('%', #{projectFramework}, '%')
+                AND LOWER(s.project_framework) LIKE LOWER(CONCAT('%', #{projectFramework}, '%'))
             </if>
             <if test="projectStartTerm != null and projectStartTerm != ''">
                 AND s.project_start_term LIKE CONCAT('%', #{projectStartTerm}, '%')
