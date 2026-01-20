@@ -60,6 +60,7 @@
     .table tbody td {
       padding: 20px 15px;
       border-bottom: 1px solid #f1f3f5;
+      font-size: 0.8rem;
     }
 
     .table tbody tr:last-child td {
@@ -342,10 +343,17 @@
             <table class="table">
               <thead>
               <tr>
-                <th style="width: 45%;">이력서 제목</th>
-                <th style="width: 15%;">작성자</th>
-                <th style="width: 20%;">작성일</th>
-                <th style="width: 20%;">최종 수정일</th>
+                <th style="width: 15%;">이름</th>
+                <th style="width: 10%;">성별</th>
+                <th style="width: 10%;">나이</th>
+                <th style="width: 10%;">병역</th>
+                <th style="width: 10%;">결혼</th>
+                <th style="width: 35%;">주소</th>
+                <th style="width: 20%;">최종학력</th>
+                <th style="width: 20%;">자격증</th>
+                <th style="width: 20%;">총경력</th>
+                <th style="width: 20%;">주언어</th>
+                <th style="width: 20%;">최종수정일</th>
                 <th style="width: 20%; text-align: center;">관리</th>
               </tr>
               </thead>
@@ -356,10 +364,17 @@
               </tr>
 
               <tr th:each="resume : ${resumeList}">
-                <td><a href="#" class="resume-title" th:text="${resume.title}" th:data-id="${resume.resumeId}" onClick="detailResume(this)"></a></td>
-                <td><span class="author-badge" th:text="${resume.createdUser}"></span></td>
-                <td><span class="date-text" th:text="${resume.createdTime}"></span></td>
-                <td><span class="date-text" th:text="${resume.updatedTime}"></span></td>
+                <td><a href="#" class="resume-title" th:text="${resume.name}" th:data-id="${resume.resumeId}" onClick="detailResume(this)"></a></td>
+                <td><span th:text="${resume?.gender}"></span></td>
+                <td><span th:text="${resume?.age}"></span></td>
+                <td><span th:text="${resume?.military}"></span></td>
+                <td><span th:text="${resume?.marriage}"></span></td>
+                <td><span th:text="${resume?.address}"></span></td>
+                <td><span th:text="${resume?.finalEdu}"></span></td>
+                <td><span th:text="${resume?.licenseSummary}"></span></td>
+                <td><span th:text="${resume?.formattedPeriod}"></span></td>
+                <td><span th:text="${resume?.topSkill}"></span></td>
+                <td><span th:text="${resume?.lastUpdatedTime}"></span></td>
                 <td class="text-center">
                   <button class="btn-action btn-edit me-1" th:data-id="${resume.resumeId}" onclick="editResume(this)" title="수정">
                     <i class="bi bi-pencil-square"></i>

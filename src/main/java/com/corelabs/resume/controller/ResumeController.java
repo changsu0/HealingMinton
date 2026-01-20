@@ -18,16 +18,6 @@ public class ResumeController {
 
     public ResumeController(ResumeService resumeService) { this.resumeService = resumeService; }
 
-    @GetMapping("/resumeList_sync")
-    public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO resumeSearchVO, Model model) {
-
-        List<ResumeVO> resume = resumeService.selectResumeList(resumeSearchVO);
-
-        model.addAttribute("resumeList", resume);
-
-        return "resume/resumeList_sync";
-    }
-
     @GetMapping("/resumeList")
     public String resume() {
         return "resume/resumeList";
@@ -47,9 +37,19 @@ public class ResumeController {
     @GetMapping("/selectResumeList")
     @ResponseBody
     public List<Map<String, Object>> selectResumeList(ResumeSearchVO searchVO) {
-        List<Map<String, Object>> resumeList = resumeService.selectResumeListRaw(searchVO);
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
 
         return resumeList;
+    }
+
+    @GetMapping("/resumeList_sync")
+    public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO searchVO, Model model) {
+
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
+
+        model.addAttribute("resumeList", resumeList);
+
+        return "resume/resumeList_sync";
     }
 
     @GetMapping("/resumeDetail/{resumeId}")

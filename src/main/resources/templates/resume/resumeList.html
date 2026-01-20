@@ -176,65 +176,6 @@
                 </div>
 
                 <div class="card resume-list-card">
-<!--                    <div class="search-section">-->
-<!--                        <div class="row g-2 justify-content-end">-->
-<!--                            <div class="col-md-2">-->
-<!--                                <select class="form-select search-select" id="searchType">-->
-<!--                                    <optgroup label="1.개인정보">-->
-<!--                                        <option value="name">이름</option>-->
-<!--                                        <option value="gender">성별</option>-->
-<!--                                        <option value="birth">생년월일</option>-->
-<!--                                        <option value="role">직위</option>-->
-<!--                                        <option value="military">병역</option>-->
-<!--                                        <option value="marriage">결혼</option>-->
-<!--                                        <option value="landlineNumber">전화번호(유선)</option>-->
-<!--                                        <option value="phoneNumber">전화번호(무선)</option>-->
-<!--                                        <option value="email">이메일</option>-->
-<!--                                        <option value="address">주소</option>-->
-<!--                                    </optgroup>-->
-<!--                                    <optgroup label="2.학력사항">-->
-<!--                                        <option value="schoolName">학교명</option>-->
-<!--                                        <option value="schoolStatus">졸업여부</option>-->
-<!--                                        <option value="schoolDate">졸업일자</option>-->
-<!--                                    </optgroup>-->
-<!--                                    <optgroup label="3.경력사항">-->
-<!--                                        <option value="CompanyName">회사명</option>-->
-<!--                                        <option value="CompanyRole">직위</option>-->
-<!--                                        <option value="CompanyWork">담당업무</option>-->
-<!--                                        <option value="CompanyStartTerm">시작일자</option>-->
-<!--                                        <option value="CompanyEndTerm">종료일자</option>-->
-<!--                                    </optgroup>-->
-<!--                                    <optgroup label="4.자격증">-->
-<!--                                        <option value="licenseName">자격증명</option>-->
-<!--                                        <option value="licenseIssuer">발급기관</option>-->
-<!--                                        <option value="licenseDate">취득일자</option>-->
-<!--                                    </optgroup>-->
-<!--                                    <optgroup label="5.기술경력">-->
-<!--                                        <option value="projectName">프로젝트명</option>-->
-<!--                                        <option value="projectCustomer">고객사</option>-->
-<!--                                        <option value="projectCompany">근무회사</option>-->
-<!--                                        <option value="projectWork">역할</option>-->
-<!--                                        <option value="projectLanguage">언어</option>-->
-<!--                                        <option value="projectDb">DB</option>-->
-<!--                                        <option value="projectTool">Tool</option>-->
-<!--                                        <option value="projectFramework">Framework</option>-->
-<!--                                        <option value="projectStartTerm">시작일자</option>-->
-<!--                                        <option value="projectEndTerm">종료일자</option>-->
-<!--                                        <option value="projectEtc">기타</option>-->
-<!--                                        <option value="projectWorkDetail">상세업무내용</option>-->
-<!--                                    </optgroup>-->
-<!--                                </select>-->
-<!--                            </div>-->
-<!--                            <div class="col-md-4">-->
-<!--                                <div class="input-group">-->
-<!--                                    <input type="text" id="keyword" class="form-control search-input" placeholder="검색어를 입력하세요..." onkeyup="if(window.event.keyCode==13){selectGridList()}">-->
-<!--                                    <button class="btn btn-dark btn-search" type="button" onclick="selectGridList()">-->
-<!--                                        <i class="bi bi-search me-1"></i> 검색-->
-<!--                                    </button>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
                     <div class="search-section mb-4">
                         <div class="card border-0 shadow-sm p-4">
                             <h6 class="fw-bold mb-3"><i class="bi bi-funnel-fill me-2"></i>상세 필터 검색</h6>
@@ -428,6 +369,7 @@
                             <thead>
                             <tr>
                                 <th style="width: 15%;">이름</th>
+                                <th style="width: 10%;">성별</th>
                                 <th style="width: 10%;">나이</th>
                                 <th style="width: 10%;">병역</th>
                                 <th style="width: 10%;">결혼</th>
@@ -521,15 +463,16 @@
                     resultData.forEach(item => {
                         innerHtml += '<tr>';
                         innerHtml += '<td><a href="#" onClick="detailResume(\'' + (item.resumeId) + '\')" class="resume-title">' + (item.name) + '</a></td>'
+                        innerHtml += '<td><span>' + (item.gender || '') + '</span></td>'
                         innerHtml += '<td><span>' + (item.age || '') + '</span></td>'
                         innerHtml += '<td><span>' + (item.military) + '</span></td>'
                         innerHtml += '<td><span>' + (item.marriage) + '</span></td>'
                         innerHtml += '<td><span>' + (item.address || '') + '</span></td>'
-                        innerHtml += '<td><span>' + (item.finalEducation) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.finalEdu) + '</span></td>'
                         innerHtml += '<td><span>' + (item.licenseSummary) + '</span></td>'
-                        innerHtml += '<td><span>' + (item.totalExperience) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.formattedPeriod) + '</span></td>'
                         innerHtml += '<td><span>' + (item.topSkill) + '</span></td>'
-                        innerHtml += '<td><span>' + (item.updatedTime ? item.updatedTime : item.createdTime) + '</span></td>'
+                        innerHtml += '<td><span>' + (item.lastUpdatedTime) + '</span></td>'
                         innerHtml += '<td class="text-center">'
                         innerHtml += '<button class="btn-action btn-edit me-1" onClick="editResume(\'' + (item.resumeId) + '\')" title="수정">'
                         innerHtml += '<i class="bi bi-pencil-square"></i>'

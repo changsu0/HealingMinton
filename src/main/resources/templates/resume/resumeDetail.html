@@ -120,7 +120,7 @@
       <div class="row text-start border-top border-bottom py-3">
         <div class="col-8">
           <h4 class="text-primary"><strong><span id="name"></span></strong></h4>
-          <p style="font-size: 0.90rem; margin-bottom: 5px; line-height: 1.4;"><span id="gender"></span> | <span id="military"></span> | <span id="marriage"></span></p>
+          <p style="font-size: 0.90rem; margin-bottom: 5px; line-height: 1.4;"><span id="gender"></span> | <span id="military"></span> | <span id="marriage"></span> | <span id="role"></span></p>
           <p><strong>생년월일:</strong> <span id="birth"></span></p>
           <p><strong>주소:</strong> <span id="address"></span></p>
           <p><strong>연락처:</strong> (유선) <span id="landlineNumber"></span> | (무선) <span id="phoneNumber"></span></p>
@@ -210,8 +210,6 @@
       type: 'GET',
       success: function(data) {
 
-        console.log(data.skillList.length);
-
         $('#title').text(data.title);
         $('#createdUser').text(data.createdUser);
         $('#name').text(data.name);
@@ -274,7 +272,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h6 class="fw-bold m-0 text-primary" id="companyName">${career.companyName || ''}</h6>
-                                <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="companyStartTerm">${career.companyStartTerm}</span> ~ <span id="companyEndTerm">${career.companyEndTerm}</span></span>
+                                <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="companyStartTerm">${career.companyStartTerm}</span> ~ <span id="companyEndTerm">${career.companyEndTerm ? career.companyEndTerm : '근무 중'}</span></span>
                             </div>
                             <div class="mb-2">
                                 <span id="companyRole">${career.companyRole || ''}</span>

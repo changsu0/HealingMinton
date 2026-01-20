@@ -432,7 +432,7 @@
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
                                 <label class="form-label">학교명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength="100" id="schoolName" value=${edu.schoolName || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength="100" id="schoolName" value="${edu.schoolName || ''}"></div>
 
                                 <label class="form-label">졸업여부</label>
                                 <div class="custom-input-group">
@@ -446,7 +446,7 @@
                                 </div>
 
                                 <label class="form-label">졸업일자</label>
-                                <div class="custom-input-group"><input type="date" id="schoolDate" value=${edu.schoolDate || ''}></div>
+                                <div class="custom-input-group"><input type="date" id="schoolDate" value="${edu.schoolDate || ''}"></div>
                                 </div>`;
                     }
                     $('#edu-list').html(innerHTML);
@@ -460,25 +460,25 @@
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
                                 <label class="form-label">회사명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" value=${career.companyName || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" value="${career.companyName || ''}"></div>
 
                                 <label class="form-label">직위</label>
-                                <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" id="companyRole" value=${career.companyRole || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" id="companyRole" value="${career.companyRole || ''}"></div>
 
                                 <label class="form-label">담당업무</label>
-                                <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork" value=${career.companyWork || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork" value="${career.companyWork || ''}"></div>
 
                                 <div class="row">
                                     <div class="col-6">
                                         <label class="form-label">시작일자</label>
                                         <div class="custom-input-group">
-                                        <input type="date" id="companyStartTerm" value=${career.companyStartTerm || ''}>
+                                        <input type="date" id="companyStartTerm" value="${career.companyStartTerm || ''}">
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">종료일자</label>
                                         <div class="custom-input-group">
-                                        <input type="date" id="companyEndTerm" value=${career.companyEndTerm || ''}>
+                                        <input type="date" id="companyEndTerm" value="${career.companyEndTerm || ''}">
                                         </div>
                                     </div>
                                 </div>
@@ -495,13 +495,13 @@
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
                                 <label class="form-label">자격증명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="자격증명" maxlength="50" id="licenseName" value=${license.licenseName || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="자격증명" maxlength="50" id="licenseName" value="${license.licenseName || ''}"></div>
 
                                 <label class="form-label">발급기관</label>
-                                <div class="custom-input-group"><input type="text" placeholder="발급기관" maxlength="50" id="licenseIssuer" value=${license.licenseIssuer || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="발급기관" maxlength="50" id="licenseIssuer" value="${license.licenseIssuer || ''}"></div>
 
                                 <label class="form-label">취득일자</label>
-                                <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate" value=${license.licenseDate || ''}></div>
+                                <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate" value="${license.licenseDate || ''}"></div>
                                 </div>`;
                     }
                     $('#license-list').html(innerHTML);
@@ -515,51 +515,51 @@
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
                                 <label class="form-label">프로젝트명</label>
-                                <div class="custom-input-group"><input type="text" placeholder="프로젝트명" maxlength="100" id="projectName" value=${skill.projectName || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="프로젝트명" maxlength="100" id="projectName" value="${skill.projectName || ''}"></div>
 
                                 <label class="form-label">고객사</label>
-                                <div class="custom-input-group"><input type="text" placeholder="고객사" maxlength="50" id="projectCustomer" value=${skill.projectCustomer || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="고객사" maxlength="50" id="projectCustomer" value="${skill.projectCustomer || ''}"></div>
 
                                 <label class="form-label">근무회사</label>
-                                <div class="custom-input-group"><input type="text" placeholder="근무회사" maxlength="50" id="projectCompany" value=${skill.projectCompany || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="근무회사" maxlength="50" id="projectCompany" value="${skill.projectCompany || ''}"></div>
 
                                 <label class="form-label">역할</label>
-                                <div class="custom-input-group"><input type="text" placeholder="역할" maxlength="100" id="projectWork" value=${skill.projectWork || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="역할" maxlength="100" id="projectWork" value="${skill.projectWork || ''}"></div>
 
                                 <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
                                 <div class="row">
                                     <div class="col-6">
                                         <label class="form-label"">언어</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="언어" maxlength="50" id="projectLanguage" value=${skill.projectLanguage || ''}></div>
+                                        <div class="custom-input-group"><input type="text" placeholder="언어" maxlength="50" id="projectLanguage" value="${skill.projectLanguage || ''}"></div>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">DB</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="DB" maxlength="50" id="projectDb" value=${skill.projectDb || ''}></div>
+                                        <div class="custom-input-group"><input type="text" placeholder="DB" maxlength="50" id="projectDb" value="${skill.projectDb || ''}"></div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-6">
                                         <label class="form-label">Tool</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="Tool" maxlength="50" id="projectTool" value=${skill.projectTool || ''}></div>
+                                        <div class="custom-input-group"><input type="text" placeholder="Tool" maxlength="50" id="projectTool" value="${skill.projectTool || ''}"></div>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">FrameWork</label>
-                                        <div class="custom-input-group"><input type="text" placeholder="FrameWork" maxlength="50" id="projectFramework" value=${skill.projectFramework || ''}></div>
+                                        <div class="custom-input-group"><input type="text" placeholder="FrameWork" maxlength="50" id="projectFramework" value="${skill.projectFramework || ''}"></div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-6">
                                         <label class="form-label">시작일자</label>
-                                        <div class="custom-input-group"><input type="month" id="projectStartTerm" value=${skill.projectStartTerm.toString() == '1970-01-01' ? '' : skill.projectStartTerm.slice(0, -3)}></div>
+                                        <div class="custom-input-group"><input type="month" id="projectStartTerm" value="${skill.projectStartTerm.toString() == '1970-01-01' ? '' : skill.projectStartTerm.slice(0, -3)}"></div>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">종료일자</label>
-                                        <div class="custom-input-group"><input type="month" id="projectEndTerm" value=${skill.projectEndTerm.toString() == '1970-01-01' ? '' : skill.projectEndTerm.slice(0, -3)}></div>
+                                        <div class="custom-input-group"><input type="month" id="projectEndTerm" value="${skill.projectEndTerm.toString() == '1970-01-01' ? '' : skill.projectEndTerm.slice(0, -3)}"></div>
                                     </div>
                                 </div>
 
                                 <label class="form-label">기타</label>
-                                <div class="custom-input-group"><input type="text" placeholder="기타" maxlength="255" id="projectEtc" value=${skill.projectEtc || ''}></div>
+                                <div class="custom-input-group"><input type="text" placeholder="기타" maxlength="255" id="projectEtc" value="${skill.projectEtc || ''}"></div>
 
                                 <label class="form-label">상세업무내용</label>
                                 <div class="custom-input-group">
