@@ -19,8 +19,14 @@ public class ResumeService {
 
     public ResumeService(ResumeMapper resumeMapper) { this.resumeMapper = resumeMapper; }
 
-    public List<Map<String, Object>> selectResumeList(ResumeSearchVO resumeSearchVO) {
-        return resumeMapper.selectResumeList(resumeSearchVO);
+    public List<Map<String, Object>> selectResumeList(List<String> resumeIds) {
+
+        return resumeMapper.selectResumeList(resumeIds);
+    }
+
+    public List<String> selectResumeIdList(ResumeSearchVO searchVO) {
+
+        return resumeMapper.selectResumeIdList(searchVO);
     }
 
     public ResumeVO selectResumeById(String resumeId) {

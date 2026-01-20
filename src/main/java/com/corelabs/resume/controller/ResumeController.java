@@ -37,7 +37,10 @@ public class ResumeController {
     @GetMapping("/selectResumeList")
     @ResponseBody
     public List<Map<String, Object>> selectResumeList(ResumeSearchVO searchVO) {
-        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
+
+        List<String> resumeIds = resumeService.selectResumeIdList(searchVO);
+
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(resumeIds);
 
         return resumeList;
     }
@@ -45,7 +48,9 @@ public class ResumeController {
     @GetMapping("/resumeList_sync")
     public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO searchVO, Model model) {
 
-        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
+        List<String> resumeIds = resumeService.selectResumeIdList(searchVO);
+
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(resumeIds);
 
         model.addAttribute("resumeList", resumeList);
 

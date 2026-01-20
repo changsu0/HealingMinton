@@ -302,6 +302,9 @@
                                 <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="projectStartTerm">${skill.projectStartTerm.toString() == '1970-01-01' ? '' : skill.projectStartTerm.slice(0, -3)}</span> ~ <span id="projectEndTerm">${skill.projectEndTerm.toString() == '1970-01-01' ? '' : skill.projectEndTerm.slice(0, -3)}</span></span>
                             </div>
                             <div class="mb-2">
+                                <span id="companyRole">고객사 : ${skill.projectCustomer || ''}</span> | <span id="companyRole">근무지 : ${skill.projectCompany || ''}</span>
+                            </div>
+                            <div class="mb-2">
                                 <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectLanguage">${skill.projectLanguage || ''}</span>
                                 <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectDb">${skill.projectDb || ''}</span>
                                 <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectTool">${skill.projectTool || ''}</span>

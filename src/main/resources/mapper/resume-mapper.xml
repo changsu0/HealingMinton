@@ -62,6 +62,29 @@
                  ) t WHERE rn = 1
         ) s ON r.resume_id = s.resume_id
         <where>
+            <choose>
+                <when test="resumeIds != null and resumeIds.size() > 0">
+                    AND r.resume_id IN
+                    <foreach item="resumeId" collection="resumeIds" open="(" separator="," close=")">
+                        #{resumeId}
+                    </foreach>
+                </when>
+
+                <otherwise>
+                    AND 1 = 0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectResumeIdList" resultType="string">
+        SELECT r.resume_id
+        FROM resume r
+        LEFT JOIN resume_education e ON r.resume_id = e.resume_id
+        LEFT JOIN resume_career c ON r.resume_id = c.resume_id
+        LEFT JOIN resume_license l ON r.resume_id = l.resume_id
+        LEFT JOIN resume_skill s ON r.resume_id = s.resume_id
+        <where>
             <if test="name != null and name != ''">
                 AND r.name LIKE CONCAT('%', #{name}, '%')
             </if>
@@ -92,7 +115,77 @@
             <if test="address != null and address != ''">
                 AND r.address LIKE CONCAT('%', #{address}, '%')
             </if>
+            <if test="schoolName != null and schoolName != ''">
+                AND e.school_name LIKE CONCAT('%', #{schoolName}, '%')
+            </if>
+            <if test="schoolStatus != null and schoolStatus != ''">
+                AND e.school_status LIKE CONCAT('%', #{schoolStatus}, '%')
+            </if>
+            <if test="schoolDate != null and schoolDate != ''">
+                AND e.school_date LIKE CONCAT('%', #{schoolDate}, '%')
+            </if>
+            <if test="licenseName != null and licenseName != ''">
+                AND l.license_name LIKE CONCAT('%', #{licenseName}, '%')
+            </if>
+            <if test="licenseIssuer != null and licenseIssuer != ''">
+                AND l.license_issuer LIKE CONCAT('%', #{licenseIssuer}, '%')
+            </if>
+            <if test="licenseDate != null and licenseDate != ''">
+                AND l.license_date LIKE CONCAT('%', #{licenseDate}, '%')
+            </if>
+            <if test="companyName != null and companyName != ''">
+                AND c.company_name LIKE CONCAT('%', #{companyName}, '%')
+            </if>
+            <if test="companyRole != null and companyRole != ''">
+                AND c.company_role LIKE CONCAT('%', #{companyRole}, '%')
+            </if>
+            <if test="companyWork != null and companyWork != ''">
+                AND c.company_work LIKE CONCAT('%', #{companyWork}, '%')
+            </if>
+            <if test="companyStartTerm != null and companyStartTerm != ''">
+                AND c.company_start_term LIKE CONCAT('%', #{companyStartTerm}, '%')
+            </if>
+            <if test="companyEndTerm != null and companyEndTerm != ''">
+                AND c.company_end_term LIKE CONCAT('%', #{companyEndTerm}, '%')
+            </if>
+            <if test="projectName != null and projectName != ''">
+                AND s.project_name LIKE CONCAT('%', #{projectName}, '%')
+            </if>
+            <if test="projectCustomer != null and projectCustomer != ''">
+                AND s.project_customer LIKE CONCAT('%', #{projectCustomer}, '%')
+            </if>
+            <if test="projectCompany != null and projectCompany != ''">
+                AND s.project_company LIKE CONCAT('%', #{projectCompany}, '%')
+            </if>
+            <if test="projectWork != null and projectWork != ''">
+                AND s.project_work LIKE CONCAT('%', #{projectWork}, '%')
+            </if>
+            <if test="projectLanguage != null and projectLanguage != ''">
+                AND s.project_language LIKE CONCAT('%', #{projectLanguage}, '%')
+            </if>
+            <if test="projectDb != null and projectDb != ''">
+                AND s.project_db LIKE CONCAT('%', #{projectDb}, '%')
+            </if>
+            <if test="projectTool != null and projectTool != ''">
+                AND s.project_tool LIKE CONCAT('%', #{projectTool}, '%')
+            </if>
+            <if test="projectFramework != null and projectFramework != ''">
+                AND s.project_framework LIKE CONCAT('%', #{projectFramework}, '%')
+            </if>
+            <if test="projectStartTerm != null and projectStartTerm != ''">
+                AND s.project_start_term LIKE CONCAT('%', #{projectStartTerm}, '%')
+            </if>
+            <if test="projectEndTerm != null and projectEndTerm != ''">
+                AND s.project_end_term LIKE CONCAT('%', #{projectEndTerm}, '%')
+            </if>
+            <if test="projectEtc != null and projectEtc != ''">
+                AND s.project_etc LIKE CONCAT('%', #{projectEtc}, '%')
+            </if>
+            <if test="projectWorkDetail != null and projectWorkDetail != ''">
+                AND s.project_work_detail LIKE CONCAT('%', #{projectWorkDetail}, '%')
+            </if>
         </where>
+        GROUP BY r.resume_id
     </select>
 
     <insert id="insertResume" parameterType="resumeVO">
