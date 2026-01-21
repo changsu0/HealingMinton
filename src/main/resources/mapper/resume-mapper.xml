@@ -190,33 +190,152 @@
 
     <insert id="insertResume" parameterType="resumeVO">
         INSERT INTO resume
-        (resume_id, title, created_user, created_time, updated_time, name, birth, gender, military, role, marriage, landline_number, phone_number, email, address)
-        VALUES(#{resumeId}, #{title}, #{createdUser}, NOW(), NULL, #{name}, #{birth}, #{gender}, #{military}, #{role}, #{marriage}, #{landlineNumber}, #{phoneNumber}, #{email}, #{address})
+        (
+         resume_id,
+         title,
+         created_user,
+         created_time,
+         updated_time,
+         name,
+         birth,
+         gender,
+         military,
+         role,
+         marriage,
+         landline_number,
+         phone_number,
+         email,
+         address
+        )
+        VALUES
+        (
+         #{resumeId},
+         #{title},
+         #{createdUser},
+         NOW(),
+         NULL,
+         #{name},
+         NULLIF(#{birth}, ''),
+         #{gender},
+         #{military},
+         #{role},
+         #{marriage},
+         #{landlineNumber},
+         #{phoneNumber},
+         #{email},
+         #{address}
+        )
     </insert>
 
     <insert id="insertEducation" parameterType="resumeEducationVO">
         INSERT INTO resume_education
-        (school_name, school_status, school_date, created_time, resume_id)
+        (
+         school_name,
+         school_status,
+         school_date,
+         created_time,
+         resume_id
+        )
         VALUES
-        (#{schoolName}, #{schoolStatus}, #{schoolDate}, NOW(), #{resumeId})
+        (
+         #{schoolName},
+         #{schoolStatus},
+         NULLIF(#{schoolDate}, ''),
+         NOW(),
+         #{resumeId}
+        )
     </insert>
 
     <insert id="insertCareer" parameterType="resumeCareerVO">
         INSERT INTO resume_career
-        (company_name, company_role, company_work, company_start_term, company_end_term, created_time, resume_id)
-        VALUES(#{companyName}, #{companyRole}, #{companyWork}, #{companyStartTerm}, #{companyEndTerm}, NOW(), #{resumeId});
+        (
+         company_name,
+         company_role,
+         company_work,
+         company_start_term,
+         company_end_term,
+         created_time,
+         resume_id
+        )
+        VALUES
+        (
+         #{companyName},
+         #{companyRole},
+         #{companyWork},
+         NULLIF(#{companyStartTerm}, ''),
+         NULLIF(#{companyEndTerm}, ''),
+         NOW(),
+         #{resumeId}
+        )
     </insert>
 
     <insert id="insertLicense" parameterType="resumeLicenseVO">
         INSERT INTO resume_license
-        (license_name, license_issuer, license_date, created_time, resume_id)
-        VALUES(#{licenseName}, #{licenseIssuer}, #{licenseDate}, NOW(), #{resumeId});
+        (
+         license_name,
+         license_issuer,
+         license_date,
+         created_time,
+         resume_id
+        )
+        VALUES
+        (
+         #{licenseName},
+         #{licenseIssuer},
+         NULLIF(#{licenseDate}, ''),
+         NOW(),
+         #{resumeId}
+        )
     </insert>
 
     <insert id="insertSkill" parameterType="resumeSkillVO">
         INSERT INTO resume_skill
-        (project_name, project_customer, project_company, project_work, project_language, project_db, project_tool, project_framework, project_start_term, project_end_term, project_work_detail, project_etc, created_time, resume_id)
-        VALUES(#{projectName}, #{projectCustomer}, #{projectCompany}, #{projectWork}, #{projectLanguage}, #{projectDb}, #{projectTool}, #{projectFramework}, #{projectStartTerm}, #{projectEndTerm}, #{projectWorkDetail}, #{projectEtc}, NOW(), #{resumeId});
+        (
+         project_name,
+         project_customer,
+         project_company,
+         project_work,
+         project_language,
+         project_db,
+         project_tool,
+         project_framework,
+         project_start_term,
+         project_end_term,
+         project_work_detail,
+         project_etc,
+         created_time,
+         resume_id)
+        VALUES
+        (
+         #{projectName},
+         #{projectCustomer},
+         #{projectCompany},
+         #{projectWork},
+         #{projectLanguage},
+         #{projectDb},
+         #{projectTool},
+         #{projectFramework},
+         STR_TO_DATE(
+                 CASE
+                     WHEN LENGTH(NULLIF(#{projectStartTerm}, '')) = 7
+                         THEN CONCAT(#{projectStartTerm}, '-01')
+                     ELSE NULLIF(#{projectStartTerm}, '')
+                     END,
+                 '%Y-%m-%d'
+         ),
+         STR_TO_DATE(
+                 CASE
+                     WHEN LENGTH(NULLIF(#{projectEndTerm}, '')) = 7
+                         THEN CONCAT(#{projectEndTerm}, '-01')
+                     ELSE NULLIF(#{projectEndTerm}, '')
+                     END,
+                 '%Y-%m-%d'
+         ),
+         #{projectWorkDetail},
+         #{projectEtc},
+         NOW(),
+         #{resumeId}
+        )
     </insert>
 
     <select id="selectResumeById" resultType="resumeVO">
@@ -302,7 +421,7 @@
             created_user = #{createdUser},
             updated_time = NOW(),
             name = #{name},
-            birth = #{birth},
+            birth = NULLIF(#{birth}, ''),
             gender = #{gender},
             military = #{military},
             role = #{role},

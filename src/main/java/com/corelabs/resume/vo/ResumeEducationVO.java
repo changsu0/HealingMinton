@@ -11,7 +11,7 @@ public class ResumeEducationVO {
     private int resumeEducationId;
     private String schoolName;
     private String schoolStatus;
-    private Date schoolDate;
-    private Date createdTime;
+    private String schoolDate;
+    private String createdTime;
     private String resumeId;
 }

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이력서 미리보기 - 여백 최적화 버전</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    body { background-color: #e9ecef; font-family: 'Pretendard', sans-serif; padding: 30px 0; }
+
+    .resume-paper {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 30px auto;
+      background: white;
+      padding: 15mm 20mm; /* 기본 화면 패딩 */
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .header-info h4 { font-size: 1.7rem; font-weight: 800; margin-bottom: 3px; }
+
+    .header-info p {
+      font-size: 0.95rem;
+      margin-bottom: 5px; /* 단락 사이 여백 제거 */
+      line-height: 1.4;
+    }
+
+    .compact-section { font-size: 0.75rem; }
+
+    .compact-section .section-title {
+      border-left: 4px solid #0d6efd;
+      padding-left: 10px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      background-color: white;
+      /* 페이지 넘김 시 위쪽 여백 확보 */
+      padding-top: 15px;
+    }
+
+    .side-by-side { display: flex; gap: 40px; margin-bottom: 2rem; }
+    .side-by-side > div { flex: 1; }
+
+    /* 테이블 반복 제목 스타일 */
+    table.print-table { width: 100%; border-collapse: collapse; }
+    table.print-table thead { display: table-header-group; }
+
+    /* [핵심] 반복되는 헤더 셀에 여백 추가 */
+    table.print-table thead td {
+      padding-top: 10mm; /* 페이지 상단에서 제목 사이의 간격 */
+      background-color: white;
+    }
+
+    .career-card, .project-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 1rem;
+    }
+
+    .career-card, .project-card {
+      border: 1px solid #dee2e6 !important; /* 명확한 테두리 추가 */
+      background-color: #fafafa; /* 흰색 배경으로 변경 */
+      transition: box-shadow 0.2s;
+      border-radius: 4px;
+    }
+
+    @media print {
+      /* 1. 물리적 종이 여백 설정 */
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        background: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .no-print { display: none !important; }
+
+      .resume-paper {
+        width: 100%;
+        margin: 0;
+        box-shadow: none;
+        padding: 10mm 20mm; /* 인쇄 시 내부 패딩 조정 */
+        height: auto;
+      }
+
+      /* 새 페이지 강제 시작 시 상단 여백 */
+      .force-new-page {
+        page-break-before: always;
+        padding-top: 20mm !important;
+      }
+
+      /* 테이블 제목이 페이지 상단에 너무 붙지 않게 함 */
+      .section-title { margin-top: 0; }
+
+    }
+  </style>
+</head>
+<body>
+
+<div class="container d-flex justify-content-end mb-4 no-print" style="max-width: 210mm;">
+  <button class="btn btn-outline-secondary me-2" onclick="window.print()"><i class="bi bi-printer"></i> 프린트 출력</button>
+  <button class="btn btn-primary" onclick="downloadPDF()"><i class="bi bi-file-earmark-pdf"></i> PDF 다운로드</button>
+</div>
+
+<div id="resume-container">
+  <div class="resume-paper">
+    <header class="header-info text-center mb-4">
+      <div class="row text-start border-top border-bottom py-3">
+        <div class="col-8">
+          <h4 class="text-primary"><strong><span id="name" th:text="${resume.name}"></span></strong></h4>
+          <p style="font-size: 0.90rem; margin-bottom: 5px; line-height: 1.4;"><span id="gender" th:text="${resume.gender}"></span> | <span id="military" th:text="${resume.military}"></span> | <span id="marriage" th:text="${resume.marriage}"></span> | <span id="role" th:text="${resume.role}"></span></p>
+          <p><strong>생년월일:</strong> <span id="birth" th:text="${resume.birth}"></span></p>
+          <p><strong>주소:</strong> <span id="address" th:text="${resume.address}"></span></p>
+          <p><strong>연락처:</strong> (유선) <span id="landlineNumber" th:text="${resume.landlineNumber}"></span> | (무선) <span id="phoneNumber" th:text="${resume.phoneNumber}"></span></p>
+          <p><strong>이메일:</strong> <span id="email" th:text="${resume.email}"></span></p>
+        </div>
+        <div class="col-4 text-end">
+          <div class="border bg-light d-inline-block text-center pt-4 text-muted" style="width: 100px; height: 130px; font-size: 0.7rem;">사진</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="compact-section">
+      <div class="side-by-side">
+
+        <div th:object="${resume}">
+          <h4 class="section-title">학 력 사 항</h4>
+          <table class="table table-sm border-top" id="edu-table">
+            <tbody th:each="edu : *{educationList}">
+              <tr>
+                <td class="py-3">
+                  <div class="fw-bold" id="schoolName" style="font-size: 0.9rem;" th:text="${edu.schoolName}"></div>
+  <!--                <div class="small text-muted d-block mt-1" id="schoolDepartment">소프트웨어과</div>-->
+                </td>
+                <td class="text-md-center text-muted align-middle" style="width: 20%;" id="schoolStatus" th:text="${edu.schoolStatus}"></td>
+                <td class="text-end text-muted align-middle" id="schoolDate" th:text="${edu.schoolDate}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div th:object="${resume}">
+          <h4 class="section-title">자 격 증</h4>
+          <table class="table table-sm border-top" id="license-table">
+            <tbody th:each="license : *{licenseList}">
+              <tr>
+                <td class="py-3">
+                  <div class="fw-bold" id="licenseName" style="font-size: 0.9rem;" th:text="${license.licenseName}"></div>
+                  <div class="small text-muted d-block mt-1" id="licenseIssuer" th:text="${license.licenseIssuer}"></div>
+                </td>
+
+                <td class="text-end text-muted align-middle" id="licenseDate" th:text="${license.licenseDate}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <table class="print-table" id="career-table" th:object="${resume}">
+        <thead>
+          <tr><td><h4 class="section-title">경 력 사 항</h4></td></tr>
+        </thead>
+        <tbody th:each="career : *{careerList}">
+          <tr>
+            <td>
+              <div class="card career-card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold m-0 text-primary" id="companyName" th:text="${career.companyName}"></h6>
+                    <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="companyStartTerm" th:text="${career.companyStartTerm}"></span> ~ <span id="companyEndTerm" th:text="${career.companyEndTerm ?: '근무 중'}"></span></span>
+                  </div>
+                  <div class="mb-2">
+                    <span id="companyRole" th:text="${career.companyRole}"></span>
+                  </div>
+                  <p class="mb-0 text-secondary" id="companyWork" th:text="${career.companyWork}"></p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="resume-paper force-new-page">
+    <div class="compact-section">
+      <table class="print-table" id="skill-table" th:object="${resume}">
+        <thead>
+        <tr><td><h4 class="section-title">기 술 경 력 사 항</h4></td></tr>
+        </thead>
+        <tbody th:each="skill : *{skillList}">
+          <tr>
+            <td>
+              <div class="card project-card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold m-0 text-primary" id="projectName" th:text="${skill.projectName}"></h6>
+                    <span class="badge bg-dark" style="font-size: 0.6rem;"><span id="projectStartTerm" th:text="${#strings.substring(skill.projectStartTerm, 0, 7)}"></span> ~ <span id="projectEndTerm" th:text="${#strings.substring(skill.projectEndTerm, 0, 7)}"></span></span>
+                  </div>
+                  <div class="mb-2">
+                    고객사 : <span id="projectCustomer" th:text="${skill.projectCustomer}"></span> | 근무지 : <span id="projectCompany" th:text="${skill.projectCompany}"></span>
+                  </div>
+                  <div class="mb-2">
+                    <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectLanguage" th:text="${skill.projectLanguage}"></span>
+                    <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectDb" th:text="${skill.projectDb}"></span>
+                    <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectTool" th:text="${skill.projectTool}"></span>
+                    <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectFramework" th:text="${skill.projectFramework}"></span>
+                    <span class="badge rounded-pill bg-light text-dark border" style="font-size: 0.6rem;" id="projectEtc" th:text="${skill.projectEtc}"></span>
+                  </div>
+                  <p class="mb-0 text-secondary" id="projectWorkDetail" th:text="${skill.projectWorkDetail}"></p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+
+  $(document).ready(function () {
+    // 1. URL 파라미터에서 'id' 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeId = urlParams.get('id');
+
+    if (resumeId) {
+
+    } else {
+      alert("잘못된 접근입니다.");
+      history.back();
+    }
+  })
+
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pages = document.querySelectorAll('.resume-paper');
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    }
+    pdf.save('이력서_여백수정.pdf');
+  }
+
+</script>
+</body>
+</html>

@@ -19,8 +19,6 @@ public class ProfileService {
 
     public ProfileService(ProfileMapper profileMapper) { this.profileMapper = profileMapper; }
 
-    private final String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "profile" + File.separator;
-
     public List<ProfileVO> selectProfileList() {
         return profileMapper.selectProfileList();
     }
@@ -29,6 +27,7 @@ public class ProfileService {
     public void saveResume(ProfileVO profileVO, MultipartFile photo, List<MultipartFile> attaches) {
         String uuid = UUID.randomUUID().toString();
         if (photo != null && !photo.isEmpty()) {
+            String baseDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "profile" + File.separator;
             // 1. 고유한 파일명 생성 (UUID 사용)
             String originalFilename = photo.getOriginalFilename();
             String saveFilename = uuid + "_" + originalFilename;
@@ -36,14 +35,14 @@ public class ProfileService {
             // 2. 물리적 폴더에 파일 저장
             try {
                 // 폴더가 없으면 생성
-                File directory = new File(uploadDir);
+                File directory = new File(baseDir);
                 if(!directory.exists()) directory.mkdirs();
 
-                File target = new File(uploadDir + saveFilename);
+                File target = new File(baseDir + saveFilename);
                 photo.transferTo(target);
 
                 // 3. DB에 저장할 상대 경로 설정
-                //profileVO.setPhotoPath("/upload/resume/" + saveFilename);
+                //profileVO.setPhotoPath("/upload/profile/" + saveFilename);
             } catch (IOException e) {
                 throw new RuntimeException("파일 저장 실패", e);
             }
@@ -58,18 +57,18 @@ public class ProfileService {
             for (MultipartFile file : attaches) {
                 if (file.isEmpty()) continue;
 
-                String saveName = uuid + "_" + file.getOriginalFilename();
+                String saveFilename = uuid + "_" + file.getOriginalFilename();
 
                 try {
-                    File target = new File(baseDir, saveName);
+                    File target = new File(baseDir, saveFilename);
                     if(!target.getParentFile().exists()) target.getParentFile().mkdirs();
                     file.transferTo(target);
 
                     AttachmentVO attachmentVO = new AttachmentVO();
                     attachmentVO.setProfileId(uuid);
                     attachmentVO.setOriginalName(file.getOriginalFilename());
-                    attachmentVO.setSaveName(saveName);
-                    attachmentVO.setFilePath("/upload/files/" + saveName);
+                    attachmentVO.setSaveName(saveFilename);
+                    attachmentVO.setFilePath("/upload/files/" + saveFilename);
 
                     profileMapper.insertAttachment(attachmentVO);
                 } catch (IOException e) {
@@ -78,5 +77,7 @@ public class ProfileService {
             }
         }
     }
+
+
 
 }

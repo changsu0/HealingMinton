@@ -135,14 +135,13 @@
   </style>
 </head>
 <div layout:fragment="content">
-  <body>
   <div class="content-body">
     <div class="container-fluid">
 
       <div class="container dashboard-container">
         <div class="page-header">
           <div class="page-title"><i class="bi bi-file-earmark-person me-2"></i>이력서 목록</div>
-          <a href="#" class="btn-create" id="btnCreate"><i class="bi bi-plus-lg me-1"></i> 새 이력서 작성</a>
+          <a href="/resume/createResume_sync" class="btn-create" id="btnCreate"><i class="bi bi-plus-lg me-1"></i> 새 이력서 작성</a>
         </div>
 
         <div class="card resume-list-card">
@@ -382,6 +381,9 @@
                   <button class="btn-action btn-delete" th:data-id="${resume.resumeId}" onClick="deleteResume(this)" title="삭제">
                     <i class="bi bi-trash3"></i>
                   </button>
+                  <form id="deleteForm" th:action="@{/resume/deleteResume_sync}" method="post">
+                    <input type="hidden" name="resumeId" id="hiddenResumeId">
+                  </form>
                 </td>
               </tr>
               </tbody>
@@ -397,16 +399,28 @@
     function editResume(element) {
       // 클릭된 요소(this)의 data-id 값을 가져옴
       const id = $(element).data('id');
-      location.href = '/resume/modifyResume?id=' + id;
+      location.href = '/resume/modifyResume_sync?id=' + id;
     }
 
     function detailResume(element) {
       // 클릭된 요소(this)의 data-id 값을 가져옴
       const id = $(element).data('id');
-      location.href = '/resume/resumeDetail?id=' + id;
+      location.href = '/resume/resumeDetail_sync?id=' + id;
+    }
+
+    function deleteResume(element) {
+
+      const resumeId = element.dataset.id;
+
+      if (!confirm("정말 삭제하시겠습니까? 관련 데이터가 모두 삭제됩니다.")) {
+        return;
+      }
+
+      document.getElementById('hiddenResumeId').value = resumeId;
+
+      document.getElementById('deleteForm').submit();
     }
   </script>
 
-  </body>
 </div>
 </html>

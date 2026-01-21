@@ -13,10 +13,10 @@ public class ResumeVO {
     private String resumeId;
     private String title;
     private String createdUser;
-    private Date createdTime;
-    private Date updatedTime;
+    private String createdTime;
+    private String updatedTime;
     private String name;
-    private Date birth;
+    private String birth;
     private String gender;
     private String military;
     private String role;

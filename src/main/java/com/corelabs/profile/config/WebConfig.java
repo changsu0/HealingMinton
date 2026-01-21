@@ -1,4 +1,4 @@
-package com.corelabs.resume.config;
+package com.corelabs.profile.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

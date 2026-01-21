@@ -11,7 +11,7 @@ public class ResumeLicenseVO {
     private int resumeLicenseId;
     private String licenseName;
     private String licenseIssuer;
-    private Date licenseDate;
-    private Date createdTime;
+    private String licenseDate;
+    private String createdTime;
     private String resumeId;
 }

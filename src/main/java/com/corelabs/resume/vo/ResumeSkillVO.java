@@ -17,10 +17,10 @@ public class ResumeSkillVO {
     private String projectDb;
     private String projectTool;
     private String projectFramework;
-    private Date projectStartTerm;
-    private Date projectEndTerm;
+    private String projectStartTerm;
+    private String projectEndTerm;
     private String projectWorkDetail;
     private String projectEtc;
-    private Date createdTime;
+    private String createdTime;
     private String resumeId;
 }

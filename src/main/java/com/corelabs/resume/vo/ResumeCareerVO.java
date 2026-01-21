@@ -12,8 +12,8 @@ public class ResumeCareerVO {
     private String companyName;
     private String companyRole;
     private String companyWork;
-    private Date companyStartTerm;
-    private Date companyEndTerm;
-    private Date createdTime;
+    private String companyStartTerm;
+    private String companyEndTerm;
+    private String createdTime;
     private String resumeId;
 }

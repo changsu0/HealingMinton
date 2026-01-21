@@ -22,38 +22,38 @@
         FROM profile
     </select>
 
-    <insert id="insertResume">
+    <insert id="insertProfile">
         INSERT INTO profile (
-            RESUME_ID,
+            PROFILE_ID,
             TITLE,
             CREATED_USER,
             NAME,
             BIRTH,
             GENDER,
+            POSITION,
             MILITARY,
-            ROLE,
             MARRIAGE,
+            EMAIL,
             LANDLINE_NUMBER,
             PHONE_NUMBER,
-            EMAIL,
             ADDRESS,
             PHOTO_PATH,
             CREATED_AT,
             UPDATED_AT
             )
         VALUES (
-            #{resumeId},
+            #{profileId},
             #{title},
             #{createdUser},
             #{name},
             #{birth},
             #{gender},
+            #{position},
             #{military},
-            #{role},
             #{marriage},
-            #{landlineNumber},
-            #{phoneNumber},
             #{email},
+            #{landline},
+            #{phone},
             #{address},
             #{photoPath},
             NOW(),

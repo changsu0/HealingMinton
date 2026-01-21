@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경력 관리 시스템 - 작성</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* 푸터 입력창 전용 필수 표시 */
+        .footer-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-input-wrapper.required::after {
+            content: '*';
+            color: #dc3545;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            font-size: 1.1rem;
+            pointer-events: none; /* 별표 클릭 시에도 입력창이 선택되도록 설정 */
+        }
+
+        /* 별표와 텍스트가 겹치지 않도록 오른쪽 패딩 확보 */
+        .footer-input-wrapper.required .footer-input {
+            padding-right: 25px !important;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Pretendard', sans-serif;
+            /* 하단 바에 콘텐츠가 가려지지 않도록 패딩 추가 */
+            padding-bottom: 100px;
+        }
+
+        .profile-card {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 탭 스타일 */
+        .nav-pills {
+            background-color: #f1f3f5;
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .nav-pills .nav-link {
+            color: #495057;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: white;
+            color: black !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 입력 폼 공통 스타일 */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .custom-input-group {
+            background-color: #f1f3f5;
+            border-radius: 10px;
+            border: none;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .custom-input-group i {
+            color: #adb5bd;
+            margin-right: 12px;
+        }
+
+        .custom-input-group input {
+            background: transparent;
+            border: none;
+            width: 100%;
+            outline: none;
+        }
+
+        .custom-input-group select {
+            background: transparent;
+            border: none;
+            width: 100%;
+            outline: none;
+            /*color: #495057;*/
+            appearance: none; /* 기본 화살표 숨기기 (필요시) */
+            -webkit-appearance: none;
+        }
+
+        .custom-input-group textarea {
+            background: transparent;
+            border: none;
+            width: 100%;
+            outline: none;
+        }
+
+        /* 학력/경력 카드 스타일 */
+        .entry-card {
+            border: 1px solid #eeeeee;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #adb5bd;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .delete-btn:hover {
+            color: #dc3545;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn {
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 8px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* [핵심] 하단 고정 바 스타일 */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 1000;
+            border-top: 1px solid #eee;
+        }
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0 20px;
+        }
+        .footer-input {
+            background-color: #f1f3f5;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        /* 에러 발생 시 입력창 테두리 강조를 위한 Bootstrap 클래스 활용 */
+        .footer-input.w-100.is-invalid {
+            border: 1px solid #dc3545 !important;
+            border-radius: 10px;
+            background-color: #fff8f8;
+        }
+
+        .error-message {
+            font-size: 0.8rem;
+            font-weight: 500;
+            /* 초기에는 숨김 처리 */
+            display: none;
+        }
+
+        .custom-input-group .form-control.is-invalid {
+            border: 1px solid #dc3545 !important;
+            border-radius: 10px;
+            background-color: #fff8f8;
+        }
+
+        .is-invalid {
+            border: 1px solid #dc3545 !important;
+            border-radius: 10px;
+            background-color: #fff8f8;
+        }
+
+        .required-mark::after {
+            content: ' *';
+            color: #dc3545; /* Bootstrap danger 색상 */
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
+        /* 버튼 스타일 */
+        .btn-save-sm { background-color: #212529; color: white; border-radius: 10px; padding: 8px 25px; font-weight: 600; border: none; }
+        .btn-exit { background-color: white; color: #dc3545; border: 1px solid #ffc1c1; border-radius: 10px; padding: 8px 20px; font-weight: 600; }
+        .btn-exit:hover { background-color: #fff5f5; }
+
+        .add-btn { border: 1px solid #dee2e6; background: white; border-radius: 8px; padding: 5px 15px; font-size: 0.85rem; }
+
+    </style>
+</head>
+    <body>
+    <form th:action="@{/resume/saveResume_sync}" th:object="${resumeVO}" method="post" id="saveForm">
+
+        <div class="container">
+            <div class="profile-card">
+
+                <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" type="button" id="tab-info" data-bs-toggle="pill" data-bs-target="#content-info">개인정보</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" type="button" id="tab-edu" data-bs-toggle="pill" data-bs-target="#content-edu">학력</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" type="button" id="tab-career" data-bs-toggle="pill" data-bs-target="#content-career">경력</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" type="button" id="tab-license" data-bs-toggle="pill" data-bs-target="#content-license">자격증</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" type="button" id="tab-skill" data-bs-toggle="pill" data-bs-target="#content-skill">기술경력</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+
+                    <div class="tab-pane fade show active" id="content-info">
+                        <div class="section-title mb-4"><i class="bi bi-person"></i> 개인정보</div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-label required-mark">이름</label>
+                                <div class="custom-input-group"><input type="text" placeholder="이름" class="form-control" maxlength="50" id="name" name="name"></div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">성별</label>
+                                <div class="custom-input-group">
+                                    <select id="gender" name="gender" class="form-control">
+                                        <option value="남자" selected>남자</option>
+                                        <option value="여자">여자</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label" >생년월일</label>
+                                <div class="custom-input-group"><input type="date" class="form-control" id="birth" name="birth"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-label">직위</label>
+                                <div class="custom-input-group"><input type="text" class="form-control" maxlength="10" id="role" name="role"></div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">병역</label>
+                                <div class="custom-input-group">
+                                    <select id="military" name="military" class="form-control">
+                                        <option value="미필" selected>미필</option>
+                                        <option value="군필">군필</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">결혼</label>
+                                <div class="custom-input-group">
+                                    <select id="marriage" name="marriage" class="form-control">
+                                        <option value="미혼" selected>미혼</option>
+                                        <option value="기혼">기혼</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-label">전화번호(유선)</label>
+                                <span id="landlineError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
+                                <div class="custom-input-group">
+                                    <input type="text" class="form-control" id="landlineNumber" name="landlineNumber" maxlength="30">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">전화번호(무선)</label>
+                                <span id="phoneError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
+                                <div class="custom-input-group">
+                                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" maxlength="30">
+                                </div>
+                            </div>
+                        </div>
+                        <label class="form-label">이메일</label>
+                        <span id="emailError" class="error-message text-danger" style="display: none">올바른 이메일 형식이 아닙니다.</span>
+                        <div class="custom-input-group">
+                            <i class="bi bi-envelope"></i>
+                            <input type="email" class="form-control" placeholder="이메일" id="email" name="email" maxlength="100">
+                        </div>
+                        <label class="form-label">주소</label>
+                        <div class="custom-input-group"><input type="text" class="form-control" placeholder="주소" id="address" name="address" maxlength="255"></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="content-edu">
+                        <div class="section-header">
+                            <div class="section-title"><i class="bi bi-mortarboard"></i> 학력</div>
+                            <button class="add-btn" type="button" onclick="addEntry('edu-list')">+ 추가</button>
+                        </div>
+                        <div id="edu-list">
+                            <p class="text-muted text-center py-4">학력 사항을 추가해 주세요.</p>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="content-career">
+                        <div class="section-header">
+                            <div class="section-title"><i class="bi bi-briefcase"></i> 경력</div>
+                            <button class="add-btn" type="button" onclick="addEntry('career-list')">+ 추가</button>
+                        </div>
+                        <div id="career-list">
+                            <p class="text-muted text-center py-4">경력 사항을 추가해 주세요.</p>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="content-license">
+                        <div class="section-header">
+                            <div class="section-title"><i class="bi bi-person-vcard"></i> 자격증</div>
+                            <button class="add-btn" type="button" onclick="addEntry('license-list')">+ 추가</button>
+                        </div>
+                        <div id="license-list">
+                            <p class="text-muted text-center py-4">보유 자격증을 추가해 주세요.</p>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="content-skill">
+                        <div class="section-header">
+                            <div class="section-title"><i class="bi bi-cpu"></i> 기술경력</div>
+                            <button class="add-btn" type="button" onclick="addEntry('skill-list')">+ 추가</button>
+                        </div>
+                        <div id="skill-list">
+                            <p class="text-muted text-center py-4">보유하신 기술 경력을 추가해 주세요.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="sticky-footer">
+            <div class="footer-content">
+                <span id="titleError" class="error-message text-danger" style="display: none">100자 이내로 작성해주세요.</span>
+                <div class="footer-input-wrapper required" style="flex-grow: 1;">
+                    <input type="text" class="footer-input w-100" placeholder="이력서 제목" name="title" id="title">
+                </div>
+                <span id="createdUserError" class="error-message text-danger" style="display: none">50자 이내로 작성해주세요.</span>
+                <div class="footer-input-wrapper required" style="width: 150px;">
+                    <input type="text" class="footer-input w-100" placeholder="작성자 성함" name="createdUser" id="createdUser">
+                </div>
+                <button class="btn-save-sm" type="button" onclick="saveResume()">
+                    <i class="bi bi-cloud-check me-1"></i> 저장
+                </button>
+                <button class="btn-exit" type="button" onclick="confirmExit()">나가기</button>
+            </div>
+        </div>
+
+    </form>
+        <script th:inline="javascript">
+
+            let educationIndex = 0;
+            let careerIndex = 0;
+            let licenseIndex = 0;
+            let skillIndex = 0;
+
+            function checkObject(element) {
+                const parent = document.getElementById(element);
+                const child = parent.querySelectorAll('.entry-card');
+
+                return child.length > 0;
+            }
+
+            function saveResume() {
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                document.getElementById('saveForm').submit();
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+
+                function lengthField(inputEl, errorId, len) {
+                    const errorEl = document.getElementById(errorId);
+                    const value = inputEl.value;
+                    if (value.length > len) {
+                        inputEl.classList.add('is-invalid');
+                        errorEl.style.display = 'inline';
+                    } else {
+                        inputEl.classList.remove('is-invalid');
+                        errorEl.style.display = 'none';
+                    }
+                }
+
+                const titleInput = document.getElementById('title');
+                const createdUserInput = document.getElementById('createdUser');
+                const nameInput = document.getElementById('name');
+                const roleInput = document.getElementById('role');
+                const emailInput = document.getElementById('email');
+                const addressInput = document.getElementById('address');
+                const landlineInput = document.getElementById('landlineNumber');
+                const phoneInput = document.getElementById('phoneNumber');
+
+                // 정규 표현식 정의
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                const landlineRegex = /^(02|0[3-9]{1}[0-9]{1})-[0-9]{3,4}-[0-9]{4}$/;
+                const phoneRegex = /^01(?:0|1|[6-9])-(?:\d{3}|\d{4})-\d{4}$/;
+
+                /**
+                 * 유효성 검사 공통 함수
+                 * @param {Element} inputEl - 입력 요소
+                 * @param {string} errorId - 에러 메시지 span ID
+                 * @param {RegExp} regex - 정규식
+                 */
+                function validateField(inputEl, errorId, regex) {
+                    const errorEl = document.getElementById(errorId);
+                    const value = inputEl.value.trim();
+
+                    if (value === "") {
+                        inputEl.classList.remove('is-invalid', 'is-valid');
+                        errorEl.style.display = 'none';
+                        return;
+                    }
+
+                    if (regex.test(value)) {
+                        // 검사 통과
+                        inputEl.classList.remove('is-invalid');
+                        inputEl.classList.add('is-valid');
+                        errorEl.style.display = 'none';
+                    } else {
+                        // 검사 실패
+                        inputEl.classList.remove('is-valid');
+                        inputEl.classList.add('is-invalid');
+                        errorEl.style.display = 'inline'; // 제목 우측 메시지 노출
+                    }
+                }
+
+                titleInput.addEventListener('focusout', function () {
+                    lengthField(this, 'titleError', 100);
+                })
+
+                createdUserInput.addEventListener('focusout', function () {
+                    lengthField(this, 'createdUserError', 50);
+                })
+
+                // nameInput.addEventListener('focusout', function () {
+                //     lengthField('name', 50);
+                // })
+                //
+                // roleInput.addEventListener('focusout', function () {
+                //     lengthField('role', 10);
+                // })
+                //
+                // emailInput.addEventListener('focusout', function () {
+                //     lengthField('email', 100);
+                // })
+                //
+                // addressInput.addEventListener('focusout', function () {
+                //     lengthField('address', 255);
+                // })
+
+                // 유선전화번호 focusout 이벤트
+                landlineInput.addEventListener('focusout', function() {
+                    validateField(this, 'landlineError' ,landlineRegex);
+                });
+
+                // 무선전화번호 focusout 이벤트
+                phoneInput.addEventListener('focusout', function() {
+                    validateField(this, 'phoneError' ,phoneRegex);
+                });
+
+                // 이메일 focusout 이벤트
+                emailInput.addEventListener('focusout', function() {
+                    validateField(this, 'emailError', emailRegex);
+                });
+
+                // 유선전화번호 자동 하이픈 기능 (추가 UX)
+                landlineInput.addEventListener('input', function() {
+                    let val = this.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+                    let result = "";
+
+                    if (val.startsWith('02')) {
+                        // 서울 지역번호 (02)
+                        if (val.length < 3) {
+                            result = val;
+                        } else if (val.length < 6) {
+                            result = val.substring(0, 2) + "-" + val.substring(2);
+                        } else if (val.length < 10) {
+                            result = val.substring(0, 2) + "-" + val.substring(2, 5) + "-" + val.substring(5);
+                        } else {
+                            result = val.substring(0, 2) + "-" + val.substring(2, 6) + "-" + val.substring(6, 10);
+                        }
+                    } else {
+                        // 그 외 지역번호 및 070 등 (3자리 시작)
+                        if (val.length < 4) {
+                            result = val;
+                        } else if (val.length < 7) {
+                            result = val.substring(0, 3) + "-" + val.substring(3);
+                        } else if (val.length < 11) {
+                            result = val.substring(0, 3) + "-" + val.substring(3, 6) + "-" + val.substring(6);
+                        } else {
+                            result = val.substring(0, 3) + "-" + val.substring(3, 7) + "-" + val.substring(7, 11);
+                        }
+                    }
+                    this.value = result;
+                });
+
+                // 무선전화번호 자동 하이픈 기능 (추가 UX)
+                phoneInput.addEventListener('input', function() {
+                    this.value = this.value
+                        .replace(/[^0-9]/g, '') // 숫자만 남김
+                        .replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`); // 하이픈 삽입
+                });
+
+            });
+
+            function checkField(inputElement, regex, message) {
+                if (inputElement.value && !regex.test(inputElement.value)) {
+                    inputElement.classList.add('is-invalid'); // 빨간 테두리 추가
+                    // 에러 메시지 표시 로직 등을 추가할 수 있습니다.
+                    return false;
+                } else {
+                    inputElement.classList.remove('is-invalid');
+                    return true;
+                }
+            }
+
+            function decreaseValue(value) {
+                if (value == 'educationIndex') {
+                    educationIndex--;
+                }
+                if (value == 'careerIndex') {
+                    careerIndex--;
+                }
+                if (value == 'licenseIndex') {
+                    licenseIndex--;
+                }
+                if (value == 'skillIndex') {
+                    skillIndex--;
+                }
+            }
+
+            // 항목 추가 함수
+            function addEntry(containerId) {
+
+                const container = document.getElementById(containerId);
+
+                //1. 마지막 row를 찾거나 새로 생성해야 하는지 판단
+                // let rows = container.getElementsByClassName('row');
+                // let lastRow = rows[rows.length - 1];
+
+                // 경력 섹션의 '항목 없음' 메시지 제거용
+                if (container.querySelector('p')) container.innerHTML = '';
+
+                const newEntry = document.createElement('div');
+                newEntry.className = 'entry-card';
+
+                // 학력 입력 폼 템플릿 (경력일 경우 내용을 조건문으로 변경 가능)
+                if (containerId == 'edu-list') {
+                    newEntry.innerHTML = `
+                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('educationIndex');"><i class="bi bi-trash3"></i></button>
+                        <label class="form-label required-mark">학교명</label>
+                        <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength='100' id="schoolName" name="educationList[${educationIndex}].schoolName"></div>
+
+                        <label class="form-label">졸업여부</label>
+                        <div class="custom-input-group">
+                            <select id="schoolStatus" name="educationList[${educationIndex}].schoolStatus">
+                                <option value="졸업예정" selected>졸업예정</option>
+                                <option value="졸업">졸업</option>
+                                <option value="중퇴">중퇴</option>
+                                <option value="재학">재학</option>
+                                <option value="휴학">휴학</option>
+                            </select>
+                        </div>
+
+                        <label class="form-label">졸업일자</label>
+                        <div class="custom-input-group"><input type="date" id="schoolDate" name="educationList[${educationIndex}].schoolDate"></div>`;
+
+                    educationIndex++;
+                } else if (containerId == 'career-list') {
+                    newEntry.innerHTML = `
+                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('careerIndex');"><i class="bi bi-trash3"></i></button>
+                        <label class="form-label required-mark">회사명</label>
+                        <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" name="careerList[${careerIndex}].companyName"></div>
+
+                        <label class="form-label">직위</label>
+                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" class="form-control" id="companyRole" name="careerList[${careerIndex}].companyRole"></div>
+
+                        <label class="form-label">담당업무</label>
+                        <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork" name="careerList[${careerIndex}].companyWork"></div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">시작일자</label>
+                                <div class="custom-input-group">
+                                    <input type="date" id="companyStartTerm" name="careerList[${careerIndex}].companyStartTerm">
+<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">종료일자</label>
+                                <div class="custom-input-group">
+                                    <input type="date" id="companyEndTerm" name="careerList[${careerIndex}].companyEndTerm">
+<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
+                                </div>
+                            </div>
+                        </div>`;
+
+                    careerIndex++;
+                } else if (containerId == 'license-list') {
+                    newEntry.innerHTML = `
+                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('licenseIndex');"><i class="bi bi-trash3"></i></button>
+                        <label class="form-label required-mark">자격증명</label>
+                        <div class="custom-input-group"><input type="text" placeholder="자격증명" maxlength="50" id="licenseName" name="licenseList[${licenseIndex}].licenseName"></div>
+
+                        <label class="form-label">발급기관</label>
+                        <div class="custom-input-group"><input type="text" placeholder="발급기관" maxlength="50" id="licenseIssuer" name="licenseList[${licenseIndex}].licenseIssuer"></div>
+
+                        <label class="form-label">취득일자</label>
+                        <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate" name="licenseList[${licenseIndex}].licenseDate"></div>`;
+
+                    licenseIndex++;
+                } else if (containerId == 'skill-list') {
+                    newEntry.innerHTML = `
+                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('skillIndex');"><i class="bi bi-trash3"></i></button>
+                        <label class="form-label required-mark">프로젝트명</label>
+                        <div class="custom-input-group"><input type="text" placeholder="프로젝트명" maxlength="100" id="projectName" name="skillList[${skillIndex}].projectName"></div>
+
+                        <label class="form-label">고객사</label>
+                        <div class="custom-input-group"><input type="text" placeholder="고객사" maxlength="50" id="projectCustomer" name="skillList[${skillIndex}].projectCustomer"></div>
+
+                        <label class="form-label">근무회사</label>
+                        <div class="custom-input-group"><input type="text" placeholder="근무회사" maxlength="50" id="projectCompany" name="skillList[${skillIndex}].projectCompany"></div>
+
+                        <label class="form-label">역할</label>
+                        <div class="custom-input-group"><input type="text" placeholder="역할" maxlength="100" id="projectWork" name="skillList[${skillIndex}].projectWork"></div>
+
+                        <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label"">언어</label>
+                                <div class="custom-input-group"><input type="text" placeholder="언어" maxlength="50" id="projectLanguage" name="skillList[${skillIndex}].projectLanguage"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">DB</label>
+                                <div class="custom-input-group"><input type="text" placeholder="DB" maxlength="50" id="projectDb" name="skillList[${skillIndex}].projectDb"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Tool</label>
+                                <div class="custom-input-group"><input type="text" placeholder="Tool" maxlength="50" id="projectTool" name="skillList[${skillIndex}].projectTool"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">FrameWork</label>
+                                <div class="custom-input-group"><input type="text" placeholder="FrameWork" maxlength="50" id="projectFramework" name="skillList[${skillIndex}].projectFramework"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">시작일자</label>
+                                <div class="custom-input-group"><input type="month" id="projectStartTerm" name="skillList[${skillIndex}].projectStartTerm"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">종료일자</label>
+                                <div class="custom-input-group"><input type="month" id="projectEndTerm" name="skillList[${skillIndex}].projectEndTerm"></div>
+                            </div>
+                        </div>
+
+                        <label class="form-label">기타</label>
+                        <div class="custom-input-group"><input type="text" placeholder="기타" maxlength="255" id="projectEtc" name="skillList[${skillIndex}].projectEtc"></div>
+
+                        <label class="form-label">상세업무내용</label>
+                        <div class="custom-input-group">
+                            <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail" name="skillList[${skillIndex}].projectWorkDetail"></textarea>
+                        </div>`;
+
+                    skillIndex++;
+                }
+                container.appendChild(newEntry);
+            }
+
+            function confirmExit() {
+                if(confirm("작성 중인 내용이 저장되지 않을 수 있습니다. 목록으로 나가시겠습니까?")) {
+                    location.href = '/resume/resumeList';
+                    alert("목록 페이지로 이동합니다.");
+                }
+            }
+
+            function requiredField(element, inputEl, message) {
+                const parent = document.getElementById(element);
+                const child = parent.querySelectorAll('.entry-card');
+
+                if (child.length > 0) {
+                    for (const value of child) {
+                        const input = value.querySelector(inputEl);
+                        const inputValue = input.value.replace(/\s/g, '');
+                        if (inputValue == '' || inputValue.length == 0) {
+                            alert(message + '은 필수 입력값입니다.');
+                            input.focus();
+                            return false;
+                        }
+                    }
+                    return true;
+                } else {
+                    return true;
+                }
+            }
+
+            // 폼 유효성 검사
+            function validateForm() {
+                const title = $("#title").val().replace(/\s/g, '');
+                const createdUser = $("#createdUser").val().replace(/\s/g, '');
+                const name = $("#name").val().replace(/\s/g, '');
+
+                if(title == '' || title.length == 0) {
+                    alert('제목은 필수 입력값입니다.');
+                    $('#title').focus();
+                    return false;
+                }
+
+                if(createdUser == '' || createdUser.length == 0) {
+                    alert('작성자명은 필수 입력값입니다.');
+                    $('#createdUser').focus();
+                    return false;
+                }
+
+                if(name == '' || name.length == 0) {
+                    alert('이름은 필수 입력값입니다.');
+                    $('#name').focus();
+                    return false;
+                }
+
+                if (!requiredField('edu-list', '#schoolName', '학교명')) {
+                    return false;
+                }
+
+                if (!requiredField('career-list', '#companyName', '회사명')) {
+                    return false;
+                }
+
+                if (!requiredField('license-list', '#licenseName', '자격증명')) {
+                    return false;
+                }
+
+                if (!requiredField('skill-list', '#projectName', '프로젝트명')) {
+                    return false;
+                }
+
+                // 2. 형식 에러(is-invalid)가 있는지 체크
+                // 화면 내에 'is-invalid' 클래스를 가진 요소가 하나라도 있으면 차단
+                const invalidFields = document.querySelectorAll('.is-invalid');
+
+                if (invalidFields.length > 0) {
+                    const firstInvalidField = invalidFields[0];
+                    console.log(firstInvalidField.placeholder);
+                    // const fieldName = firstInvalidField.closest('.col').querySelector('.form-label').innerText;
+                    alert(`[${firstInvalidField.placeholder}] 항목 수정 후 다시 시도해주세요.`);
+                    firstInvalidField.focus();
+
+                    return false;
+                }
+
+
+                return true;
+            }
+
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
