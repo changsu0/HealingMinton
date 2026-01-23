@@ -91,6 +91,7 @@
   </div>
 
   <div class="row g-4">
+
     <div class="col-md-4">
       <div class="card profile-item-card">
         <img src="/upload/resume/sample_photo.jpg" class="card-img-top" alt="Profile Photo">
@@ -113,9 +114,89 @@
         </div>
       </div>
     </div>
+
+    <div class="col-md-4">
+      <div class="card profile-item-card">
+        <img src="/upload/resume/sample_photo.jpg" class="card-img-top" alt="Profile Photo">
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-primary small fw-bold">Full-Stack Dev</span>
+            <small class="text-muted">Updated 2 days ago</small>
+          </div>
+          <h5 class="card-title fw-bold">백엔드 중심 풀스택 프로필</h5>
+          <p class="card-text text-muted small">Spring Boot와 React를 활용한 대규모 시스템 설계 경험 중심...</p>
+          <div class="mb-3">
+            <span class="skill-badge">Java</span>
+            <span class="skill-badge">Spring</span>
+            <span class="skill-badge">React</span>
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="location.href='/profile/detail/1'">보기</button>
+            <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="location.href='/profile/form?id=1'">수정</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+
+  $(document).ready(function() {
+    init();
+  });
+
+  function init() {
+    selectGridList();
+  }
+
+  const selectGridList = function() {
+
+    $.ajax({
+      url: "/profile/selectProfileList",
+      type: "GET",
+      dataType: "json",
+      success: function(data) {
+        cb_selectGridList(data);
+      },
+      error: function(error) {
+        console.error("조회 중 오류 발생:", error);
+      }
+    });
+  };
+
+  function cb_selectGridList(resultData) {
+    let innerHtml = '';
+    resultData.forEach(item => {
+      innerHtml += `
+        <div className="col-md-4">
+            <div className="card profile-item-card">
+                <img src="/upload/resume/sample_photo.jpg" className="card-img-top" alt="Profile Photo"/>
+                <div className="card-body">
+                    <div className="d-flex justify-content-between mb-2">
+                        <span className="text-primary small fw-bold">Full-Stack Dev</span>
+                        <small className="text-muted">Updated 2 days ago</small>
+                    </div>
+                    <h5 className="card-title fw-bold">백엔드 중심 풀스택 프로필</h5>
+                    <p className="card-text text-muted small">Spring Boot와 React를 활용한 대규모 시스템 설계 경험 중심...</p>
+                    <div className="mb-3">
+                        <span className="skill-badge">Java</span>
+                        <span className="skill-badge">Spring</span>
+                        <span className="skill-badge">React</span>
+                    </div>
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick="location.href='/profile/detail/1'">보기</button>
+                        <button className="btn btn-sm btn-primary rounded-pill px-3" onClick="location.href='/profile/form?id=1'">수정</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      `
+    });
+
+  }
+
+</script>
 </body>
 </html>

@@ -187,9 +187,7 @@
                                 <div class="col-md-3">
                                     <label class="form-label small">성별</label>
                                     <select id="searchGender" class="form-control form-control-sm">
-                                        <option value="" selected>선택안함</option>
-                                        <option value="남자">남자</option>
-                                        <option value="여자">여자</option>
+
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -349,6 +347,10 @@
                                     <label class="form-label small">기타</label>
                                     <input type="text" id="SearchProjectEtc" class="form-control form-control-sm">
                                 </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">상세업무내용</label>
+                                    <input type="text" id="SearchProjectWorkDetail" class="form-control form-control-sm">
+                                </div>
                             </div>
                             <div class="row g-3 justify-content-end" style="padding-top: 50px">
                                 <div class="col-md-3 d-flex align-items-end gap-2">
@@ -392,11 +394,33 @@
             <script>
 
                 $(document).ready(function() {
+                    loadCommon('SEX_TYPE', '#searchGender');
                     init();
                 });
 
                 function init() {
                     selectGridList();
+                }
+
+                function loadCommon(comCd, targetSelector) {
+                    $.ajax({
+                        url: `/resume/${comCd}`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            const $select = $(targetSelector);
+                            $select.empty(); // 기존 옵션 제거
+                            $select.append('<option value="" selected>선택 안함</option>');
+
+                            data.forEach(function(item) {
+                                const option = `<option value="${item.dtlCd}">${item.dtlNm}</option>`;
+                                $select.append(option);
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(`${dtlCd} 코드를 불러오는데 실패했습니다:`, error);
+                        }
+                    });
                 }
 
                 const selectGridList = function() {
@@ -453,12 +477,13 @@
 
                 // 검색 초기화 함수
                 function resetSearch() {
-                    $('.search-section input').val('');
+                    $('.search-section input, select').val('');
                     selectGridList();
                 }
 
                 function cb_selectGridList(resultData) {
                     let innerHtml = '';
+                    if(resultData.length === 0) innerHtml += `<tr><td colspan="5" class="text-center py-5 text-muted">검색 결과가 없습니다.</td></tr>`
                     resultData.forEach(item => {
                         innerHtml += '<tr>';
                         innerHtml += '<td><a href="#" onClick="detailResume(\'' + (item.resumeId) + '\')" class="resume-title">' + (item.name) + '</a></td>'

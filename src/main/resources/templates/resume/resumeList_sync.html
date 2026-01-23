@@ -159,8 +159,7 @@
                   <label class="form-label small">성별</label>
                   <select name="gender" th:value="${SearchVO.gender}" class="form-control form-control-sm">
                     <option value="" th:selected="${SearchVO.gender} == ''">선택안함</option>
-                    <option value="남자" th:selected="${SearchVO.gender} == '남자'">남자</option>
-                    <option value="여자" th:selected="${SearchVO.gender} == '여자'">여자</option>
+                    <option th:each="gender : ${commonList}" th:value="${gender.dtlCd}" th:selected="${SearchVO.gender} == ${gender.dtlCd}" th:text="${gender.dtlNm}"></option>
                   </select>
                 </div>
                 <div class="col-md-3">

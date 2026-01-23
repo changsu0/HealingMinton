@@ -3,18 +3,20 @@
 
 <mapper namespace="com.corelabs.profile.mapper.ProfileMapper">
 
-    <select id="selectResumeList" resultType="profileVO">
+    <select id="selectProfileList" resultType="profileVO">
         SELECT
-            RESUME_ID,
+            PROFILE_ID,
             TITLE,
             CREATED_USER,
-            NAME, BIRTH,
-            GENDER, MILITARY,
-            ROLE,
+            NAME,
+            BIRTH,
+            GENDER,
+            POSITION,
+            MILITARY,
             MARRIAGE,
-            LANDLINE_NUMBER,
-            PHONE_NUMBER,
             EMAIL,
+            LANDLINE,
+            PHONE,
             ADDRESS,
             PHOTO_PATH,
             CREATED_AT,
@@ -34,8 +36,8 @@
             MILITARY,
             MARRIAGE,
             EMAIL,
-            LANDLINE_NUMBER,
-            PHONE_NUMBER,
+            LANDLINE,
+            PHONE,
             ADDRESS,
             PHOTO_PATH,
             CREATED_AT,
@@ -46,7 +48,7 @@
             #{title},
             #{createdUser},
             #{name},
-            #{birth},
+            NULLIF(#{birth}, ''),
             #{gender},
             #{position},
             #{military},
@@ -58,6 +60,25 @@
             #{photoPath},
             NOW(),
             NULL
+            )
+    </insert>
+
+    <insert id="insertAttachment">
+        INSERT INTO profile_file (
+            PROFILE_ID,
+            ORIGINAL_NAME,
+            SAVE_NAME,
+            FILE_PATH,
+            FILE_SIZE,
+            CREATED_AT
+            )
+        VALUES (
+            #{profileId},
+            #{originalName},
+            #{saveName},
+            #{filePath},
+            #{fileSize},
+            NOW()
             )
     </insert>
 </mapper>

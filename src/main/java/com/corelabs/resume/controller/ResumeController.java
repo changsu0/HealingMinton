@@ -1,6 +1,7 @@
 package com.corelabs.resume.controller;
 
 import com.corelabs.resume.service.ResumeService;
+import com.corelabs.resume.vo.CommonDetail;
 import com.corelabs.resume.vo.ResumeSearchVO;
 import com.corelabs.resume.vo.ResumeVO;
 import com.google.gson.Gson;
@@ -30,8 +31,10 @@ public class ResumeController {
     public String detailResumeSync(@RequestParam("id") String id, Model model) {
 
         ResumeVO resumeVO = resumeService.selectResumeById(id);
+        List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
 
         model.addAttribute("resume", resumeVO);
+        model.addAttribute("sexType", sexType);
 
         return "resume/resumeDetail_sync";
     }
@@ -43,8 +46,10 @@ public class ResumeController {
     public String modifyResumeSync(@RequestParam("id") String id, Model model) {
 
         ResumeVO resumeVO = resumeService.selectResumeById(id);
+        List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
 
         model.addAttribute("resume", resumeVO);
+        model.addAttribute("sexType", sexType);
 
         return "resume/modifyResume_sync";
     }
@@ -55,7 +60,12 @@ public class ResumeController {
     }
 
     @GetMapping("/createResume_sync")
-    public String createResumeSync() {
+    public String createResumeSync(Model model) {
+
+        List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
+
+        model.addAttribute("sexType", sexType);
+
         return "resume/createResume_sync";
     }
 
@@ -63,21 +73,28 @@ public class ResumeController {
     @ResponseBody
     public List<Map<String, Object>> selectResumeList(ResumeSearchVO searchVO) {
 
-        List<String> resumeIds = resumeService.selectResumeIdList(searchVO);
-
-        List<Map<String, Object>> resumeList = resumeService.selectResumeList(resumeIds);
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
 
         return resumeList;
+    }
+
+    @GetMapping("/{comCd}")
+    @ResponseBody
+    public List<CommonDetail> selectCommonList(@PathVariable String comCd) {
+
+        List<CommonDetail> commonList = resumeService.selectCommonList(comCd);
+
+        return commonList;
     }
 
     @GetMapping("/resumeList_sync")
     public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO searchVO, Model model) {
 
-        List<String> resumeIds = resumeService.selectResumeIdList(searchVO);
-
-        List<Map<String, Object>> resumeList = resumeService.selectResumeList(resumeIds);
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
+        List<CommonDetail> commonList = resumeService.selectCommonList("SEX_TYPE");
 
         model.addAttribute("resumeList", resumeList);
+        model.addAttribute("commonList", commonList);
 
         return "resume/resumeList_sync";
     }

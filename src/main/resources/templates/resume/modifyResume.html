@@ -14,6 +14,7 @@
             position: relative;
             display: flex;
             align-items: center;
+            border-radius: 10px;
         }
 
         .footer-input-wrapper.required::after {
@@ -77,13 +78,33 @@
         }
 
         .custom-input-group {
-            background-color: #f1f3f5;
             border-radius: 10px;
-            border: none;
             padding: 10px 15px;
             display: flex;
             align-items: center;
             margin-bottom: 15px;
+        }
+
+        .custom-input-group:has(input[readonly], input:disabled),
+        .custom-input-group:has(select[readonly], select:disabled),
+        .custom-input-group:has(textarea[readonly], select:disabled) {
+            background-color: #f1f3f5;
+            border: none;
+        }
+
+        .custom-input-group:has(input:not([readonly]):not(:disabled)),
+        .custom-input-group:has(select:not([readonly]):not(:disabled)),
+        .custom-input-group:has(textarea:not([readonly]):not(:disabled)) {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+        }
+
+        .custom-input-group:has(input:not([readonly]):not(:disabled):focus),
+        .custom-input-group:has(select:not([readonly]):not(:disabled):focus),
+        .custom-input-group:has(textarea:not([readonly]):not(:disabled):focus) {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
 
         .custom-input-group i {
@@ -183,12 +204,17 @@
             padding: 0 20px;
         }
         .footer-input {
-            background-color: #f1f3f5;
-            border: none;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
             border-radius: 10px;
             padding: 8px 15px;
             font-size: 0.9rem;
             outline: none;
+        }
+
+        .footer-input[readonly], footer-input:disabled {
+            background-color: #f1f3f5;
+            border: none;
         }
 
         /* 에러 발생 시 입력창 테두리 강조를 위한 Bootstrap 클래스 활용 */
@@ -222,6 +248,12 @@
             color: #dc3545; /* Bootstrap danger 색상 */
             margin-left: 2px;
             font-weight: bold;
+        }
+
+        .footer-input-wrapper:has(input:not([readonly]):not(:disabled):focus) {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
 
         /* 버튼 스타일 */
@@ -262,31 +294,32 @@
                 <div class="row">
                     <div class="col">
                         <label class="form-label required-mark">이름</label>
-                        <div class="custom-input-group"><input type="text" placeholder="이름" class="form-control" id="name"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="이름" id="name"></div>
                     </div>
                     <div class="col">
                         <label class="form-label">성별</label>
                         <div class="custom-input-group">
-                            <select id="gender" class="form-control">
-                                <option value="남자" selected>남자</option>
-                                <option value="여자">여자</option>
+                            <select id="gender">
+
                             </select>
                         </div>
+
+                        </select>
                     </div>
                     <div class="col">
                         <label class="form-label" >생년월일</label>
-                        <div class="custom-input-group"><input type="date" class="form-control" id="birth"></div>
+                        <div class="custom-input-group"><input type="date" id="birth"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" class="form-control" id="role"></div>
+                        <div class="custom-input-group"><input type="text" id="role"></div>
                     </div>
                     <div class="col">
                         <label class="form-label">병역</label>
                         <div class="custom-input-group">
-                            <select id="military" class="form-control">
+                            <select id="military">
                                 <option value="미필" selected>미필</option>
                                 <option value="군필">군필</option>
                             </select>
@@ -295,7 +328,7 @@
                     <div class="col">
                         <label class="form-label">결혼</label>
                         <div class="custom-input-group">
-                            <select id="marriage" class="form-control">
+                            <select id="marriage">
                                 <option value="미혼" selected>미혼</option>
                                 <option value="기혼">기혼</option>
                             </select>
@@ -307,14 +340,14 @@
                         <label class="form-label">전화번호(유선)</label>
                         <span id="landlineError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                         <div class="custom-input-group">
-                            <input type="text" class="form-control" id="landlineNumber">
+                            <input type="text" id="landlineNumber" placeholder="전화번호(유선)">
                         </div>
                     </div>
                     <div class="col">
                         <label class="form-label">전화번호(무선)</label>
                         <span id="phoneError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                         <div class="custom-input-group">
-                            <input type="text" class="form-control" id="phoneNumber">
+                            <input type="text" id="phoneNumber" placeholder="전화번호(무선)">
                         </div>
                     </div>
                 </div>
@@ -322,10 +355,10 @@
                 <span id="emailError" class="error-message text-danger" style="display: none">올바른 이메일 형식이 아닙니다.</span>
                 <div class="custom-input-group">
                     <i class="bi bi-envelope"></i>
-                    <input type="email" class="form-control" placeholder="이메일" id="email">
+                    <input type="email" placeholder="이메일" id="email">
                 </div>
                 <label class="form-label">주소</label>
-                <div class="custom-input-group"><input type="text" class="form-control" placeholder="주소" id="address"></div>
+                <div class="custom-input-group"><input type="text" placeholder="주소" id="address"></div>
             </div>
 
             <div class="tab-pane fade" id="content-edu">
@@ -392,6 +425,9 @@
 <script th:inline="javascript">
 
     $(document).ready(function () {
+
+        loadCommon("SEX_TYPE", "#gender");
+
         // 1. URL 파라미터에서 'id' 추출
         const urlParams = new URLSearchParams(window.location.search);
         const resumeId = urlParams.get('id');
@@ -403,6 +439,27 @@
             history.back();
         }
     })
+
+    function loadCommon(comCd, targetSelector) {
+        $.ajax({
+            url: `/resume/${comCd}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                const $select = $(targetSelector);
+                $select.empty(); // 기존 옵션 제거
+
+                data.forEach(function(item, index) {
+                    const selected = (index === 0) ? 'selected' : '';
+                    const option = `<option value="${item.dtlCd}" ${selected}>${item.dtlNm}</option>`;
+                    $select.append(option);
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error(`${dtlCd} 코드를 불러오는데 실패했습니다:`, error);
+            }
+        });
+    }
 
     function loadResumeDetail(resumeId) {
         $.ajax({
@@ -431,7 +488,7 @@
                         innerHTML += `
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">학교명</label>
+                                <label class="form-label required-mark">학교명</label>
                                 <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength="100" id="schoolName" value="${edu.schoolName || ''}"></div>
 
                                 <label class="form-label">졸업여부</label>
@@ -459,7 +516,7 @@
                         innerHTML += `
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">회사명</label>
+                                <label class="form-label required-mark">회사명</label>
                                 <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" value="${career.companyName || ''}"></div>
 
                                 <label class="form-label">직위</label>
@@ -494,7 +551,7 @@
                         innerHTML += `
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">자격증명</label>
+                                <label class="form-label required-mark">자격증명</label>
                                 <div class="custom-input-group"><input type="text" placeholder="자격증명" maxlength="50" id="licenseName" value="${license.licenseName || ''}"></div>
 
                                 <label class="form-label">발급기관</label>
@@ -514,7 +571,7 @@
                         innerHTML += `
                                 <div class="entry-card">
                                 <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
-                                <label class="form-label">프로젝트명</label>
+                                <label class="form-label required-mark">프로젝트명</label>
                                 <div class="custom-input-group"><input type="text" placeholder="프로젝트명" maxlength="100" id="projectName" value="${skill.projectName || ''}"></div>
 
                                 <label class="form-label">고객사</label>
@@ -550,11 +607,11 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <label class="form-label">시작일자</label>
-                                        <div class="custom-input-group"><input type="month" id="projectStartTerm" value="${skill.projectStartTerm.toString() == '1970-01-01' ? '' : skill.projectStartTerm.slice(0, -3)}"></div>
+                                        <div class="custom-input-group"><input type="month" id="projectStartTerm" value="${skill.projectStartTerm == null ? '' : skill.projectStartTerm.slice(0, -3)}"></div>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">종료일자</label>
-                                        <div class="custom-input-group"><input type="month" id="projectEndTerm" value="${skill.projectEndTerm.toString() == '1970-01-01' ? '' : skill.projectEndTerm.slice(0, -3)}"></div>
+                                        <div class="custom-input-group"><input type="month" id="projectEndTerm" value="${skill.projectEndTerm == null ? '' : skill.projectEndTerm.slice(0, -3)}"></div>
                                     </div>
                                 </div>
 
@@ -563,7 +620,7 @@
 
                                 <label class="form-label">상세업무내용</label>
                                 <div class="custom-input-group">
-                                    <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail">${skill.projectWorkDetail || ''}</textarea>
+                                    <textarea rows="5" maxlength="4000" id="projectWorkDetail">${skill.projectWorkDetail || ''}</textarea>
                                 </div>
                                 </div>`;
                     }
@@ -579,12 +636,15 @@
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        function lengthField(errorId, len) {
+        function lengthField(inputEl, errorId, len) {
             const errorEl = document.getElementById(errorId);
-            if (errorEl.value.length > len) {
-                errorEl.classList.add('is-invalid');
+            const value = inputEl.value;
+            if (value.length > len) {
+                inputEl.classList.add('is-invalid');
+                errorEl.style.display = 'inline';
             } else {
-                errorEl.classList.remove('is-invalid');
+                inputEl.classList.remove('is-invalid');
+                errorEl.style.display = 'none';
             }
         }
 
@@ -638,22 +698,6 @@
         createdUserInput.addEventListener('focusout', function () {
             lengthField(this, 'createdUserError', 50);
         })
-
-        // nameInput.addEventListener('focusout', function () {
-        //     lengthField('name', 50);
-        // })
-        //
-        // roleInput.addEventListener('focusout', function () {
-        //     lengthField('role', 10);
-        // })
-        //
-        // emailInput.addEventListener('focusout', function () {
-        //     lengthField('email', 100);
-        // })
-        //
-        // addressInput.addEventListener('focusout', function () {
-        //     lengthField('address', 255);
-        // })
 
         // 유선전화번호 focusout 이벤트
         landlineInput.addEventListener('focusout', function() {
@@ -710,17 +754,6 @@
 
     });
 
-    function checkField(inputElement, regex, message) {
-        if (inputElement.value && !regex.test(inputElement.value)) {
-            inputElement.classList.add('is-invalid'); // 빨간 테두리 추가
-            // 에러 메시지 표시 로직 등을 추가할 수 있습니다.
-            return false;
-        } else {
-            inputElement.classList.remove('is-invalid');
-            return true;
-        }
-    }
-
     // 저장 함수
     function saveResume() {
 
@@ -776,8 +809,8 @@
                 projectDb: $(this).find('#projectDb').val(),
                 projectTool: $(this).find('#projectTool').val(),
                 projectFramework: $(this).find('#projectFramework').val(),
-                projectStartTerm: $(this).find('#projectStartTerm').val() + '-01',
-                projectEndTerm: $(this).find('#projectEndTerm').val() + '-01',
+                projectStartTerm: $(this).find('#projectStartTerm').val(),
+                projectEndTerm: $(this).find('#projectEndTerm').val(),
                 projectWorkDetail: $(this).find('#projectWorkDetail').val(),
                 projectEtc: $(this).find('#projectEtc').val()
             })
@@ -862,7 +895,7 @@
                         <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName"></div>
 
                         <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" class="form-control" id="companyRole"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" id="companyRole"></div>
 
                         <label class="form-label">담당업무</label>
                         <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork"></div>
@@ -872,14 +905,12 @@
                                 <label class="form-label">시작일자</label>
                                 <div class="custom-input-group">
                                     <input type="date" id="companyStartTerm">
-<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
                                 </div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label">종료일자</label>
                                 <div class="custom-input-group">
                                     <input type="date" id="companyEndTerm">
-<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
                                 </div>
                             </div>
                         </div>`;
@@ -946,7 +977,7 @@
 
                         <label class="form-label">상세업무내용</label>
                         <div class="custom-input-group">
-                            <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail"></textarea>
+                            <textarea rows="5" maxlength="4000" id="projectWorkDetail"></textarea>
                         </div>`;
         }
         container.appendChild(newEntry);

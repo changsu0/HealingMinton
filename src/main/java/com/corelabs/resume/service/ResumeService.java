@@ -19,14 +19,14 @@ public class ResumeService {
 
     public ResumeService(ResumeMapper resumeMapper) { this.resumeMapper = resumeMapper; }
 
-    public List<Map<String, Object>> selectResumeList(List<String> resumeIds) {
+    public List<Map<String, Object>> selectResumeList(ResumeSearchVO searchVO) {
 
-        return resumeMapper.selectResumeList(resumeIds);
+        return resumeMapper.selectResumeList(searchVO);
     }
 
-    public List<String> selectResumeIdList(ResumeSearchVO searchVO) {
+    public List<CommonDetail> selectCommonList(String comCd) {
 
-        return resumeMapper.selectResumeIdList(searchVO);
+        return resumeMapper.selectCommonList(comCd);
     }
 
     public ResumeVO selectResumeById(String resumeId) {

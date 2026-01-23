@@ -14,6 +14,7 @@
             position: relative;
             display: flex;
             align-items: center;
+            border-radius: 10px;
         }
 
         .footer-input-wrapper.required::after {
@@ -77,13 +78,33 @@
         }
 
         .custom-input-group {
-            background-color: #f1f3f5;
             border-radius: 10px;
-            border: none;
             padding: 10px 15px;
             display: flex;
             align-items: center;
             margin-bottom: 15px;
+        }
+
+        .custom-input-group:has(input[readonly], input:disabled),
+        .custom-input-group:has(select[readonly], select:disabled),
+        .custom-input-group:has(textarea[readonly], select:disabled) {
+            background-color: #f1f3f5;
+            border: none;
+        }
+
+        .custom-input-group:has(input:not([readonly]):not(:disabled)),
+        .custom-input-group:has(select:not([readonly]):not(:disabled)),
+        .custom-input-group:has(textarea:not([readonly]):not(:disabled)) {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+        }
+
+        .custom-input-group:has(input:not([readonly]):not(:disabled):focus),
+        .custom-input-group:has(select:not([readonly]):not(:disabled):focus),
+        .custom-input-group:has(textarea:not([readonly]):not(:disabled):focus) {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
 
         .custom-input-group i {
@@ -183,12 +204,17 @@
             padding: 0 20px;
         }
         .footer-input {
-            background-color: #f1f3f5;
-            border: none;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
             border-radius: 10px;
             padding: 8px 15px;
             font-size: 0.9rem;
             outline: none;
+        }
+
+        .footer-input[readonly], footer-input:disabled {
+            background-color: #f1f3f5;
+            border: none;
         }
 
         /* 에러 발생 시 입력창 테두리 강조를 위한 Bootstrap 클래스 활용 */
@@ -222,6 +248,12 @@
             color: #dc3545; /* Bootstrap danger 색상 */
             margin-left: 2px;
             font-weight: bold;
+        }
+
+        .footer-input-wrapper:has(input:not([readonly]):not(:disabled):focus) {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
 
         /* 버튼 스타일 */
@@ -264,31 +296,30 @@
                         <div class="row">
                             <div class="col">
                                 <label class="form-label required-mark">이름</label>
-                                <div class="custom-input-group"><input type="text" placeholder="이름" class="form-control" maxlength="50" id="name" name="name"></div>
+                                <div class="custom-input-group"><input type="text" placeholder="이름" maxlength="50" id="name" name="name"></div>
                             </div>
                             <div class="col">
                                 <label class="form-label">성별</label>
                                 <div class="custom-input-group">
-                                    <select id="gender" name="gender" class="form-control">
-                                        <option value="남자" selected>남자</option>
-                                        <option value="여자">여자</option>
+                                    <select id="gender" name="gender">
+                                        <option th:each="sexType, stat : ${sexType}" th:value="${sexType.dtlCd}" th:selected="${stat.index} == 0" th:text="${sexType.dtlNm}"></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="form-label" >생년월일</label>
-                                <div class="custom-input-group"><input type="date" class="form-control" id="birth" name="birth"></div>
+                                <div class="custom-input-group"><input type="date" id="birth" name="birth"></div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <label class="form-label">직위</label>
-                                <div class="custom-input-group"><input type="text" class="form-control" maxlength="10" id="role" name="role"></div>
+                                <div class="custom-input-group"><input type="text" maxlength="10" id="role" name="role"></div>
                             </div>
                             <div class="col">
                                 <label class="form-label">병역</label>
                                 <div class="custom-input-group">
-                                    <select id="military" name="military" class="form-control">
+                                    <select id="military" name="military">
                                         <option value="미필" selected>미필</option>
                                         <option value="군필">군필</option>
                                     </select>
@@ -297,7 +328,7 @@
                             <div class="col">
                                 <label class="form-label">결혼</label>
                                 <div class="custom-input-group">
-                                    <select id="marriage" name="marriage" class="form-control">
+                                    <select id="marriage" name="marriage">
                                         <option value="미혼" selected>미혼</option>
                                         <option value="기혼">기혼</option>
                                     </select>
@@ -309,14 +340,14 @@
                                 <label class="form-label">전화번호(유선)</label>
                                 <span id="landlineError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                                 <div class="custom-input-group">
-                                    <input type="text" class="form-control" id="landlineNumber" name="landlineNumber" maxlength="30">
+                                    <input type="text" id="landlineNumber" name="landlineNumber" maxlength="30" placeholder="전화번호(유선)">
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="form-label">전화번호(무선)</label>
                                 <span id="phoneError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                                 <div class="custom-input-group">
-                                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" maxlength="30">
+                                    <input type="text" id="phoneNumber" name="phoneNumber" maxlength="30" placeholder="전화번호(무선)">
                                 </div>
                             </div>
                         </div>
@@ -324,10 +355,10 @@
                         <span id="emailError" class="error-message text-danger" style="display: none">올바른 이메일 형식이 아닙니다.</span>
                         <div class="custom-input-group">
                             <i class="bi bi-envelope"></i>
-                            <input type="email" class="form-control" placeholder="이메일" id="email" name="email" maxlength="100">
+                            <input type="email" placeholder="이메일" id="email" name="email" maxlength="100">
                         </div>
                         <label class="form-label">주소</label>
-                        <div class="custom-input-group"><input type="text" class="form-control" placeholder="주소" id="address" name="address" maxlength="255"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="주소" id="address" name="address" maxlength="255"></div>
                     </div>
 
                     <div class="tab-pane fade" id="content-edu">
@@ -412,6 +443,7 @@
                     return;
                 }
 
+                alert("이력서가 성공적으로 저장되었습니다.")
                 document.getElementById('saveForm').submit();
             }
 
@@ -479,22 +511,6 @@
                 createdUserInput.addEventListener('focusout', function () {
                     lengthField(this, 'createdUserError', 50);
                 })
-
-                // nameInput.addEventListener('focusout', function () {
-                //     lengthField('name', 50);
-                // })
-                //
-                // roleInput.addEventListener('focusout', function () {
-                //     lengthField('role', 10);
-                // })
-                //
-                // emailInput.addEventListener('focusout', function () {
-                //     lengthField('email', 100);
-                // })
-                //
-                // addressInput.addEventListener('focusout', function () {
-                //     lengthField('address', 255);
-                // })
 
                 // 유선전화번호 focusout 이벤트
                 landlineInput.addEventListener('focusout', function() {
@@ -621,7 +637,7 @@
                         <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" name="careerList[${careerIndex}].companyName"></div>
 
                         <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" class="form-control" id="companyRole" name="careerList[${careerIndex}].companyRole"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" id="companyRole" name="careerList[${careerIndex}].companyRole"></div>
 
                         <label class="form-label">담당업무</label>
                         <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork" name="careerList[${careerIndex}].companyWork"></div>
@@ -709,7 +725,7 @@
 
                         <label class="form-label">상세업무내용</label>
                         <div class="custom-input-group">
-                            <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail" name="skillList[${skillIndex}].projectWorkDetail"></textarea>
+                            <textarea rows="5" maxlength="4000" id="projectWorkDetail" name="skillList[${skillIndex}].projectWorkDetail"></textarea>
                         </div>`;
 
                     skillIndex++;
@@ -719,7 +735,7 @@
 
             function confirmExit() {
                 if(confirm("작성 중인 내용이 저장되지 않을 수 있습니다. 목록으로 나가시겠습니까?")) {
-                    location.href = '/resume/resumeList';
+                    location.href = '/resume/resumeList_sync';
                     alert("목록 페이지로 이동합니다.");
                 }
             }

@@ -21,24 +21,24 @@ public class ProfileController {
     public String selectResumeList(Model model) {
         List<ProfileVO> profile = profileService.selectProfileList();
 
-        return "resume/newResumeList";
+        return "profile/profileList";
     }
 
-    @GetMapping("/resume-new")
-    public String createResume() {
+    @GetMapping("/createProfile")
+    public String createProfile() {
 
-        return "resume/resume-new";
+        return "profile/createProfile";
     }
 
     @PostMapping("/save")
     @ResponseBody
     public String saveProfile(
+            @RequestPart("profileData") ProfileVO profileVO,
             @RequestPart(value = "photoFile", required = false) MultipartFile photoFile,
-            @RequestPart(value = "attachFiles", required = false) MultipartFile attachFiles,
-            @RequestPart("resumeData") ProfileVO newResumeVO) {
+            @RequestPart(value = "attachFiles", required = false) List<MultipartFile> attachFiles) {
 
         // 서비스 호출하여 파일 저장 및 DB 인서트 처리
-        //profileService.saveResume(newResumeVO, photoFile);
+        profileService.saveProfile(profileVO, photoFile, attachFiles);
 
         return "success";
     }

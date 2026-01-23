@@ -120,7 +120,7 @@
       <div class="row text-start border-top border-bottom py-3">
         <div class="col-8">
           <h4 class="text-primary"><strong><span id="name" th:text="${resume.name}"></span></strong></h4>
-          <p style="font-size: 0.90rem; margin-bottom: 5px; line-height: 1.4;"><span id="gender" th:text="${resume.gender}"></span> | <span id="military" th:text="${resume.military}"></span> | <span id="marriage" th:text="${resume.marriage}"></span> | <span id="role" th:text="${resume.role}"></span></p>
+          <p style="font-size: 0.90rem; margin-bottom: 5px; line-height: 1.4;"><span id="gender" th:each="gender : ${sexType}" th:if="${gender.dtlCd} == ${resume.gender}" th:text="${gender.dtlNm}"></span> | <span id="military" th:text="${resume.military}"></span> | <span id="marriage" th:text="${resume.marriage}"></span> | <span id="role" th:text="${resume.role}"></span></p>
           <p><strong>생년월일:</strong> <span id="birth" th:text="${resume.birth}"></span></p>
           <p><strong>주소:</strong> <span id="address" th:text="${resume.address}"></span></p>
           <p><strong>연락처:</strong> (유선) <span id="landlineNumber" th:text="${resume.landlineNumber}"></span> | (무선) <span id="phoneNumber" th:text="${resume.phoneNumber}"></span></p>

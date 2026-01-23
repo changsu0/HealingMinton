@@ -10,7 +10,7 @@ import java.util.Map;
 public interface ResumeMapper {
 
     ResumeVO selectResumeById(String resumeId);
-    List<Map<String, Object>> selectResumeList(List<String> resumeIds);
+    List<Map<String, Object>> selectResumeList(ResumeSearchVO searchVO);
     int insertResume(ResumeVO resumeVO);
     int updateResume(ResumeVO resumeVO);
     int deleteResume(String resumeId);
@@ -31,5 +31,5 @@ public interface ResumeMapper {
     int insertSkill(ResumeSkillVO resumeSkillVO);
     int deleteSkill(String resumeId);
 
-    List<String> selectResumeIdList(ResumeSearchVO resumeSearchVO);
+    List<CommonDetail> selectCommonList(String comCd);
 }

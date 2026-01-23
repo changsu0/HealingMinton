@@ -14,6 +14,7 @@
             position: relative;
             display: flex;
             align-items: center;
+            border-radius: 10px;
         }
 
         .footer-input-wrapper.required::after {
@@ -77,13 +78,33 @@
         }
 
         .custom-input-group {
-            background-color: #f1f3f5;
             border-radius: 10px;
-            border: none;
             padding: 10px 15px;
             display: flex;
             align-items: center;
             margin-bottom: 15px;
+        }
+
+        .custom-input-group:has(input[readonly], input:disabled),
+        .custom-input-group:has(select[readonly], select:disabled),
+        .custom-input-group:has(textarea[readonly], select:disabled) {
+            background-color: #f1f3f5;
+            border: none;
+        }
+
+        .custom-input-group:has(input:not([readonly]):not(:disabled)),
+        .custom-input-group:has(select:not([readonly]):not(:disabled)),
+        .custom-input-group:has(textarea:not([readonly]):not(:disabled)) {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+        }
+
+        .custom-input-group:has(input:not([readonly]):not(:disabled):focus),
+        .custom-input-group:has(select:not([readonly]):not(:disabled):focus),
+        .custom-input-group:has(textarea:not([readonly]):not(:disabled):focus) {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
 
         .custom-input-group i {
@@ -183,12 +204,17 @@
             padding: 0 20px;
         }
         .footer-input {
-            background-color: #f1f3f5;
-            border: none;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
             border-radius: 10px;
             padding: 8px 15px;
             font-size: 0.9rem;
             outline: none;
+        }
+
+        .footer-input[readonly], footer-input:disabled {
+            background-color: #f1f3f5;
+            border: none;
         }
 
         /* 에러 발생 시 입력창 테두리 강조를 위한 Bootstrap 클래스 활용 */
@@ -222,6 +248,12 @@
             color: #dc3545; /* Bootstrap danger 색상 */
             margin-left: 2px;
             font-weight: bold;
+        }
+
+        .footer-input-wrapper:has(input:not([readonly]):not(:disabled):focus) {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
 
         /* 버튼 스타일 */
@@ -264,31 +296,30 @@
                 <div class="row">
                     <div class="col">
                         <label class="form-label required-mark">이름</label>
-                        <div class="custom-input-group"><input type="text" placeholder="이름" class="form-control" id="name" name="name" th:value="${resume.name}"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="이름" id="name" name="name" th:value="${resume.name}"></div>
                     </div>
                     <div class="col">
                         <label class="form-label">성별</label>
                         <div class="custom-input-group">
-                            <select id="gender" name="gender" class="form-control" th:value="${resume.gender}">
-                                <option value="남자" th:selected="${resume.gender} == '남자'">남자</option>
-                                <option value="여자" th:selected="${resume.gender} == '여자'">여자</option>
+                            <select id="gender" name="gender">
+                                <option th:each="sexType : ${sexType}" th:value="${sexType.dtlCd}" th:selected="${resume.gender} == ${sexType.dtlCd}" th:text="${sexType.dtlNm}"></option>
                             </select>
                         </div>
                     </div>
                     <div class="col">
                         <label class="form-label">생년월일</label>
-                        <div class="custom-input-group"><input type="date" class="form-control" id="birth" name="birth" th:value="${resume.birth}"></div>
+                        <div class="custom-input-group"><input type="date" id="birth" name="birth" th:value="${resume.birth}"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" class="form-control" id="role" name="role" th:value="${resume.role}"></div>
+                        <div class="custom-input-group"><input type="text" id="role" name="role" th:value="${resume.role}"></div>
                     </div>
                     <div class="col">
                         <label class="form-label">병역</label>
                         <div class="custom-input-group">
-                            <select id="military" name="military" class="form-control" th:value="${resume.military}">
+                            <select id="military" name="military" th:value="${resume.military}">
                                 <option value="미필" th:selected="${resume.military} == '미필'">미필</option>
                                 <option value="군필" th:selected="${resume.military} == '군필'">군필</option>
                             </select>
@@ -297,7 +328,7 @@
                     <div class="col">
                         <label class="form-label">결혼</label>
                         <div class="custom-input-group">
-                            <select id="marriage" name="marriage" class="form-control" th:value="${resume.marriage}">
+                            <select id="marriage" name="marriage" th:value="${resume.marriage}">
                                 <option value="미혼" th:selected="${resume.marriage} == '미혼'">미혼</option>
                                 <option value="기혼" th:selected="${resume.marriage} == '기혼'">기혼</option>
                             </select>
@@ -309,14 +340,14 @@
                         <label class="form-label">전화번호(유선)</label>
                         <span id="landlineError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                         <div class="custom-input-group">
-                            <input type="text" class="form-control" id="landlineNumber" name="landlineNumber" th:value="${resume.landlineNumber}">
+                            <input type="text" id="landlineNumber" name="landlineNumber" placeholder="전화번호(유선)" th:value="${resume.landlineNumber}">
                         </div>
                     </div>
                     <div class="col">
                         <label class="form-label">전화번호(무선)</label>
                         <span id="phoneError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                         <div class="custom-input-group">
-                            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" th:value="${resume.phoneNumber}">
+                            <input type="text" id="phoneNumber" name="phoneNumber" placeholder="전화번호(무선)" th:value="${resume.phoneNumber}">
                         </div>
                     </div>
                 </div>
@@ -324,10 +355,10 @@
                 <span id="emailError" class="error-message text-danger" style="display: none">올바른 이메일 형식이 아닙니다.</span>
                 <div class="custom-input-group">
                     <i class="bi bi-envelope"></i>
-                    <input type="email" class="form-control" placeholder="이메일" id="email" name="email" th:value="${resume.email}">
+                    <input type="email" placeholder="이메일" id="email" name="email" th:value="${resume.email}">
                 </div>
                 <label class="form-label">주소</label>
-                <div class="custom-input-group"><input type="text" class="form-control" placeholder="주소" id="address" name="address" th:value="${resume.address}"></div>
+                <div class="custom-input-group"><input type="text" placeholder="주소" id="address" name="address" th:value="${resume.address}"></div>
             </div>
 
             <div class="tab-pane fade" id="content-edu">
@@ -341,7 +372,7 @@
                     <div class="entry-card" th:each="edu, stat : *{educationList}">
                         <input type="hidden" th:value="${edu.resumeId}" th:name="|educationList[${stat.index}].resumeId|">
                         <button type="button" class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('educationIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">학교명</label>
+                        <label class="form-label required-mark">학교명</label>
                         <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength="100" id="schoolName" th:value="${edu.schoolName}" th:name="|educationList[${stat.index}].schoolName|"></div>
 
                         <label class="form-label">졸업여부</label>
@@ -372,7 +403,7 @@
                     <div class="entry-card" th:each="career, stat : *{careerList}">
                         <input type="hidden" th:value="${career.resumeId}" th:name="|careerList[${stat.index}].resumeId|">
                         <button type="button" class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('careerIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">회사명</label>
+                        <label class="form-label required-mark">회사명</label>
                         <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" th:value="${career.companyName}" th:name="|careerList[${stat.index}].companyName|"></div>
 
                         <label class="form-label">직위</label>
@@ -410,7 +441,7 @@
                     <div class="entry-card" th:each="license, stat : *{licenseList}">
                         <input type="hidden" th:value="${license.resumeId}" th:name="|licenseList[${stat.index}].resumeId|">
                         <button type="button" class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('licenseIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">자격증명</label>
+                        <label class="form-label required-mark">자격증명</label>
                         <div class="custom-input-group"><input type="text" placeholder="자격증명" maxlength="50" id="licenseName" th:value="${license.licenseName}" th:name="|licenseList[${stat.index}].licenseName|"></div>
 
                         <label class="form-label">발급기관</label>
@@ -433,7 +464,7 @@
                     <div class="entry-card" th:each="skill, stat : *{skillList}">
                         <input type="hidden" th:value="${skill.resumeId}" th:name="|skillList[${stat.index}].resumeId|">
                         <button type="button" class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('skillIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label">프로젝트명</label>
+                        <label class="form-label required-mark">프로젝트명</label>
                         <div class="custom-input-group"><input type="text" placeholder="프로젝트명" maxlength="100" id="projectName" th:value="${skill.projectName}" th:name="|skillList[${stat.index}].projectName|"></div>
 
                         <label class="form-label">고객사</label>
@@ -482,7 +513,7 @@
 
                         <label class="form-label">상세업무내용</label>
                         <div class="custom-input-group">
-                            <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail" th:text="${skill.projectWorkDetail}" th:name="|skillList[${stat.index}].projectWorkDetail|"></textarea>
+                            <textarea rows="5" maxlength="4000" id="projectWorkDetail" th:text="${skill.projectWorkDetail}" th:name="|skillList[${stat.index}].projectWorkDetail|"></textarea>
                         </div>
                     </div>
                 </div>
@@ -547,18 +578,22 @@
             return;
         }
 
+        alert("이력서가 성공적으로 저장되었습니다.")
         document.getElementById('saveForm').submit();
     }
 
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        function lengthField(errorId, len) {
+        function lengthField(inputEl, errorId, len) {
             const errorEl = document.getElementById(errorId);
-            if (errorEl.value.length > len) {
-                errorEl.classList.add('is-invalid');
+            const value = inputEl.value;
+            if (value.length > len) {
+                inputEl.classList.add('is-invalid');
+                errorEl.style.display = 'inline';
             } else {
-                errorEl.classList.remove('is-invalid');
+                inputEl.classList.remove('is-invalid');
+                errorEl.style.display = 'none';
             }
         }
 
@@ -612,22 +647,6 @@
         createdUserInput.addEventListener('focusout', function () {
             lengthField(this, 'createdUserError', 50);
         })
-
-        // nameInput.addEventListener('focusout', function () {
-        //     lengthField('name', 50);
-        // })
-        //
-        // roleInput.addEventListener('focusout', function () {
-        //     lengthField('role', 10);
-        // })
-        //
-        // emailInput.addEventListener('focusout', function () {
-        //     lengthField('email', 100);
-        // })
-        //
-        // addressInput.addEventListener('focusout', function () {
-        //     lengthField('address', 255);
-        // })
 
         // 유선전화번호 focusout 이벤트
         landlineInput.addEventListener('focusout', function() {
@@ -684,17 +703,6 @@
 
     });
 
-    function checkField(inputElement, regex, message) {
-        if (inputElement.value && !regex.test(inputElement.value)) {
-            inputElement.classList.add('is-invalid'); // 빨간 테두리 추가
-            // 에러 메시지 표시 로직 등을 추가할 수 있습니다.
-            return false;
-        } else {
-            inputElement.classList.remove('is-invalid');
-            return true;
-        }
-    }
-
     function decreaseValue(value) {
         if (value == 'educationIndex') {
             educationIndex--;
@@ -715,10 +723,6 @@
     function addEntry(containerId) {
 
         const container = document.getElementById(containerId);
-
-        //1. 마지막 row를 찾거나 새로 생성해야 하는지 판단
-        // let rows = container.getElementsByClassName('row');
-        // let lastRow = rows[rows.length - 1];
 
         // 경력 섹션의 '항목 없음' 메시지 제거용
         if (container.querySelector('p')) container.innerHTML = '';
@@ -755,7 +759,7 @@
                         <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" name="careerList[${careerIndex}].companyName"></div>
 
                         <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" class="form-control" id="companyRole" name="careerList[${careerIndex}].companyRole"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" id="companyRole" name="careerList[${careerIndex}].companyRole"></div>
 
                         <label class="form-label">담당업무</label>
                         <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork" name="careerList[${careerIndex}].companyWork"></div>
@@ -843,7 +847,7 @@
 
                         <label class="form-label">상세업무내용</label>
                         <div class="custom-input-group">
-                            <textarea class="form-control" rows="5" maxlength="4000" id="projectWorkDetail" name="skillList[${skillIndex}].projectWorkDetail"></textarea>
+                            <textarea rows="5" maxlength="4000" id="projectWorkDetail" name="skillList[${skillIndex}].projectWorkDetail"></textarea>
                         </div>`;
 
             skillIndex++;

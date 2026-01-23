@@ -4,191 +4,147 @@
 <mapper namespace="com.corelabs.resume.mapper.ResumeMapper">
 
     <select id="selectResumeList" resultType="map">
+        /* ResumeMapper.selectResumeList */
         SELECT
-            r.resume_id AS resumeId,
-            r.name,
-            r.gender,
-            IFNULL(CONCAT(TIMESTAMPDIFF(YEAR, r.birth, CURDATE()) + 1, '세'), '데이터 없음') AS age,
-            IFNULL(r.military, '데이터 없음') AS military,
-            IFNULL(r.marriage, '데이터 없음') AS marriage,
-            IFNULL(r.address, '데이터 없음') AS address,
-            IFNULL(e.final_edu, '데이터 없음') AS finalEdu,
-            IFNULL(l.license_summary, '데이터 없음') AS licenseSummary,
-            IFNULL(CONCAT(FLOOR(total_months / 12),'년 ', MOD(total_months, 12), '개월'), '신입') AS formattedPeriod,
-            IFNULL(s.top_skill, '데이터 없음') AS topSkill,
-            DATE_FORMAT(IFNULL(r.updated_time, r.created_time), '%Y-%m-%d') AS lastUpdatedTime
+        r.resume_id AS resumeId,
+        r.name,
+        cd.dtl_nm AS gender,
+        IFNULL(CONCAT(TIMESTAMPDIFF(YEAR, r.birth, CURDATE()) + 1, '세'), '데이터 없음') AS age,
+        IFNULL(r.military, '데이터 없음') AS military,
+        IFNULL(r.marriage, '데이터 없음') AS marriage,
+        IFNULL(r.address, '데이터 없음') AS address,
+        IFNULL(e.final_edu, '데이터 없음') AS finalEdu,
+        IFNULL(l.license_summary, '데이터 없음') AS licenseSummary,
+        IFNULL(CONCAT(FLOOR(c.total_months / 12),'년 ', MOD(c.total_months, 12), '개월'), '신입') AS formattedPeriod,
+        IFNULL(s.top_skill, '데이터 없음') AS topSkill,
+        DATE_FORMAT(IFNULL(r.updated_time, r.created_time), '%Y-%m-%d') AS lastUpdatedTime
         FROM resume r
+        -- 1. 학력: 최신 학력 1건 추출
         LEFT JOIN (
-            SELECT resume_id,
-                   CONCAT(school_name, '(', school_status, ')') AS final_edu
-            FROM (
-                SELECT resume_id,
-                       school_name,
-                       school_status,
-                       ROW_NUMBER() OVER(PARTITION BY resume_id ORDER BY school_date DESC) as rn
-                FROM resume_education
-                ) t
-            WHERE rn = 1
+        SELECT resume_id, CONCAT(school_name, '(', school_status, ')') AS final_edu
+        FROM (
+        SELECT resume_id, school_name, school_status,
+        ROW_NUMBER() OVER(PARTITION BY resume_id ORDER BY school_date DESC) as rn
+        FROM resume_education
+        ) t WHERE rn = 1
         ) e ON r.resume_id = e.resume_id
+        -- 2. 자격증: 대표 자격증 및 외 N종 요약
         LEFT JOIN (
-            SELECT
-                resume_id,
-                CONCAT(
-                    SUBSTR(
-                        MAX(CASE WHEN license_name LIKE '%기사%' THEN CONCAT('3', license_name)
-                        WHEN license_name LIKE '%SQL%' THEN CONCAT('2', license_name)
-                        ELSE CONCAT('1', license_name) END)
-                    , 2),
-                    IF(COUNT(*) > 1, CONCAT(' 외 ', COUNT(*) - 1, '종'), '')
-                ) AS license_summary
-            FROM resume_license
-            GROUP BY resume_id
+        SELECT resume_id,
+        CONCAT(SUBSTR(MAX(CASE WHEN license_name LIKE '%기사%' THEN CONCAT('3', license_name)
+        WHEN license_name LIKE '%SQL%' THEN CONCAT('2', license_name)
+        ELSE CONCAT('1', license_name) END), 2),
+        IF(COUNT(*) > 1, CONCAT(' 외 ', COUNT(*) - 1, '종'), '')) AS license_summary
+        FROM resume_license
+        GROUP BY resume_id
         ) l ON r.resume_id = l.resume_id
+        -- 3. 경력: 총 경력 합산
         LEFT JOIN (
-            SELECT resume_id,
-                   SUM(TIMESTAMPDIFF(MONTH, company_start_term, IFNULL(company_end_term, CURDATE()))) AS total_months
-            FROM resume_career
-            GROUP BY resume_id
+        SELECT resume_id, SUM(TIMESTAMPDIFF(MONTH, company_start_term, IFNULL(company_end_term, CURDATE()))) AS total_months
+        FROM resume_career
+        GROUP BY resume_id
         ) c ON r.resume_id = c.resume_id
+        -- 4. 기술: 가장 많이 사용된 언어 추출
         LEFT JOIN (
-            SELECT resume_id,
-                   project_language AS top_skill
-            FROM (
-                     SELECT resume_id,
-                            project_language,
-                            ROW_NUMBER() OVER(PARTITION BY resume_id ORDER BY COUNT(*) DESC, project_language) as rn
-                     FROM resume_skill
-                     GROUP BY resume_id, project_language
-                 ) t WHERE rn = 1
+        SELECT resume_id, project_language AS top_skill
+        FROM (
+        SELECT resume_id, project_language,
+        ROW_NUMBER() OVER(PARTITION BY resume_id ORDER BY COUNT(*) DESC, project_language) as rn
+        FROM resume_skill
+        GROUP BY resume_id, project_language
+        ) t WHERE rn = 1
         ) s ON r.resume_id = s.resume_id
-        <where>
-            <choose>
-                <when test="resumeIds != null and resumeIds.size() > 0">
-                    AND r.resume_id IN
-                    <foreach item="resumeId" collection="resumeIds" open="(" separator="," close=")">
-                        #{resumeId}
-                    </foreach>
-                </when>
+        -- 5. 성별 공통 코드 (LEFT JOIN)
+        LEFT JOIN (
+        SELECT dtl_cd, dtl_nm
+        FROM comm_cd_dtl
+        WHERE com_cd = 'SEX_TYPE' AND use_yn = 'Y'
+        ) cd ON r.gender = cd.dtl_cd
 
-                <otherwise>
-                    AND 1 = 0
-                </otherwise>
-            </choose>
-        </where>
-    </select>
-
-    <select id="selectResumeIdList" resultType="string">
-        SELECT r.resume_id
-        FROM resume r
-        LEFT JOIN resume_education e ON r.resume_id = e.resume_id
-        LEFT JOIN resume_career c ON r.resume_id = c.resume_id
-        LEFT JOIN resume_license l ON r.resume_id = l.resume_id
-        LEFT JOIN resume_skill s ON r.resume_id = s.resume_id
         <where>
-            <if test="name != null and name != ''">
-                AND r.name LIKE CONCAT('%', #{name}, '%')
+            <if test="name != null and name != ''">AND r.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="gender != null and gender != ''">AND r.gender = #{gender}</if>
+            <if test="birth != null and birth != ''">AND r.birth LIKE CONCAT('%', #{birth}, '%')</if>
+            <if test="role != null and role != ''">AND r.role LIKE CONCAT('%', #{role}, '%')</if>
+            <if test="military != null and military != ''">AND r.military LIKE CONCAT('%', #{military}, '%')</if>
+            <if test="marriage != null and marriage != ''">AND r.marriage LIKE CONCAT('%', #{marriage}, '%')</if>
+            <if test="landlineNumber != null and landlineNumber != ''">AND r.landline_number LIKE CONCAT('%', #{landlineNumber}, '%')</if>
+            <if test="phoneNumber != null and phoneNumber != ''">AND r.phone_number LIKE CONCAT('%', #{phoneNumber}, '%')</if>
+            <if test="email != null and email != ''">AND r.email LIKE CONCAT('%', #{email}, '%')</if>
+            <if test="address != null and address != ''">AND r.address LIKE CONCAT('%', #{address}, '%')</if>
+
+            <if test="(schoolName != null and schoolName != '') or
+                      (schoolStatus != null and schoolStatus != '') or
+                      (schoolDate != null and schoolDate != '')">
+                AND EXISTS (
+                SELECT 1 FROM resume_education edu WHERE edu.resume_id = r.resume_id
+                <if test="schoolName != null and schoolName != ''">AND edu.school_name LIKE CONCAT('%', #{schoolName}, '%')</if>
+                <if test="schoolStatus != null and schoolStatus != ''">AND edu.school_status = #{schoolStatus}</if>
+                <if test="schoolDate != null and schoolDate != ''">AND edu.school_date LIKE CONCAT('%', #{schoolDate}, '%')</if>
+                )
             </if>
-            <if test="gender != null and gender != ''">
-                AND r.gender LIKE CONCAT('%', #{gender}, '%')
+
+            <if test="licenseName != null and licenseName != '' or
+                      licenseIssuer != null and licenseIssuer != '' or
+                      licenseDate != null and licenseDate != ''">
+                AND EXISTS (
+                SELECT 1 FROM resume_license lic WHERE lic.resume_id = r.resume_id
+                <if test="licenseName != null and licenseName != ''">AND lic.license_name LIKE CONCAT('%', #{licenseName}, '%')</if>
+                <if test="licenseIssuer != null and licenseIssuer != ''">AND lic.license_issuer LIKE CONCAT('%', #{licenseIssuer}, '%')</if>
+                <if test="licenseDate != null and licenseDate != ''">AND lic.license_date LIKE CONCAT('%', #{licenseDate}, '%')</if>
+                )
             </if>
-            <if test="birth != null and birth != ''">
-                AND r.birth LIKE CONCAT('%', #{birth}, '%')
+
+            <if test="companyName != null and companyName != '' or
+                      companyRole != null and companyRole != '' or
+                      companyWork != null and companyWork != '' or
+                      companyStartTerm != null and companyStartTerm != '' or
+                      companyEndTerm != null and companyEndTerm != ''">
+                AND EXISTS (
+                SELECT 1 FROM resume_career car WHERE car.resume_id = r.resume_id
+                <if test="companyName != null and companyName != ''">AND car.company_name LIKE CONCAT('%', #{companyName}, '%')</if>
+                <if test="companyRole != null and companyRole != ''">AND car.company_role LIKE CONCAT('%', #{companyRole}, '%')</if>
+                <if test="companyWork != null and companyWork != ''">AND car.company_work LIKE CONCAT('%', #{companyWork}, '%')</if>
+                <if test="companyStartTerm != null and companyStartTerm != ''">AND car.company_start_term LIKE CONCAT('%', #{companyStartTerm}, '%')</if>
+                <if test="companyEndTerm != null and companyEndTerm != ''">AND car.company_end_term LIKE CONCAT('%', #{companyEndTerm}, '%')</if>
+                )
             </if>
-            <if test="role != null and role != ''">
-                AND r.role LIKE CONCAT('%', #{role}, '%')
+
+            <if test="projectName != null and projectName != '' or
+                      projectCustomer != null and projectCustomer != '' or
+                      projectCompany != null and projectCompany != '' or
+                      projectWork != null and projectWork != '' or
+                      projectLanguage != null and projectLanguage != '' or
+                      projectDb != null and projectDb != '' or
+                      projectTool != null and projectTool != '' or
+                      projectFramework != null and projectFramework != '' or
+                      projectStartTerm != null and projectStartTerm != '' or
+                      projectEndTerm != null and projectEndTerm != '' or
+                      projectEtc != null and projectEtc != '' or
+                      projectWorkDetail != null and projectWorkDetail != ''">
+                AND EXISTS (
+                SELECT 1 FROM resume_skill sk WHERE sk.resume_id = r.resume_id
+                <if test="projectName != null and projectName != ''">AND LOWER(sk.project_name) LIKE LOWER(CONCAT('%', #{projectName}, '%'))</if>
+                <if test="projectCustomer != null and projectCustomer != ''">AND LOWER(sk.project_customer) LIKE LOWER(CONCAT('%', #{projectCustomer}, '%'))</if>
+                <if test="projectCompany != null and projectCompany != ''">AND LOWER(sk.project_company) LIKE LOWER(CONCAT('%', #{projectCompany}, '%'))</if>
+                <if test="projectWork != null and projectWork != ''">AND LOWER(sk.project_work) LIKE LOWER(CONCAT('%', #{projectWork}, '%'))</if>
+                <if test="projectLanguage != null and projectLanguage != ''">AND LOWER(sk.project_language) LIKE LOWER(CONCAT('%', #{projectLanguage}, '%'))</if>
+                <if test="projectDb != null and projectDb != ''">AND LOWER(sk.project_db) LIKE LOWER(CONCAT('%', #{projectDb}, '%'))</if>
+                <if test="projectTool != null and projectTool != ''">AND LOWER(sk.project_tool) LIKE LOWER(CONCAT('%', #{projectTool}, '%'))</if>
+                <if test="projectFramework != null and projectFramework != ''">AND LOWER(sk.project_framework) LIKE LOWER(CONCAT('%', #{projectFramework}, '%'))</if>
+                <if test="projectStartTerm != null and projectStartTerm != ''">AND sk.project_start_term LIKE LOWER(CONCAT('%', #{projectStartTerm}, '%'))</if>
+                <if test="projectEndTerm != null and projectEndTerm != ''">AND sk.project_end_term LIKE LOWER(CONCAT('%', #{projectEndTerm}, '%'))</if>
+                <if test="projectEtc != null and projectEtc != ''">AND LOWER(sk.project_etc) LIKE LOWER(CONCAT('%', #{projectEtc}, '%'))</if>
+                <if test="projectWorkDetail != null and projectWorkDetail != ''">AND LOWER(sk.project_work_detail) LIKE LOWER(CONCAT('%', #{projectWorkDetail}, '%'))</if>
+                )
             </if>
-            <if test="military != null and military != ''">
-                AND r.military LIKE CONCAT('%', #{military}, '%')
-            </if>
-            <if test="marriage != null and marriage != ''">
-                AND r.marriage LIKE CONCAT('%', #{marriage}, '%')
-            </if>
-            <if test="landlineNumber != null and landlineNumber != ''">
-                AND r.landline_number LIKE CONCAT('%', #{landlineNumber}, '%')
-            </if>
-            <if test="phoneNumber != null and phoneNumber != ''">
-                AND r.phone_number LIKE CONCAT('%', #{phoneNumber}, '%')
-            </if>
-            <if test="email != null and email != ''">
-                AND r.email LIKE CONCAT('%', #{email}, '%')
-            </if>
-            <if test="address != null and address != ''">
-                AND r.address LIKE CONCAT('%', #{address}, '%')
-            </if>
-            <if test="schoolName != null and schoolName != ''">
-                AND e.school_name LIKE CONCAT('%', #{schoolName}, '%')
-            </if>
-            <if test="schoolStatus != null and schoolStatus != ''">
-                AND e.school_status LIKE CONCAT('%', #{schoolStatus}, '%')
-            </if>
-            <if test="schoolDate != null and schoolDate != ''">
-                AND e.school_date LIKE CONCAT('%', #{schoolDate}, '%')
-            </if>
-            <if test="licenseName != null and licenseName != ''">
-                AND l.license_name LIKE CONCAT('%', #{licenseName}, '%')
-            </if>
-            <if test="licenseIssuer != null and licenseIssuer != ''">
-                AND l.license_issuer LIKE CONCAT('%', #{licenseIssuer}, '%')
-            </if>
-            <if test="licenseDate != null and licenseDate != ''">
-                AND l.license_date LIKE CONCAT('%', #{licenseDate}, '%')
-            </if>
-            <if test="companyName != null and companyName != ''">
-                AND c.company_name LIKE CONCAT('%', #{companyName}, '%')
-            </if>
-            <if test="companyRole != null and companyRole != ''">
-                AND c.company_role LIKE CONCAT('%', #{companyRole}, '%')
-            </if>
-            <if test="companyWork != null and companyWork != ''">
-                AND c.company_work LIKE CONCAT('%', #{companyWork}, '%')
-            </if>
-            <if test="companyStartTerm != null and companyStartTerm != ''">
-                AND c.company_start_term LIKE CONCAT('%', #{companyStartTerm}, '%')
-            </if>
-            <if test="companyEndTerm != null and companyEndTerm != ''">
-                AND c.company_end_term LIKE CONCAT('%', #{companyEndTerm}, '%')
-            </if>
-            <if test="projectName != null and projectName != ''">
-                AND s.project_name LIKE CONCAT('%', #{projectName}, '%')
-            </if>
-            <if test="projectCustomer != null and projectCustomer != ''">
-                AND s.project_customer LIKE CONCAT('%', #{projectCustomer}, '%')
-            </if>
-            <if test="projectCompany != null and projectCompany != ''">
-                AND s.project_company LIKE CONCAT('%', #{projectCompany}, '%')
-            </if>
-            <if test="projectWork != null and projectWork != ''">
-                AND s.project_work LIKE CONCAT('%', #{projectWork}, '%')
-            </if>
-            <if test="projectLanguage != null and projectLanguage != ''">
-                AND LOWER(s.project_language) LIKE LOWER(CONCAT('%', #{projectLanguage}, '%'))
-            </if>
-            <if test="projectDb != null and projectDb != ''">
-                AND LOWER(s.project_db) LIKE LOWER(CONCAT('%', #{projectDb}, '%'))
-            </if>
-            <if test="projectTool != null and projectTool != ''">
-                AND LOWER(s.project_tool) LIKE LOWER(CONCAT('%', #{projectTool}, '%'))
-            </if>
-            <if test="projectFramework != null and projectFramework != ''">
-                AND LOWER(s.project_framework) LIKE LOWER(CONCAT('%', #{projectFramework}, '%'))
-            </if>
-            <if test="projectStartTerm != null and projectStartTerm != ''">
-                AND s.project_start_term LIKE CONCAT('%', #{projectStartTerm}, '%')
-            </if>
-            <if test="projectEndTerm != null and projectEndTerm != ''">
-                AND s.project_end_term LIKE CONCAT('%', #{projectEndTerm}, '%')
-            </if>
-            <if test="projectEtc != null and projectEtc != ''">
-                AND s.project_etc LIKE CONCAT('%', #{projectEtc}, '%')
-            </if>
-            <if test="projectWorkDetail != null and projectWorkDetail != ''">
-                AND s.project_work_detail LIKE CONCAT('%', #{projectWorkDetail}, '%')
-            </if>
+
         </where>
-        GROUP BY r.resume_id
+        ORDER BY IFNULL(r.updated_time, r.created_time) DESC
     </select>
 
     <insert id="insertResume" parameterType="resumeVO">
+        /* ResumeMapper.insertResume */
         INSERT INTO resume
         (
          resume_id,
@@ -228,6 +184,7 @@
     </insert>
 
     <insert id="insertEducation" parameterType="resumeEducationVO">
+        /* ResumeMapper.insertEducation */
         INSERT INTO resume_education
         (
          school_name,
@@ -247,6 +204,7 @@
     </insert>
 
     <insert id="insertCareer" parameterType="resumeCareerVO">
+        /* ResumeMapper.insertCareer */
         INSERT INTO resume_career
         (
          company_name,
@@ -270,6 +228,7 @@
     </insert>
 
     <insert id="insertLicense" parameterType="resumeLicenseVO">
+        /* ResumeMapper.insertLicense */
         INSERT INTO resume_license
         (
          license_name,
@@ -289,6 +248,7 @@
     </insert>
 
     <insert id="insertSkill" parameterType="resumeSkillVO">
+        /* ResumeMapper.insertSkill */
         INSERT INTO resume_skill
         (
          project_name,
@@ -317,17 +277,17 @@
          #{projectFramework},
          STR_TO_DATE(
                  CASE
-                     WHEN LENGTH(NULLIF(#{projectStartTerm}, '')) = 7
-                         THEN CONCAT(#{projectStartTerm}, '-01')
-                     ELSE NULLIF(#{projectStartTerm}, '')
+                     WHEN #{projectStartTerm} IS NULL OR #{projectStartTerm} = '' THEN NULL
+                     WHEN LENGTH(#{projectStartTerm}) = 7 THEN CONCAT(#{projectStartTerm}, '-01')
+                     ELSE #{projectStartTerm}
                      END,
                  '%Y-%m-%d'
-         ),
+             ),
          STR_TO_DATE(
                  CASE
-                     WHEN LENGTH(NULLIF(#{projectEndTerm}, '')) = 7
-                         THEN CONCAT(#{projectEndTerm}, '-01')
-                     ELSE NULLIF(#{projectEndTerm}, '')
+                     WHEN #{projectEndTerm} IS NULL OR #{projectEndTerm} = '' THEN NULL
+                     WHEN LENGTH(#{projectEndTerm}) = 7 THEN CONCAT(#{projectEndTerm}, '-01')
+                     ELSE #{projectEndTerm}
                      END,
                  '%Y-%m-%d'
          ),
@@ -338,29 +298,37 @@
         )
     </insert>
 
-    <select id="selectResumeById" resultType="resumeVO">
+    <select id="selectResumeById">
+        /* ResumeMapper.selectResumeById */
         SELECT
-            resume_id AS resumeId,
-            title,
-            created_user AS createdUser,
-            created_time AS createdTime,
-            updated_time AS updatedTime,
-            name,
-            birth,
-            gender,
-            military,
-            role,
-            marriage,
-            landline_number AS landlineNumber,
-            phone_number AS phoneNumber,
-            email,
-            address
-        FROM resume
-        WHERE resume_id = #{resumeId}
+            r.resume_id AS resumeId,
+            r.title,
+            r.created_user AS createdUser,
+            r.created_time AS createdTime,
+            r.updated_time AS updatedTime,
+            r.name,
+            r.birth,
+            r.gender,
+            r.military,
+            r.role,
+            r.marriage,
+            r.landline_number AS landlineNumber,
+            r.phone_number AS phoneNumber,
+            r.email,
+            r.address
+        FROM resume r
+        LEFT JOIN (
+            SELECT dtl_cd, dtl_nm
+            FROM comm_cd_dtl
+            WHERE com_cd = 'SEX_TYPE'
+            AND use_yn = 'Y'
+            ) cd ON r.gender = cd.dtl_cd
+        WHERE r.resume_id = #{resumeId}
         ORDER BY created_time DESC
     </select>
     
     <select id="selectEducationById" resultType="resumeEducationVO">
+        /* ResumeMapper.selectEducationById */
         SELECT
             id AS resumeEducationId,
             school_name AS schoolName,
@@ -372,6 +340,7 @@
     </select>
     
     <select id="selectCareerById" resultType="resumeCareerVO">
+        /* ResumeMapper.selectCareerById */
         SELECT
             id AS resumeCareerId,
             company_name AS companyName,
@@ -385,6 +354,7 @@
     </select>
 
     <select id="selectLicenseById" resultType="resumeLicenseVO">
+        /* ResumeMapper.selectLicenseById */
         SELECT
             id AS resumeLicenseId,
             license_name AS licenseName,
@@ -396,6 +366,7 @@
     </select>
 
     <select id="selectSkillById" resultType="resumeSkillVO">
+        /* ResumeMapper.selectSkillById */
         SELECT
             id AS resumeSkillId,
             project_name AS projectName,
@@ -416,6 +387,7 @@
     </select>
 
     <update id="updateResume" parameterType="resumeVO">
+        /* ResumeMapper.updateResume */
         UPDATE resume
         SET title = #{title},
             created_user = #{createdUser},
@@ -434,23 +406,46 @@
     </update>
 
     <delete id="deleteResume" parameterType="string">
+        /* ResumeMapper.deleteResume */
         DELETE FROM resume WHERE resume_id = #{resumeId}
     </delete>
 
     <delete id="deleteEducation" parameterType="string">
+        /* ResumeMapper.deleteEducation */
         DELETE FROM resume_education WHERE resume_id = #{resumeId}
     </delete>
 
     <delete id="deleteCareer" parameterType="string">
+        /* ResumeMapper.deleteCareer */
         DELETE FROM resume_career WHERE resume_id = #{resumeId}
     </delete>
 
     <delete id="deleteLicense" parameterType="string">
+        /* ResumeMapper.deleteLicense */
         DELETE FROM resume_license WHERE resume_id = #{resumeId}
     </delete>
 
     <delete id="deleteSkill" parameterType="string">
+        /* ResumeMapper.deleteSkill */
         DELETE FROM resume_skill WHERE resume_id = #{resumeId}
     </delete>
 
+    <select id="selectCommonList" resultType="commonDetail">
+        /* ResumeMapper.selectCommonDtlList */
+        SELECT
+            com_cd,
+            dtl_cd,
+            dtl_nm,
+            dtl_desc,
+            dtl_order_no,
+            use_yn,
+            create_user_id,
+            create_dt,
+            update_user_id,
+            update_dt
+        FROM comm_cd_dtl
+        WHERE com_cd = #{comCd}
+        AND use_yn = 'Y'
+        ORDER BY dtl_order_no
+    </select>
 </mapper>
