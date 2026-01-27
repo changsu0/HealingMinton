@@ -189,17 +189,21 @@
     }
   })
 
-  function loadCommon(comCd, resumeData) {
+  function loadCommon(comCd, targetSelector, value) {
 
     $.ajax({
       url: `/resume/${comCd}`,
       type: 'GET',
       dataType: 'json',
       success: function(data) {
+        const $target = $(targetSelector);
+
         data.forEach(function(item) {
-          if(resumeData.gender == `${item.dtlCd}`) {
-            $('#gender').text(`${item.dtlNm}`);
+
+          if(value === `${item.dtlCd}`) {
+            $target.text(`${item.dtlNm}`);
           }
+
         });
       },
       error: function(xhr, status, error) {
@@ -229,15 +233,15 @@
       url: '/resume/resumeDetail/' + resumeId,
       type: 'GET',
       success: function(data) {
-        loadCommon("SEX_TYPE", data);
+        loadCommon('SEX_TYPE', '#gender', data.gender);
+        loadCommon('MIL_TYPE', '#military', data.military);
+        loadCommon('MAR_TYPE', '#marriage', data.marriage);
 
         $('#title').text(data.title);
         $('#createdUser').text(data.createdUser);
         $('#name').text(data.name);
         $('#birth').text(data.birth);
-        $('#military').text(data.military);
         $('#role').text(data.role);
-        $('#marriage').text(data.marriage);
         $('#landlineNumber').text(data.landlineNumber);
         $('#phoneNumber').text(data.phoneNumber);
         $('#email').text(data.email);
@@ -245,21 +249,24 @@
 
         if (data.educationList && data.educationList.length > 0) {
           let innerHTML = '';
-          for (const edu of data.educationList) {
+          data.educationList.forEach((edu, i) => {
             innerHTML += `
             <tbody>
             <tr>
               <td class="py-3">
                 <div class="fw-bold" id="schoolName" style="font-size: 0.9rem;">${edu.schoolName || ''}</div>
-                <div class="small text-muted d-block mt-1" id="schoolDepartment">소프트웨어과</div>
+                <div class="small text-muted d-block mt-1" id="schoolDepartment"></div>
               </td>
-              <td class="text-md-center text-muted align-middle" style="width: 20%;" id="schoolStatus">${edu.schoolStatus || ''}</td>
+              <td class="text-md-center text-muted align-middle schoolStatus_${i}" style="width: 20%;" id="schoolStatus"></td>
               <td class="text-end text-muted align-middle" id="schoolDate">${edu.schoolDate || ''}</td>
             </tr>
             </tbody>
             `;
-          }
+          })
           $('#edu-table').html(innerHTML);
+          data.educationList.forEach((edu, i) => {
+            loadCommon('EDU_TYPE',`.schoolStatus_${i}`,edu.schoolStatus);
+          })
         }
 
         if (data.licenseList && data.licenseList.length > 0) {

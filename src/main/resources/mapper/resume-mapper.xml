@@ -8,10 +8,10 @@
         SELECT
         r.resume_id AS resumeId,
         r.name,
-        cd.dtl_nm AS gender,
+        IFNULL(cd_sex.dtl_nm, '데이터 없음') AS gender,
         IFNULL(CONCAT(TIMESTAMPDIFF(YEAR, r.birth, CURDATE()) + 1, '세'), '데이터 없음') AS age,
-        IFNULL(r.military, '데이터 없음') AS military,
-        IFNULL(r.marriage, '데이터 없음') AS marriage,
+        IFNULL(cd_mil.dtl_nm, '데이터 없음') AS military,
+        IFNULL(cd_mar.dtl_nm, '데이터 없음') AS marriage,
         IFNULL(r.address, '데이터 없음') AS address,
         IFNULL(e.final_edu, '데이터 없음') AS finalEdu,
         IFNULL(l.license_summary, '데이터 없음') AS licenseSummary,
@@ -21,11 +21,16 @@
         FROM resume r
         -- 1. 학력: 최신 학력 1건 추출
         LEFT JOIN (
-        SELECT resume_id, CONCAT(school_name, '(', school_status, ')') AS final_edu
+        SELECT resume_id, CONCAT(school_name, '(', schoolStatus, ')') AS final_edu
         FROM (
-        SELECT resume_id, school_name, school_status,
+        SELECT resume_id, school_name, sub_cd_edu.dtl_nm AS schoolStatus,
         ROW_NUMBER() OVER(PARTITION BY resume_id ORDER BY school_date DESC) as rn
-        FROM resume_education
+        FROM resume_education sub_e
+        LEFT JOIN (
+        SELECT dtl_cd, dtl_nm
+        FROM comm_cd_dtl
+        WHERE com_cd = 'EDU_TYPE' AND use_yn = 'Y'
+        ) sub_cd_edu ON sub_e.school_status = sub_cd_edu.dtl_cd
         ) t WHERE rn = 1
         ) e ON r.resume_id = e.resume_id
         -- 2. 자격증: 대표 자격증 및 외 N종 요약
@@ -59,7 +64,19 @@
         SELECT dtl_cd, dtl_nm
         FROM comm_cd_dtl
         WHERE com_cd = 'SEX_TYPE' AND use_yn = 'Y'
-        ) cd ON r.gender = cd.dtl_cd
+        ) cd_sex ON r.gender = cd_sex.dtl_cd
+        -- 6. 병역 공통 코드 (LEFT JOIN)
+        LEFT JOIN (
+        SELECT dtl_cd, dtl_nm
+        FROM comm_cd_dtl
+        WHERE com_cd = 'MIL_TYPE' AND use_yn = 'Y'
+        ) cd_mil ON r.military = cd_mil.dtl_cd
+        -- 7. 결혼 공통 코드 (LEFT JOIN)
+        LEFT JOIN (
+        SELECT dtl_cd, dtl_nm
+        FROM comm_cd_dtl
+        WHERE com_cd = 'MAR_TYPE' AND use_yn = 'Y'
+        ) cd_mar ON r.marriage = cd_mar.dtl_cd
 
         <where>
             <if test="name != null and name != ''">AND r.name LIKE CONCAT('%', #{name}, '%')</if>
@@ -317,12 +334,6 @@
             r.email,
             r.address
         FROM resume r
-        LEFT JOIN (
-            SELECT dtl_cd, dtl_nm
-            FROM comm_cd_dtl
-            WHERE com_cd = 'SEX_TYPE'
-            AND use_yn = 'Y'
-            ) cd ON r.gender = cd.dtl_cd
         WHERE r.resume_id = #{resumeId}
         ORDER BY created_time DESC
     </select>

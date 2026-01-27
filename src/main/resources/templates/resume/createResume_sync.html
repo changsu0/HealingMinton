@@ -265,8 +265,8 @@
 
     </style>
 </head>
-    <body>
-    <form th:action="@{/resume/saveResume_sync}" th:object="${resumeVO}" method="post" id="saveForm">
+<body>
+    <form th:action="${resume?.resumeId == null} ? @{/resume/saveResume_sync} : @{/resume/updateResume_sync}" th:object="${resumeVO}" method="post" id="saveForm">
 
         <div class="container">
             <div class="profile-card">
@@ -293,35 +293,35 @@
 
                     <div class="tab-pane fade show active" id="content-info">
                         <div class="section-title mb-4"><i class="bi bi-person"></i> 개인정보</div>
+                        <input type="hidden" th:value="${resume?.resumeId}" name="resumeId">
                         <div class="row">
                             <div class="col">
                                 <label class="form-label required-mark">이름</label>
-                                <div class="custom-input-group"><input type="text" placeholder="이름" maxlength="50" id="name" name="name"></div>
+                                <div class="custom-input-group"><input type="text" placeholder="이름" maxlength="50" id="name" name="name" th:value="${resume?.name}"></div>
                             </div>
                             <div class="col">
                                 <label class="form-label">성별</label>
                                 <div class="custom-input-group">
                                     <select id="gender" name="gender">
-                                        <option th:each="sexType, stat : ${sexType}" th:value="${sexType.dtlCd}" th:selected="${stat.index} == 0" th:text="${sexType.dtlNm}"></option>
+                                        <option th:each="sexType, stat : ${sexType}" th:value="${sexType.dtlCd}" th:selected="${resume.gender == null} ? (${stat.index == 0}) : (${resume.gender} == ${sexType.dtlCd})" th:text="${sexType.dtlNm}"></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="form-label" >생년월일</label>
-                                <div class="custom-input-group"><input type="date" id="birth" name="birth"></div>
+                                <div class="custom-input-group"><input type="date" id="birth" name="birth" th:value="${resume?.birth}"></div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <label class="form-label">직위</label>
-                                <div class="custom-input-group"><input type="text" maxlength="10" id="role" name="role"></div>
+                                <div class="custom-input-group"><input type="text" maxlength="10" id="role" name="role" th:value="${resume?.role}"></div>
                             </div>
                             <div class="col">
                                 <label class="form-label">병역</label>
                                 <div class="custom-input-group">
                                     <select id="military" name="military">
-                                        <option value="미필" selected>미필</option>
-                                        <option value="군필">군필</option>
+                                        <option th:each="milType, stat : ${milType}" th:value="${milType.dtlCd}" th:selected="${resume.military == null} ? (${stat.index == 0}) : (${resume.military} == ${milType.dtlCd})" th:text="${milType.dtlNm}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -329,8 +329,7 @@
                                 <label class="form-label">결혼</label>
                                 <div class="custom-input-group">
                                     <select id="marriage" name="marriage">
-                                        <option value="미혼" selected>미혼</option>
-                                        <option value="기혼">기혼</option>
+                                        <option th:each="marType, stat : ${marType}" th:value="${marType.dtlCd}" th:selected="${resume.marriage == null} ? (${stat.index == 0}) : (${resume.marriage} == ${marType.dtlCd})" th:text="${marType.dtlNm}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -340,14 +339,14 @@
                                 <label class="form-label">전화번호(유선)</label>
                                 <span id="landlineError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                                 <div class="custom-input-group">
-                                    <input type="text" id="landlineNumber" name="landlineNumber" maxlength="30" placeholder="전화번호(유선)">
+                                    <input type="text" id="landlineNumber" name="landlineNumber" maxlength="30" placeholder="전화번호(유선)" th:value="${resume?.landlineNumber}">
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="form-label">전화번호(무선)</label>
                                 <span id="phoneError" class="error-message text-danger" style="display: none">올바른 전화번호 형식이 아닙니다.</span>
                                 <div class="custom-input-group">
-                                    <input type="text" id="phoneNumber" name="phoneNumber" maxlength="30" placeholder="전화번호(무선)">
+                                    <input type="text" id="phoneNumber" name="phoneNumber" maxlength="30" placeholder="전화번호(무선)" th:value="${resume?.phoneNumber}">
                                 </div>
                             </div>
                         </div>
@@ -355,10 +354,10 @@
                         <span id="emailError" class="error-message text-danger" style="display: none">올바른 이메일 형식이 아닙니다.</span>
                         <div class="custom-input-group">
                             <i class="bi bi-envelope"></i>
-                            <input type="email" placeholder="이메일" id="email" name="email" maxlength="100">
+                            <input type="email" placeholder="이메일" id="email" name="email" maxlength="100" th:value="${resume?.email}">
                         </div>
                         <label class="form-label">주소</label>
-                        <div class="custom-input-group"><input type="text" placeholder="주소" id="address" name="address" maxlength="255"></div>
+                        <div class="custom-input-group"><input type="text" placeholder="주소" id="address" name="address" maxlength="255" th:value="${resume?.address}"></div>
                     </div>
 
                     <div class="tab-pane fade" id="content-edu">
@@ -366,9 +365,46 @@
                             <div class="section-title"><i class="bi bi-mortarboard"></i> 학력</div>
                             <button class="add-btn" type="button" onclick="addEntry('edu-list')">+ 추가</button>
                         </div>
-                        <div id="edu-list">
-                            <p class="text-muted text-center py-4">학력 사항을 추가해 주세요.</p>
+
+                        <div id="edu-list" th:object="${resume}">
+
+                            <p class="text-muted text-center py-4" th:if="*{#lists.isEmpty(educationList)}">학력 사항을 추가해 주세요.</p>
+
+                            <div class="entry-card" th:each="edu, stat : *{educationList}">
+                                <input class="edu-resume-id" type="hidden" th:value="${edu.resumeId}" th:name="|educationList[${stat.index}].resumeId|">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'edu-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">학교명</label>
+                                <div class="custom-input-group"><input type="text" class="school-name" placeholder="학교명" maxlength="100" th:value="${edu.schoolName}" th:name="|educationList[${stat.index}].schoolName|"></div>
+
+                                <label class="form-label">졸업여부</label>
+                                <div class="custom-input-group">
+                                    <select class="school-status" th:value="${edu.schoolStatus}" th:name="|educationList[${stat.index}].schoolStatus|">
+                                        <option th:each="eduType, stat : ${eduType}" th:value="${eduType.dtlCd}" th:selected="${edu.schoolStatus == null} ? (${stat.index == 0}) : (${edu.schoolStatus} == ${eduType.dtlCd})" th:text="${eduType.dtlNm}"></option>>
+                                    </select>
+                                </div>
+
+                                <label class="form-label">졸업일자</label>
+                                <div class="custom-input-group"><input type="date" class="school-date" id="schoolDate" th:value="${edu.schoolDate}" th:name="|educationList[${stat.index}].schoolDate|"></div>
+                            </div>
                         </div>
+                        <template id="edu-template">
+                            <div class="entry-card">
+                                <input class="edu-resume-id" type="hidden" th:value="${resume.resumeId}">
+                                <button class="delete-btn" onclick="removeEntry(this, 'edu-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">학교명</label>
+                                <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength='100' class="school-name"></div>
+
+                                <label class="form-label">졸업여부</label>
+                                <div class="custom-input-group">
+                                    <select class="school-status">
+                                        <option th:each="eduType, stat : ${eduType}" th:value="${eduType.dtlCd}" th:selected="${stat.index == 0}" th:text="${eduType.dtlNm}"></option>
+                                    </select>
+                                </div>
+
+                                <label class="form-label">졸업일자</label>
+                                <div class="custom-input-group"><input type="date" class="school-date"></div>
+                            </div>
+                        </template>
                     </div>
 
                     <div class="tab-pane fade" id="content-career">
@@ -376,9 +412,68 @@
                             <div class="section-title"><i class="bi bi-briefcase"></i> 경력</div>
                             <button class="add-btn" type="button" onclick="addEntry('career-list')">+ 추가</button>
                         </div>
-                        <div id="career-list">
-                            <p class="text-muted text-center py-4">경력 사항을 추가해 주세요.</p>
+
+                        <div id="career-list" th:object="${resume}">
+                            <p th:if="*{#lists.isEmpty(careerList)}" class="text-muted text-center py-4">경력 사항을 추가해 주세요.</p>
+
+                            <div class="entry-card" th:each="career, stat : *{careerList}">
+                                <input type="hidden" class="car-resume-id" th:value="${career.resumeId}" th:name="|careerList[${stat.index}].resumeId|">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'career-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">회사명</label>
+                                <div class="custom-input-group"><input type="text" class="company-name" placeholder="회사명" maxlength="50" th:value="${career.companyName}" th:name="|careerList[${stat.index}].companyName|"></div>
+
+                                <label class="form-label">직위</label>
+                                <div class="custom-input-group"><input type="text" class="company-role" placeholder="직위" maxlength="50" th:value="${career.companyRole}" th:name="|careerList[${stat.index}].companyRole|"></div>
+
+                                <label class="form-label">담당업무</label>
+                                <div class="custom-input-group"><input type="text" class="company-work" placeholder="담당업무" maxlength="100" th:value="${career.companyWork}" th:name="|careerList[${stat.index}].companyWork|"></div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">시작일자</label>
+                                        <div class="custom-input-group">
+                                            <input type="date" class="company-start-term" th:value="${career.companyStartTerm}" th:name="|careerList[${stat.index}].companyStartTerm|">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">종료일자</label>
+                                        <div class="custom-input-group">
+                                            <input type="date" class="company-end-term" th:value="${career.companyEndTerm}" th:name="|careerList[${stat.index}].companyEndTerm|">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <template id="car-template">
+                            <div class="entry-card">
+                                <input class="car-resume-id" type="hidden" th:value="${resume.resumeId}">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'career-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">회사명</label>
+                                <div class="custom-input-group"><input type="text" class="company-name" placeholder="회사명" maxlength="50"></div>
+
+                                <label class="form-label">직위</label>
+                                <div class="custom-input-group"><input type="text" class="company-role" placeholder="직위" maxlength="50"></div>
+
+                                <label class="form-label">담당업무</label>
+                                <div class="custom-input-group"><input type="text" class="company-work" placeholder="담당업무" maxlength="100"></div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">시작일자</label>
+                                        <div class="custom-input-group">
+                                            <input type="date" class="company-start-term">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">종료일자</label>
+                                        <div class="custom-input-group">
+                                            <input type="date" class="company-end-term">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
                     </div>
 
                     <div class="tab-pane fade" id="content-license">
@@ -386,9 +481,38 @@
                             <div class="section-title"><i class="bi bi-person-vcard"></i> 자격증</div>
                             <button class="add-btn" type="button" onclick="addEntry('license-list')">+ 추가</button>
                         </div>
-                        <div id="license-list">
-                            <p class="text-muted text-center py-4">보유 자격증을 추가해 주세요.</p>
+
+                        <div id="license-list" th:object="${resume}">
+                            <p class="text-muted text-center py-4" th:if="*{#lists.isEmpty(licenseList)}">보유 자격증을 추가해 주세요.</p>
+
+                            <div class="entry-card" th:each="license, stat : *{licenseList}">
+                                <input class="lic-resume-id" type="hidden" th:value="${license.resumeId}" th:name="|licenseList[${stat.index}].resumeId|">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'license-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">자격증명</label>
+                                <div class="custom-input-group"><input type="text" class="license-name" placeholder="자격증명" maxlength="50" th:value="${license.licenseName}" th:name="|licenseList[${stat.index}].licenseName|"></div>
+
+                                <label class="form-label">발급기관</label>
+                                <div class="custom-input-group"><input type="text" class="license-issuer" placeholder="발급기관" maxlength="50" th:value="${license.licenseIssuer}" th:name="|licenseList[${stat.index}].licenseIssuer|"></div>
+
+                                <label class="form-label">취득일자</label>
+                                <div class="custom-input-group"><input type="date" class="license-date" placeholder="취득일자" th:value="${license.licenseDate}" th:name="|licenseList[${stat.index}].licenseDate|"></div>
+                            </div>
                         </div>
+                        <template id="lic-template">
+                            <div class="entry-card">
+                                <input type="hidden" class="lic-resume-id" th:value="${resume.resumeId}">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'license-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">자격증명</label>
+                                <div class="custom-input-group"><input type="text" class="license-name" placeholder="자격증명" maxlength="50"></div>
+
+                                <label class="form-label">발급기관</label>
+                                <div class="custom-input-group"><input type="text" class="license-issuer" placeholder="발급기관" maxlength="50"></div>
+
+                                <label class="form-label">취득일자</label>
+                                <div class="custom-input-group"><input type="date" class="license-date" placeholder="취득일자"></div>
+                            </div>
+                        </template>
+
                     </div>
 
                     <div class="tab-pane fade" id="content-skill">
@@ -396,9 +520,124 @@
                             <div class="section-title"><i class="bi bi-cpu"></i> 기술경력</div>
                             <button class="add-btn" type="button" onclick="addEntry('skill-list')">+ 추가</button>
                         </div>
-                        <div id="skill-list">
-                            <p class="text-muted text-center py-4">보유하신 기술 경력을 추가해 주세요.</p>
+
+                        <div id="skill-list" th:object="${resume}">
+                            <p class="text-muted text-center py-4" th:if="*{#lists.isEmpty(skillList)}">보유하신 기술 경력을 추가해 주세요.</p>
+
+                            <div class="entry-card" th:each="skill, stat : *{skillList}">
+                                <input class="ski-resume-id" type="hidden" th:value="${skill.resumeId}" th:name="|skillList[${stat.index}].resumeId|">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'skill-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">프로젝트명</label>
+                                <div class="custom-input-group"><input class="project-name" type="text" placeholder="프로젝트명" maxlength="100" th:value="${skill.projectName}" th:name="|skillList[${stat.index}].projectName|"></div>
+
+                                <label class="form-label">고객사</label>
+                                <div class="custom-input-group"><input class="project-customer" type="text" placeholder="고객사" maxlength="50" th:value="${skill.projectCustomer}" th:name="|skillList[${stat.index}].projectCustomer|"></div>
+
+                                <label class="form-label">근무회사</label>
+                                <div class="custom-input-group"><input class="project-company" type="text" placeholder="근무회사" maxlength="50" th:value="${skill.projectCompany}" th:name="|skillList[${stat.index}].projectCompany|"></div>
+
+                                <label class="form-label">역할</label>
+                                <div class="custom-input-group"><input class="project-work" type="text" placeholder="역할" maxlength="100" th:value="${skill.projectWork}" th:name="|skillList[${stat.index}].projectWork|"></div>
+
+                                <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">언어</label>
+                                        <div class="custom-input-group"><input class="project-language" type="text" placeholder="언어" maxlength="50" th:value="${skill.projectLanguage}" th:name="|skillList[${stat.index}].projectLanguage|"></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">DB</label>
+                                        <div class="custom-input-group"><input class="project-db" type="text" placeholder="DB" maxlength="50" th:value="${skill.projectDb}" th:name="|skillList[${stat.index}].projectDb|"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">Tool</label>
+                                        <div class="custom-input-group"><input class="project-tool" type="text" placeholder="Tool" maxlength="50" th:value="${skill.projectTool}" th:name="|skillList[${stat.index}].projectTool|"></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">FrameWork</label>
+                                        <div class="custom-input-group"><input class="project-framework" type="text" placeholder="FrameWork" maxlength="50" th:value="${skill.projectFramework}" th:name="|skillList[${stat.index}].projectFramework|"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">시작일자</label>
+                                        <div class="custom-input-group"><input class="project-start-term" type="month" th:value="${#strings.substring(skill.projectStartTerm, 0, 7)}" th:name="|skillList[${stat.index}].projectStartTerm|"></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">종료일자</label>
+                                        <div class="custom-input-group"><input class="project-end-term" type="month" th:value="${#strings.substring(skill.projectEndTerm, 0, 7)}" th:name="|skillList[${stat.index}].projectEndTerm|"></div>
+                                    </div>
+                                </div>
+
+                                <label class="form-label">기타</label>
+                                <div class="custom-input-group"><input class="project-etc" type="text" placeholder="기타" maxlength="255" th:value="${skill.projectEtc}" th:name="|skillList[${stat.index}].projectEtc|"></div>
+
+                                <label class="form-label">상세업무내용</label>
+                                <div class="custom-input-group">
+                                    <textarea rows="5" maxlength="4000" class="project-work-detail" th:text="${skill.projectWorkDetail}" th:name="|skillList[${stat.index}].projectWorkDetail|"></textarea>
+                                </div>
+                            </div>
                         </div>
+                        <template id="ski-template">
+                            <div class="entry-card">
+                                <input class="ski-resume-id" type="hidden" th:value="${resume.resumeId}">
+                                <button type="button" class="delete-btn" onclick="removeEntry(this, 'skill-list')"><i class="bi bi-trash3"></i></button>
+                                <label class="form-label required-mark">프로젝트명</label>
+                                <div class="custom-input-group"><input class="project-name" type="text" placeholder="프로젝트명" maxlength="100"></div>
+
+                                <label class="form-label">고객사</label>
+                                <div class="custom-input-group"><input class="project-customer" type="text" placeholder="고객사" maxlength="50"></div>
+
+                                <label class="form-label">근무회사</label>
+                                <div class="custom-input-group"><input class="project-company" type="text" placeholder="근무회사" maxlength="50"></div>
+
+                                <label class="form-label">역할</label>
+                                <div class="custom-input-group"><input class="project-work" type="text" placeholder="역할" maxlength="100"></div>
+
+                                <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">언어</label>
+                                        <div class="custom-input-group"><input class="project-language" type="text" placeholder="언어" maxlength="50"></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">DB</label>
+                                        <div class="custom-input-group"><input class="project-db" type="text" placeholder="DB" maxlength="50"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">Tool</label>
+                                        <div class="custom-input-group"><input class="project-tool" type="text" placeholder="Tool" maxlength="50"></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">FrameWork</label>
+                                        <div class="custom-input-group"><input class="project-framework" type="text" placeholder="FrameWork" maxlength="50"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">시작일자</label>
+                                        <div class="custom-input-group"><input class="project-start-term" type="month"></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">종료일자</label>
+                                        <div class="custom-input-group"><input class="project-end-term" type="month"></div>
+                                    </div>
+                                </div>
+
+                                <label class="form-label">기타</label>
+                                <div class="custom-input-group"><input class="project-etc" type="text" placeholder="기타" maxlength="255"></div>
+
+                                <label class="form-label">상세업무내용</label>
+                                <div class="custom-input-group">
+                                    <textarea rows="5" maxlength="4000" class="project-work-detail"></textarea>
+                                </div>
+                            </div>
+                        </template>
+
                     </div>
                 </div>
 
@@ -409,11 +648,11 @@
             <div class="footer-content">
                 <span id="titleError" class="error-message text-danger" style="display: none">100자 이내로 작성해주세요.</span>
                 <div class="footer-input-wrapper required" style="flex-grow: 1;">
-                    <input type="text" class="footer-input w-100" placeholder="이력서 제목" name="title" id="title">
+                    <input type="text" class="footer-input w-100" placeholder="이력서 제목" name="title" id="title" th:value="${resume?.title}">
                 </div>
                 <span id="createdUserError" class="error-message text-danger" style="display: none">50자 이내로 작성해주세요.</span>
                 <div class="footer-input-wrapper required" style="width: 150px;">
-                    <input type="text" class="footer-input w-100" placeholder="작성자 성함" name="createdUser" id="createdUser">
+                    <input type="text" class="footer-input w-100" placeholder="작성자 성함" name="createdUser" id="createdUser" th:value="${resume?.createdUser}">
                 </div>
                 <button class="btn-save-sm" type="button" onclick="saveResume()">
                     <i class="bi bi-cloud-check me-1"></i> 저장
@@ -424,18 +663,6 @@
 
     </form>
         <script th:inline="javascript">
-
-            let educationIndex = 0;
-            let careerIndex = 0;
-            let licenseIndex = 0;
-            let skillIndex = 0;
-
-            function checkObject(element) {
-                const parent = document.getElementById(element);
-                const child = parent.querySelectorAll('.entry-card');
-
-                return child.length > 0;
-            }
 
             function saveResume() {
 
@@ -578,159 +805,87 @@
                 }
             }
 
-            function decreaseValue(value) {
-                if (value == 'educationIndex') {
-                    educationIndex--;
-                }
-                if (value == 'careerIndex') {
-                    careerIndex--;
-                }
-                if (value == 'licenseIndex') {
-                    licenseIndex--;
-                }
-                if (value == 'skillIndex') {
-                    skillIndex--;
-                }
-            }
-
             // 항목 추가 함수
             function addEntry(containerId) {
 
                 const container = document.getElementById(containerId);
 
-                //1. 마지막 row를 찾거나 새로 생성해야 하는지 판단
-                // let rows = container.getElementsByClassName('row');
-                // let lastRow = rows[rows.length - 1];
-
                 // 경력 섹션의 '항목 없음' 메시지 제거용
                 if (container.querySelector('p')) container.innerHTML = '';
 
-                const newEntry = document.createElement('div');
-                newEntry.className = 'entry-card';
-
                 // 학력 입력 폼 템플릿 (경력일 경우 내용을 조건문으로 변경 가능)
-                if (containerId == 'edu-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('educationIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label required-mark">학교명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="학교명" maxlength='100' id="schoolName" name="educationList[${educationIndex}].schoolName"></div>
-
-                        <label class="form-label">졸업여부</label>
-                        <div class="custom-input-group">
-                            <select id="schoolStatus" name="educationList[${educationIndex}].schoolStatus">
-                                <option value="졸업예정" selected>졸업예정</option>
-                                <option value="졸업">졸업</option>
-                                <option value="중퇴">중퇴</option>
-                                <option value="재학">재학</option>
-                                <option value="휴학">휴학</option>
-                            </select>
-                        </div>
-
-                        <label class="form-label">졸업일자</label>
-                        <div class="custom-input-group"><input type="date" id="schoolDate" name="educationList[${educationIndex}].schoolDate"></div>`;
-
-                    educationIndex++;
-                } else if (containerId == 'career-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('careerIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label required-mark">회사명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="회사명" maxlength="50" id="companyName" name="careerList[${careerIndex}].companyName"></div>
-
-                        <label class="form-label">직위</label>
-                        <div class="custom-input-group"><input type="text" placeholder="직위" maxlength="50" id="companyRole" name="careerList[${careerIndex}].companyRole"></div>
-
-                        <label class="form-label">담당업무</label>
-                        <div class="custom-input-group"><input type="text" placeholder="담당업무" maxlength="100" id="companyWork" name="careerList[${careerIndex}].companyWork"></div>
-
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">시작일자</label>
-                                <div class="custom-input-group">
-                                    <input type="date" id="companyStartTerm" name="careerList[${careerIndex}].companyStartTerm">
-<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">종료일자</label>
-                                <div class="custom-input-group">
-                                    <input type="date" id="companyEndTerm" name="careerList[${careerIndex}].companyEndTerm">
-<!--                                        <i class="bi bi-calendar3 ms-auto"></i>-->
-                                </div>
-                            </div>
-                        </div>`;
-
-                    careerIndex++;
-                } else if (containerId == 'license-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('licenseIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label required-mark">자격증명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="자격증명" maxlength="50" id="licenseName" name="licenseList[${licenseIndex}].licenseName"></div>
-
-                        <label class="form-label">발급기관</label>
-                        <div class="custom-input-group"><input type="text" placeholder="발급기관" maxlength="50" id="licenseIssuer" name="licenseList[${licenseIndex}].licenseIssuer"></div>
-
-                        <label class="form-label">취득일자</label>
-                        <div class="custom-input-group"><input type="date" placeholder="취득일자" id="licenseDate" name="licenseList[${licenseIndex}].licenseDate"></div>`;
-
-                    licenseIndex++;
-                } else if (containerId == 'skill-list') {
-                    newEntry.innerHTML = `
-                        <button class="delete-btn" onclick="this.parentElement.remove(); decreaseValue('skillIndex');"><i class="bi bi-trash3"></i></button>
-                        <label class="form-label required-mark">프로젝트명</label>
-                        <div class="custom-input-group"><input type="text" placeholder="프로젝트명" maxlength="100" id="projectName" name="skillList[${skillIndex}].projectName"></div>
-
-                        <label class="form-label">고객사</label>
-                        <div class="custom-input-group"><input type="text" placeholder="고객사" maxlength="50" id="projectCustomer" name="skillList[${skillIndex}].projectCustomer"></div>
-
-                        <label class="form-label">근무회사</label>
-                        <div class="custom-input-group"><input type="text" placeholder="근무회사" maxlength="50" id="projectCompany" name="skillList[${skillIndex}].projectCompany"></div>
-
-                        <label class="form-label">역할</label>
-                        <div class="custom-input-group"><input type="text" placeholder="역할" maxlength="100" id="projectWork" name="skillList[${skillIndex}].projectWork"></div>
-
-                        <label class="form-label" style="font-size: 1.2rem;">개발환경</label>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label"">언어</label>
-                                <div class="custom-input-group"><input type="text" placeholder="언어" maxlength="50" id="projectLanguage" name="skillList[${skillIndex}].projectLanguage"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">DB</label>
-                                <div class="custom-input-group"><input type="text" placeholder="DB" maxlength="50" id="projectDb" name="skillList[${skillIndex}].projectDb"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">Tool</label>
-                                <div class="custom-input-group"><input type="text" placeholder="Tool" maxlength="50" id="projectTool" name="skillList[${skillIndex}].projectTool"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">FrameWork</label>
-                                <div class="custom-input-group"><input type="text" placeholder="FrameWork" maxlength="50" id="projectFramework" name="skillList[${skillIndex}].projectFramework"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">시작일자</label>
-                                <div class="custom-input-group"><input type="month" id="projectStartTerm" name="skillList[${skillIndex}].projectStartTerm"></div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">종료일자</label>
-                                <div class="custom-input-group"><input type="month" id="projectEndTerm" name="skillList[${skillIndex}].projectEndTerm"></div>
-                            </div>
-                        </div>
-
-                        <label class="form-label">기타</label>
-                        <div class="custom-input-group"><input type="text" placeholder="기타" maxlength="255" id="projectEtc" name="skillList[${skillIndex}].projectEtc"></div>
-
-                        <label class="form-label">상세업무내용</label>
-                        <div class="custom-input-group">
-                            <textarea rows="5" maxlength="4000" id="projectWorkDetail" name="skillList[${skillIndex}].projectWorkDetail"></textarea>
-                        </div>`;
-
-                    skillIndex++;
+                if (containerId === 'edu-list') {
+                    const template = document.getElementById('edu-template').content.cloneNode(true);
+                    container.append(template);
+                    reIndexEdu(containerId);
+                } else if (containerId === 'career-list') {
+                    const template = document.getElementById('car-template').content.cloneNode(true);
+                    container.append(template);
+                    reIndexEdu(containerId);
+                } else if (containerId === 'license-list') {
+                    const template = document.getElementById('lic-template').content.cloneNode(true);
+                    container.append(template);
+                    reIndexEdu(containerId);
+                } else if (containerId === 'skill-list') {
+                    const template = document.getElementById('ski-template').content.cloneNode(true);
+                    container.append(template);
+                    reIndexEdu(containerId);
                 }
-                container.appendChild(newEntry);
+
+            }
+
+            function removeEntry(obj, containerId) {
+                $(obj).closest('.entry-card').remove();
+                reIndexEdu(containerId);
+            }
+
+            function reIndexEdu(containerId) {
+                // #edu-list 안에 있는 모든 entry-card를 순서대로 순회 (0부터 시작)
+                if (containerId === 'edu-list') {
+                    $('#edu-list .entry-card').each(function(index, item) {
+                        // 각 카드 내부의 input, select들의 name 속성을 현재 index로 교체
+                        $(item).find('.edu-resume-id').attr('name', `educationList[${index}].resumeId`);
+                        $(item).find('.school-name').attr('name', `educationList[${index}].schoolName`);
+                        $(item).find('.school-status').attr('name', `educationList[${index}].schoolStatus`);
+                        $(item).find('.school-date').attr('name', `educationList[${index}].schoolDate`);
+                    });
+                } else if (containerId === 'career-list') {
+                    $('#career-list .entry-card').each(function(index, item) {
+                        // 각 카드 내부의 input, select들의 name 속성을 현재 index로 교체
+                        $(item).find('.car-resume-id').attr('name', `careerList[${index}].resumeId`);
+                        $(item).find('.company-name').attr('name', `careerList[${index}].companyName`);
+                        $(item).find('.company-role').attr('name', `careerList[${index}].companyRole`);
+                        $(item).find('.company-work').attr('name', `careerList[${index}].companyWork`);
+                        $(item).find('.company-start-term').attr('name', `careerList[${index}].companyStartTerm`);
+                        $(item).find('.company-end-term').attr('name', `careerList[${index}].companyEndTerm`);
+                    });
+                } else if (containerId === 'license-list') {
+                    $('#license-list .entry-card').each(function(index, item) {
+                        // 각 카드 내부의 input, select들의 name 속성을 현재 index로 교체
+                        $(item).find('.lic-resume-id').attr('name', `licenseList[${index}].resumeId`);
+                        $(item).find('.license-name').attr('name', `licenseList[${index}].licenseName`);
+                        $(item).find('.license-issuer').attr('name', `licenseList[${index}].licenseIssuer`);
+                        $(item).find('.license-date').attr('name', `licenseList[${index}].licenseDate`);
+                    });
+                } else if (containerId === 'skill-list') {
+                    $('#skill-list .entry-card').each(function(index, item) {
+                        // 각 카드 내부의 input, select들의 name 속성을 현재 index로 교체
+                        $(item).find('.ski-resume-id').attr('name', `skillList[${index}].resumeId`);
+                        $(item).find('.project-name').attr('name', `skillList[${index}].projectName`);
+                        $(item).find('.project-customer').attr('name', `skillList[${index}].projectCustomer`);
+                        $(item).find('.project-company').attr('name', `skillList[${index}].projectCompany`);
+                        $(item).find('.project-work').attr('name', `skillList[${index}].projectWork`);
+                        $(item).find('.project-language').attr('name', `skillList[${index}].projectLanguage`);
+                        $(item).find('.project-db').attr('name', `skillList[${index}].projectDb`);
+                        $(item).find('.project-tool').attr('name', `skillList[${index}].projectTool`);
+                        $(item).find('.project-framework').attr('name', `skillList[${index}].projectFramework`);
+                        $(item).find('.project-start-term').attr('name', `skillList[${index}].projectStartTerm`);
+                        $(item).find('.project-end-term').attr('name', `skillList[${index}].projectEndTerm`);
+                        $(item).find('.project-work-detail').attr('name', `skillList[${index}].projectWorkDetail`);
+                        $(item).find('.project-etc').attr('name', `skillList[${index}].projectEtc`);
+                    });
+                }
+
             }
 
             function confirmExit() {
@@ -784,19 +939,19 @@
                     return false;
                 }
 
-                if (!requiredField('edu-list', '#schoolName', '학교명')) {
+                if (!requiredField('edu-list', '.school-name', '학교명')) {
                     return false;
                 }
 
-                if (!requiredField('career-list', '#companyName', '회사명')) {
+                if (!requiredField('career-list', '.company-name', '회사명')) {
                     return false;
                 }
 
-                if (!requiredField('license-list', '#licenseName', '자격증명')) {
+                if (!requiredField('license-list', '.license-name', '자격증명')) {
                     return false;
                 }
 
-                if (!requiredField('skill-list', '#projectName', '프로젝트명')) {
+                if (!requiredField('skill-list', '.project-name', '프로젝트명')) {
                     return false;
                 }
 

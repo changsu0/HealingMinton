@@ -19,54 +19,107 @@ public class ResumeController {
 
     public ResumeController(ResumeService resumeService) { this.resumeService = resumeService; }
 
-    @GetMapping("/resumeList")
-    public String resume() {
-        return "resume/resumeList";
-    }
+    // 동기 방식
+    @GetMapping("/resumeList_sync")
+    public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO searchVO, Model model) {
 
-    @GetMapping("/resumeDetail")
-    public String detailResume() { return "resume/resumeDetail"; }
+        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
+        List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
+        List<CommonDetail> milType = resumeService.selectCommonList("MIL_TYPE");
+        List<CommonDetail> marType = resumeService.selectCommonList("MAR_TYPE");
+        List<CommonDetail> eduType = resumeService.selectCommonList("EDU_TYPE");
+
+        model.addAttribute("resumeList", resumeList);
+        model.addAttribute("sexType", sexType);
+        model.addAttribute("milType", milType);
+        model.addAttribute("marType", marType);
+        model.addAttribute("eduType", eduType);
+
+        return "resume/resumeList_sync";
+    }
 
     @GetMapping("/resumeDetail_sync")
     public String detailResumeSync(@RequestParam("id") String id, Model model) {
 
         ResumeVO resumeVO = resumeService.selectResumeById(id);
         List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
+        List<CommonDetail> milType = resumeService.selectCommonList("MIL_TYPE");
+        List<CommonDetail> marType = resumeService.selectCommonList("MAR_TYPE");
+        List<CommonDetail> eduType = resumeService.selectCommonList("EDU_TYPE");
 
         model.addAttribute("resume", resumeVO);
         model.addAttribute("sexType", sexType);
+        model.addAttribute("milType", milType);
+        model.addAttribute("marType", marType);
+        model.addAttribute("eduType", eduType);
 
         return "resume/resumeDetail_sync";
-    }
-
-    @GetMapping("/modifyResume")
-    public String modifyResume() { return "resume/modifyResume"; }
-
-    @GetMapping("/modifyResume_sync")
-    public String modifyResumeSync(@RequestParam("id") String id, Model model) {
-
-        ResumeVO resumeVO = resumeService.selectResumeById(id);
-        List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
-
-        model.addAttribute("resume", resumeVO);
-        model.addAttribute("sexType", sexType);
-
-        return "resume/modifyResume_sync";
-    }
-
-    @GetMapping("/createResume")
-    public String createResume() {
-        return "resume/createResume";
     }
 
     @GetMapping("/createResume_sync")
     public String createResumeSync(Model model) {
 
         List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
+        List<CommonDetail> milType = resumeService.selectCommonList("MIL_TYPE");
+        List<CommonDetail> marType = resumeService.selectCommonList("MAR_TYPE");
+        List<CommonDetail> eduType = resumeService.selectCommonList("EDU_TYPE");
 
+        model.addAttribute("resume", new ResumeVO());
         model.addAttribute("sexType", sexType);
+        model.addAttribute("milType", milType);
+        model.addAttribute("marType", marType);
+        model.addAttribute("eduType", eduType);
 
         return "resume/createResume_sync";
+    }
+
+    @GetMapping("/createResume_sync/{resumeId}")
+    public String modifyResumeSync(@PathVariable String resumeId, Model model) {
+
+        ResumeVO resumeVO = resumeService.selectResumeById(resumeId);
+        List<CommonDetail> sexType = resumeService.selectCommonList("SEX_TYPE");
+        List<CommonDetail> milType = resumeService.selectCommonList("MIL_TYPE");
+        List<CommonDetail> marType = resumeService.selectCommonList("MAR_TYPE");
+        List<CommonDetail> eduType = resumeService.selectCommonList("EDU_TYPE");
+
+        model.addAttribute("resume", resumeVO);
+        model.addAttribute("sexType", sexType);
+        model.addAttribute("milType", milType);
+        model.addAttribute("marType", marType);
+        model.addAttribute("eduType", eduType);
+
+        return "resume/createResume_sync";
+    }
+
+    @PostMapping("/saveResume_sync")
+    public String saveResumeSync(@ModelAttribute("resumeVO") ResumeVO resumeVO) {
+
+        resumeService.saveResume(resumeVO);
+
+        return "redirect:/resume/resumeList_sync";
+    }
+
+    @PostMapping("/updateResume_sync")
+    public String updateResumeSync(@ModelAttribute("resumeVO") ResumeVO resumeVO) {
+
+        resumeService.updateResume(resumeVO);
+
+        return "redirect:/resume/resumeList_sync";
+    }
+
+    @PostMapping("/deleteResume_sync")
+    public String deleteResumeSync(@RequestParam("resumeId") String resumeId) {
+
+        resumeService.deleteResume(resumeId);
+
+        return "redirect:/resume/resumeList_sync";
+    }
+
+
+    // 비동기 방식
+    @GetMapping("/resumeList")
+    public String resume() {
+        return "resume/resumeList";
     }
 
     @GetMapping("/selectResumeList")
@@ -78,26 +131,8 @@ public class ResumeController {
         return resumeList;
     }
 
-    @GetMapping("/{comCd}")
-    @ResponseBody
-    public List<CommonDetail> selectCommonList(@PathVariable String comCd) {
-
-        List<CommonDetail> commonList = resumeService.selectCommonList(comCd);
-
-        return commonList;
-    }
-
-    @GetMapping("/resumeList_sync")
-    public String resumeSync(@ModelAttribute("SearchVO") ResumeSearchVO searchVO, Model model) {
-
-        List<Map<String, Object>> resumeList = resumeService.selectResumeList(searchVO);
-        List<CommonDetail> commonList = resumeService.selectCommonList("SEX_TYPE");
-
-        model.addAttribute("resumeList", resumeList);
-        model.addAttribute("commonList", commonList);
-
-        return "resume/resumeList_sync";
-    }
+    @GetMapping("/resumeDetail")
+    public String detailResume() { return "resume/resumeDetail"; }
 
     @GetMapping("/resumeDetail/{resumeId}")
     @ResponseBody
@@ -106,9 +141,14 @@ public class ResumeController {
         return resumeVO;
     }
 
-    @GetMapping("/modifyResume/{resumeId}")
+    @GetMapping("/createResume")
+    public String createResume() {
+        return "resume/createResume";
+    }
+
+    @GetMapping("/createResume/{resumeId}")
     @ResponseBody
-    public ResumeVO detailResume(@PathVariable String resumeId) {
+    public ResumeVO modifyResume(@PathVariable String resumeId) {
         ResumeVO resumeVO = resumeService.selectResumeById(resumeId);
         return resumeVO;
     }
@@ -136,14 +176,6 @@ public class ResumeController {
 
     }
 
-    @PostMapping("/saveResume_sync")
-    public String saveResumeSync(@ModelAttribute("resumeVO") ResumeVO resumeVO) {
-
-        resumeService.saveResume(resumeVO);
-
-        return "redirect:/resume/resumeList_sync";
-    }
-
     @PostMapping("/updateResume")
     @ResponseBody
     public String updateResume(@RequestBody ResumeVO resumeVO) {
@@ -167,14 +199,6 @@ public class ResumeController {
 
     }
 
-    @PostMapping("/updateResume_sync")
-    public String updateResumeSync(@ModelAttribute("resumeVO") ResumeVO resumeVO) {
-
-        resumeService.updateResume(resumeVO);
-
-        return "redirect:/resume/resumeList_sync";
-    }
-
     @PostMapping("/deleteResume")
     @ResponseBody
     public String deleteResume(@RequestParam String resumeId) {
@@ -191,12 +215,13 @@ public class ResumeController {
         return new Gson().toJson(rstMap);
     }
 
-    @PostMapping("/deleteResume_sync")
-    public String deleteResumeSync(@RequestParam("resumeId") String resumeId) {
+    @GetMapping("/{comCd}")
+    @ResponseBody
+    public List<CommonDetail> selectCommonList(@PathVariable String comCd) {
 
-            resumeService.deleteResume(resumeId);
+        List<CommonDetail> commonList = resumeService.selectCommonList(comCd);
 
-        return "redirect:/resume/resumeList_sync";
+        return commonList;
     }
 
 }
