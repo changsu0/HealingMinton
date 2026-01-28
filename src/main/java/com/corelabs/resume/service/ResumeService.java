@@ -29,6 +29,13 @@ public class ResumeService {
         return resumeMapper.selectCommonList(comCd);
     }
 
+    public Map<String, List<CommonDetail>> selectCommonListAsync(List<String> comCds) {
+        List<CommonDetail> commonList = resumeMapper.selectCommonListAsync(comCds);
+
+        return commonList.stream()
+                .collect(Collectors.groupingBy(CommonDetail::getComCd));
+    }
+
     public ResumeVO selectResumeById(String resumeId) {
 
         ResumeVO resumeVO = resumeMapper.selectResumeById(resumeId);

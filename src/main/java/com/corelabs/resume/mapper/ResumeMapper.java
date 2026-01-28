@@ -32,4 +32,5 @@ public interface ResumeMapper {
     int deleteSkill(String resumeId);
 
     List<CommonDetail> selectCommonList(String comCd);
+    List<CommonDetail> selectCommonListAsync(List<String> comCds);
 }

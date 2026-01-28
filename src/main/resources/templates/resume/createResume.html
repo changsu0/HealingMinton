@@ -138,11 +138,14 @@
 
         /* 학력/경력 카드 스타일 */
         .entry-card {
-            border: 1px solid #eeeeee;
+            border: 2px solid rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
             position: relative;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 은은한 그림자 */
+            transition: transform 0.2s;
         }
 
         .delete-btn {
@@ -425,13 +428,66 @@
         const urlParams = new URLSearchParams(window.location.search);
         const resumeId = urlParams.get('id');
         let saveOrUpdate = 'saveResume';
+        const requestCommons = ['SEX_TYPE', 'MIL_TYPE', 'MAR_TYPE', 'EDU_TYPE']
+        let commonList = {};
 
-        $(document).ready(function () {
+        /* 브라우저가 HTML 코드를 다 읽고 요소(<select id="gender"> 등...)들이 준비되면 실행 */
+        /* await를 사용할 수 있도록 async 명시 */
+        $(document).ready(async function () {
+            try {
+                await selectCommonList(requestCommons);
+                /* 서버 응답이 도착해 data에 공통코드 정보가 도착할 때까지 대기 */
+                createSelectOption('SEX_TYPE', '#gender');
+                createSelectOption('MIL_TYPE', '#military');
+                createSelectOption('MAR_TYPE', '#marriage');
+                checkUrlParams();
+                console.log("로딩 완료!")
+            } catch (error) {
+                console.error("초기 로딩 중 에러 발생:", error);
+            }
 
-            loadCommon("SEX_TYPE", "#gender");
-            loadCommon("MIL_TYPE", "#military");
-            loadCommon("MAR_TYPE", "#marriage");
+        });
 
+        /* 1. 공통 코드를 조회 > 전역변수에 저장 함수 */
+        function selectCommonList(requestList) {
+            return $.ajax({
+                url: '/resume/selectCommonList',
+                type: 'GET',
+                data: { comCds: requestList },
+                traditional: true,
+                dataType: 'json',
+                success: function(data) {
+                    commonList = data;
+                    console.log("공통 코드 불러오기 성공", commonList);
+                },
+                error: function() {
+                    alert("공통 코드 불러오기 실패");
+                }
+            })
+        }
+
+        /* 2. 셀렉트박스 생성 함수 */
+        function createSelectOption(requestList, targetSelector) {
+            //const $select = $('#' + targetSelector);
+            const $select = $(targetSelector);
+            const common = commonList[requestList];
+
+            common.forEach(function(item) {
+                const option = `<option value="${item.dtlCd}">${item.dtlNm}</option>`;
+                $select.append(option);
+            })
+        }
+
+        /* 3. 셀렉트박스 옵션 선택 함수 */
+        function setSelected(targetSelector, value) {
+            if (value) {
+                $(targetSelector).val(value).trigger('change');
+            } else {
+                $(targetSelector).prop('selectedIndex', 0).trigger('change');
+            }
+        }
+
+        function checkUrlParams() {
             if (urlParams.size > 0) {
                 if (resumeId) {
                     saveOrUpdate = 'updateResume';
@@ -441,35 +497,6 @@
                     history.back();
                 }
             }
-        });
-
-        function loadCommon(comCd, targetSelector, value) {
-            $.ajax({
-                url: `/resume/${comCd}`,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    const $select = $(targetSelector);
-                    $select.empty(); // 기존 옵션 제거
-
-                    if (value) {
-                        data.forEach(function(item) {
-                            const selected = (value === item.dtlCd) ? 'selected' : '';
-                            const option = `<option value="${item.dtlCd}" ${selected}>${item.dtlNm}</option>`;
-                            $select.append(option);
-                        });
-                    } else {
-                        data.forEach(function(item, index) {
-                            const selected = (index === 0) ? 'selected' : '';
-                            const option = `<option value="${item.dtlCd}" ${selected}>${item.dtlNm}</option>`;
-                            $select.append(option);
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error(`${dtlCd} 코드를 불러오는데 실패했습니다:`, error);
-                }
-            });
         }
 
         function loadResumeDetail(resumeId) {
@@ -518,7 +545,8 @@
                         $('#edu-list').html(innerHTML);
 
                         data.educationList.forEach((edu, i) => {
-                            loadCommon('EDU_TYPE', `.schoolStatus_${i}`, edu.schoolStatus);
+                            createSelectOption('EDU_TYPE', `.schoolStatus_${i}`);
+                            setSelected(`.schoolStatus_${i}`, edu.schoolStatus);
                         })
                     }
 
@@ -788,9 +816,6 @@
 
                     <label class="form-label">졸업일자</label>
                     <div class="custom-input-group"><input type="date" id="schoolDate"></div>`;
-
-                    loadCommon("EDU_TYPE", ".schoolStatus");
-
             } else if (containerId == 'career-list') {
                 newEntry.innerHTML = `
                     <button class="delete-btn" onclick="this.parentElement.remove()"><i class="bi bi-trash3"></i></button>
@@ -884,6 +909,11 @@
                     </div>`;
             }
             container.appendChild(newEntry);
+
+            if (containerId == 'edu-list') {
+                createSelectOption('EDU_TYPE','.schoolStatus');
+                setSelected(`.schoolStatus`);
+            }
         }
 
         function confirmExit() {

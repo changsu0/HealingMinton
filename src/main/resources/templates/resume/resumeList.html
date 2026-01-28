@@ -163,7 +163,6 @@
     </style>
 </head>
 <div layout:fragment="content">
-
     <div class="content-body">
         <div class="container-fluid">
 
@@ -187,7 +186,7 @@
                                 <div class="col-md-3">
                                     <label class="form-label small">성별</label>
                                     <select id="searchGender" class="form-control form-control-sm">
-
+                                        <option value="">선택안함</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -203,13 +202,13 @@
                                 <div class="col-md-3">
                                     <label class="form-label small">병역</label>
                                     <select id="searchMilitary" class="form-control form-control-sm">
-
+                                        <option value="">선택안함</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">결혼</label>
                                     <select id="searchMarriage" class="form-control form-control-sm">
-
+                                        <option value="">선택안함</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -240,7 +239,7 @@
                                 <div class="col-md-3">
                                     <label class="form-label small">졸업여부</label>
                                     <select id="searchSchoolStatus" class="form-control form-control-sm">
-
+                                        <option value="">선택안함</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -383,38 +382,59 @@
             </div>
 
             <script>
+                const requestCommons = ['SEX_TYPE', 'MIL_TYPE', 'MAR_TYPE', 'EDU_TYPE']
+                let commonList = {};
 
-                $(document).ready(function() {
-                    loadCommon('SEX_TYPE', '#searchGender');
-                    loadCommon('MIL_TYPE', '#searchMilitary');
-                    loadCommon('MAR_TYPE', '#searchMarriage');
-                    loadCommon('EDU_TYPE', '#searchSchoolStatus');
-                    init();
+                /* 브라우저가 HTML 코드를 다 읽고 요소(<select id="gender"> 등...)들이 준비되면 실행 */
+                /* await를 사용할 수 있도록 async 명시 */
+                $(document).ready(async function () {
+                    try {
+                        await selectCommonList(requestCommons);
+                        /* 서버 응답이 도착해 commonList에 공통코드 정보가 도착할 때까지 대기 */
+                        createSelectOption('SEX_TYPE', '#searchGender');
+                        createSelectOption('MIL_TYPE', '#searchMilitary');
+                        createSelectOption('MAR_TYPE', '#searchMarriage');
+                        createSelectOption('EDU_TYPE', '#searchSchoolStatus');
+                        init();
+                        console.log("로딩 완료!")
+                    } catch (error) {
+                        console.error("초기 로딩 중 에러 발생:", error);
+                    }
+
                 });
+
+                /* 1. 공통 코드를 조회 > 전역변수에 저장 함수 */
+                function selectCommonList(requestList) {
+                    return $.ajax({
+                        url: '/resume/selectCommonList',
+                        type: 'GET',
+                        data: { comCds: requestList },
+                        traditional: true,
+                        dataType: 'json',
+                        success: function(data) {
+                            commonList = data;
+                            console.log("공통 코드 불러오기 성공", commonList);
+                        },
+                        error: function() {
+                            alert("공통 코드 불러오기 실패");
+                        }
+                    })
+                }
+
+                /* 2. 셀렉트박스 생성 함수 */
+                function createSelectOption(requestList, targetSelector) {
+                    //const $select = $('#' + targetSelector);
+                    const $select = $(targetSelector);
+                    const common = commonList[requestList];
+
+                    common.forEach(function(item) {
+                        const option = `<option value="${item.dtlCd}">${item.dtlNm}</option>`;
+                        $select.append(option);
+                    })
+                }
 
                 function init() {
                     selectGridList();
-                }
-
-                function loadCommon(comCd, targetSelector) {
-                    $.ajax({
-                        url: `/resume/${comCd}`,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            const $select = $(targetSelector);
-                            $select.empty(); // 기존 옵션 제거
-                            $select.append('<option value="" selected>선택 안함</option>');
-
-                            data.forEach(function(item) {
-                                const option = `<option value="${item.dtlCd}">${item.dtlNm}</option>`;
-                                $select.append(option);
-                            });
-                        },
-                        error: function(xhr, status, error) {
-                            console.error(`${dtlCd} 코드를 불러오는데 실패했습니다:`, error);
-                        }
-                    });
                 }
 
                 const selectGridList = function() {

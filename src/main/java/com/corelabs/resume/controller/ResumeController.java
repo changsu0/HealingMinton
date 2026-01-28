@@ -224,4 +224,12 @@ public class ResumeController {
         return commonList;
     }
 
+    @GetMapping("/selectCommonList")
+    @ResponseBody
+    public Map<String, List<CommonDetail>> selectCommonListAsync(@RequestParam(value = "comCds") List<String> comCds) {
+        System.out.println(comCds);
+        Map<String, List<CommonDetail>> commonList = resumeService.selectCommonListAsync(comCds);
+
+        return commonList;
+    }
 }
