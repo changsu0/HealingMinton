@@ -436,7 +436,7 @@
         $(document).ready(async function () {
             try {
                 await selectCommonList(requestCommons);
-                /* 서버 응답이 도착해 data에 공통코드 정보가 도착할 때까지 대기 */
+                /* 서버 응답이 도착해 commonList에 공통코드 정보가 도착할 때까지 대기 */
                 createSelectOption('SEX_TYPE', '#gender');
                 createSelectOption('MIL_TYPE', '#military');
                 createSelectOption('MAR_TYPE', '#marriage');
@@ -467,10 +467,10 @@
         }
 
         /* 2. 셀렉트박스 생성 함수 */
-        function createSelectOption(requestList, targetSelector) {
+        function createSelectOption(requestCommon, targetSelector) {
             //const $select = $('#' + targetSelector);
             const $select = $(targetSelector);
-            const common = commonList[requestList];
+            const common = commonList[requestCommon];
 
             common.forEach(function(item) {
                 const option = `<option value="${item.dtlCd}">${item.dtlNm}</option>`;
